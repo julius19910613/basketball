@@ -1,0 +1,65 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <!-- 头部用户信息 -->
+  <view class="header">
+    <image class="avatar" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+    <view class="user-info">
+      <text class="nickname">{{userInfo.nickName || '点击登录'}}</text>
+      <text class="tip" wx:if="{{!userInfo}}" bindtap="getUserInfo">点击获取用户信息</text>
+    </view>
+  </view>
+
+  <!-- 统计卡片 -->
+  <view class="stats">
+    <view class="stat-item">
+      <text class="stat-number">{{teamCount}}</text>
+      <text class="stat-label">我的球队</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-number">0</text>
+      <text class="stat-label">比赛记录</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-number">0</text>
+      <text class="stat-label">数据统计</text>
+    </view>
+  </view>
+
+  <!-- 快捷入口 -->
+  <view class="quick-actions">
+    <view class="action-item" bindtap="createTeam">
+      <view class="action-icon" style="background-color: #FF6B35;">
+        <text>+</text>
+      </view>
+      <text class="action-text">创建球队</text>
+    </view>
+    <view class="action-item" bindtap="joinTeam">
+      <view class="action-icon" style="background-color: #4CAF50;">
+        <text>🔍</text>
+      </view>
+      <text class="action-text">发现球队</text>
+    </view>
+    <view class="action-item" bindtap="viewStats">
+      <view class="action-icon" style="background-color: #2196F3;">
+        <text>📊</text>
+      </view>
+      <text class="action-text">数据统计</text>
+    </view>
+  </view>
+
+  <!-- 功能介绍 -->
+  <view class="features">
+    <text class="features-title">功能亮点</text>
+    <view class="feature-item">🏀 球队管理 - 创建球队、管理成员</view>
+    <view class="feature-item">📊 数据统计 - 个人和球队数据</view>
+    <view class="feature-item">🏆 比赛记录 - 实时记录比赛数据</view>
+    <view class="feature-item">💬 社交功能 - 发现球队、约球</view>
+  </view>
+
+  <!-- 页脚 -->
+  <view class="footer">
+    <cloudbase-badge show-text="{{true}}" />
+  </view>
+</view>

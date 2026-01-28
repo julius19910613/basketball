@@ -1,0 +1,179 @@
+/* pages/team-detail/team-detail.wxss */
+.container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding-bottom: 20rpx;
+}
+
+/* 加载中 */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 100rpx 0;
+  color: #999;
+}
+
+/* 球队信息 */
+.team-info {
+  background-color: #fff;
+  padding: 40rpx 30rpx;
+  margin-bottom: 20rpx;
+  display: flex;
+  align-items: center;
+}
+
+.team-logo {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  margin-right: 30rpx;
+  background-color: #f0f0f0;
+  border: 4rpx solid #fff;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.basic-info {
+  flex: 1;
+}
+
+.team-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.team-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  font-size: 26rpx;
+  color: #666;
+}
+
+.icon {
+  margin-right: 8rpx;
+  font-size: 28rpx;
+}
+
+.color-dot {
+  width: 24rpx;
+  height: 24rpx;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8rpx;
+  border: 1rpx solid #eee;
+}
+
+/* 成员列表 */
+.members-section {
+  background-color: #fff;
+  padding: 0 30rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #eee;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.manage-btn {
+  display: flex;
+  align-items: center;
+  color: #FF6B35;
+  font-size: 28rpx;
+}
+
+.btn-text {
+  margin-right: 4rpx;
+}
+
+.btn-icon {
+  font-size: 24rpx;
+}
+
+.members-list {
+  padding: 20rpx 0;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.member-item:last-child {
+  border-bottom: none;
+}
+
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin-right: 24rpx;
+  background-color: #f0f0f0;
+}
+
+.member-info {
+  flex: 1;
+}
+
+.nickname {
+  font-size: 30rpx;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.role-tag {
+  display: inline-block;
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+  font-size: 20rpx;
+}
+
+.role-tag.captain {
+  background-color: #FF6B35;
+  color: #fff;
+}
+
+.role-tag.vice {
+  background-color: #4CAF50;
+  color: #fff;
+}
+
+.role-tag.member {
+  background-color: #E0E0E0;
+  color: #999;
+}
+
+.number {
+  padding: 8rpx 20rpx;
+  background-color: #FF6B35;
+  color: #fff;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+}
+
+/* 空状态 */
+.empty-members {
+  text-align: center;
+  padding: 100rpx 0;
+  color: #999;
+  font-size: 28rpx;
+}
