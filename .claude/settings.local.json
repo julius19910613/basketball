@@ -10,7 +10,8 @@
       "mcp__cloudbase__getFunctionList",
       "mcp__cloudbase__writeSecurityRule",
       "mcp__cloudbase__readSecurityRule",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
