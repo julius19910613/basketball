@@ -1,0 +1,263 @@
+/* ~/projects/basketball/miniprogram/pages/profile/profile.wxss */
+@import "/app.wxss"; /* 引入全局样式，获取项目基础设置 */
+
+/* 字体导入 - 假设在app.wxss中已定义，这里用于明确 */
+/* body {
+  font-family: 'DM Serif Display', serif;
+}
+h1, h2, h3, .title {
+  font-family: 'Space Mono', monospace;
+} */
+
+.container {
+  min-height: 100vh;
+  background-color: #2C3E50; /* 深灰蓝背景 */
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 60rpx; /* 底部留白 */
+}
+
+/* 对角线视觉元素 - 装饰性背景 */
+.diagonal-bg {
+  position: absolute;
+  top: -10vh; /* 向上移动一点，制造视觉冲击 */
+  left: -20vw; /* 向左移动一点 */
+  width: 120vw;
+  height: 80vh;
+  background: linear-gradient(135deg, #FF6B35 0%, #00FFFF 100%); /* 橙色到电光蓝的对角线渐变 */
+  transform: rotate(-15deg); /* 倾斜角度，营造动态感 */
+  opacity: 0.2;
+  z-index: 0;
+  border-radius: 40rpx; /* 边缘圆角 */
+  box-shadow: 0 0 50rpx rgba(0, 255, 255, 0.4); /* 电光蓝发光效果 */
+}
+
+.header-section {
+  position: relative;
+  z-index: 1;
+  padding: 80rpx 40rpx 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.avatar {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 50%;
+  border: 4rpx solid #00FFFF; /* 电光蓝边框 */
+  box-shadow: 0 0 20rpx rgba(0, 255, 255, 0.6);
+  transition: transform 0.3s ease-in-out;
+}
+.avatar:active {
+  transform: scale(1.05);
+}
+
+.nickname {
+  font-family: 'Space Mono', monospace; /* 标题字体 */
+  font-size: 48rpx;
+  color: #F5F5DC; /* 亮米白文字 */
+  margin-top: 20rpx;
+  font-weight: bold;
+  letter-spacing: 2rpx;
+  text-shadow: 2rpx 2rpx 5rpx rgba(0, 0, 0, 0.4);
+}
+
+/* 头像按钮样式 */
+.avatar-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+.avatar-btn::after {
+  border: none;
+}
+.avatar-edit-hint {
+  font-size: 22rpx;
+  color: rgba(0, 255, 255, 0.8);
+  margin-top: 10rpx;
+  letter-spacing: 1rpx;
+}
+
+/* 昵称输入框 */
+.nickname-input {
+  font-family: 'Space Mono', monospace;
+  font-size: 42rpx;
+  color: #F5F5DC;
+  margin-top: 20rpx;
+  font-weight: bold;
+  letter-spacing: 2rpx;
+  text-align: center;
+  background: transparent;
+  border: none;
+  border-bottom: 2rpx solid rgba(0, 255, 255, 0.5);
+  padding: 10rpx 20rpx;
+  width: 80%;
+}
+.nickname-input::placeholder {
+  color: rgba(245, 245, 220, 0.5);
+}
+
+.player-card-entry {
+  display: flex;
+  align-items: center;
+  margin-top: 20rpx;
+  padding: 10rpx 20rpx;
+  background-color: rgba(255, 107, 53, 0.2); /* 橙色半透明背景 */
+  border-radius: 16rpx;
+  border: 1rpx solid #FF6B35;
+  color: #F5F5DC;
+  font-size: 28rpx;
+  font-family: 'DM Serif Display', serif; /* 正文字体 */
+  text-shadow: 1rpx 1rpx 2rpx rgba(0, 0, 0, 0.2);
+}
+.player-card-entry .icon {
+  margin-left: 10rpx;
+  color: #00FF00; /* 荧光绿图标 */
+}
+
+/* 个人资料编辑表单 */
+.profile-form {
+  position: relative;
+  z-index: 1;
+  margin: 40rpx;
+  padding: 50rpx 30rpx;
+  background-color: rgba(245, 245, 220, 0.08); /* 半透明亮米白，营造质感 */
+  border-radius: 20rpx;
+  border: 1rpx solid rgba(255, 107, 53, 0.3); /* 橙色边框 */
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.3);
+  transform: rotate(3deg); /* 轻微倾斜，打破常规 */
+  transform-origin: top left;
+}
+
+.profile-form::before {
+  content: '';
+  position: absolute;
+  top: -15rpx;
+  left: -15rpx;
+  right: -15rpx;
+  bottom: -15rpx;
+  border: 2rpx dashed #00FFFF; /* 虚线边框，增强复古科技感 */
+  border-radius: 24rpx;
+  z-index: -1;
+  opacity: 0.3;
+}
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 30rpx;
+  padding: 20rpx;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12rpx;
+  border-left: 4rpx solid #FF6B35; /* 左侧橙色粗边 */
+  box-shadow: inset 0 0 10rpx rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+.form-item:focus-within {
+  border-left-color: #00FFFF; /* 聚焦时变为电光蓝 */
+  box-shadow: 0 0 15rpx rgba(0, 255, 255, 0.3);
+}
+
+.label {
+  font-family: 'Space Mono', monospace; /* 标题字体 */
+  font-size: 28rpx;
+  color: #F5F5DC;
+  margin-bottom: 15rpx;
+  letter-spacing: 1rpx;
+}
+
+input, .picker {
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1rpx solid rgba(0, 255, 255, 0.3); /* 电光蓝边框 */
+  border-radius: 8rpx;
+  padding: 18rpx 20rpx;
+  color: #00FF00; /* 荧光绿文字 */
+  font-family: 'DM Serif Display', serif; /* 正文字体 */
+  font-size: 32rpx;
+  box-shadow: inset 0 0 8rpx rgba(0, 255, 255, 0.1);
+  transition: all 0.2s ease;
+}
+input::placeholder {
+  color: rgba(0, 255, 0, 0.5);
+}
+input:focus {
+  border-color: #00FFFF;
+  box-shadow: inset 0 0 10rpx rgba(0, 255, 255, 0.3);
+}
+
+.picker {
+  height: 72rpx; /* 与input保持一致 */
+  line-height: 72rpx;
+  display: flex;
+  align-items: center;
+}
+
+.button-group {
+  margin-top: 50rpx;
+  display: flex;
+  justify-content: center;
+}
+
+.submit-button {
+  background: linear-gradient(45deg, #FF6B35 0%, #F7931E 100%); /* 橙色渐变按钮 */
+  color: #F5F5DC;
+  font-family: 'Space Mono', monospace; /* 标题字体 */
+  font-size: 36rpx;
+  font-weight: bold;
+  padding: 25rpx 60rpx;
+  border-radius: 16rpx;
+  border: none;
+  box-shadow: 0 8rpx 20rpx rgba(255, 107, 53, 0.4);
+  transition: all 0.3s ease;
+  transform: skewX(-5deg); /* 轻微倾斜，增加动感 */
+}
+.submit-button::after {
+  border: none; /* 移除小程序button默认边框 */
+}
+.submit-button:active {
+  transform: skewX(-5deg) scale(0.98);
+  box-shadow: 0 4rpx 10rpx rgba(255, 107, 53, 0.6);
+  opacity: 0.9;
+}
+
+/* 引入 FontAwesome 图标（需要确保全局或此页面引入了 FontAwesome CSS） */
+/* 假设在 app.wxss 或通过 CDN 引入 */
+/* .fa {
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+} */
+
+/* 特定表单项的布局调整，实现非对称感 */
+.form-item-height {
+  margin-left: 20rpx; /* 稍微右移 */
+  width: 90%; /* 宽度调整 */
+  transform: rotate(-1deg); /* 轻微旋转 */
+  transform-origin: center right;
+}
+.form-item-weight {
+  margin-top: -10rpx; /* 稍微上移，与上一个元素重叠 */
+  margin-right: 30rpx; /* 稍微左移 */
+  width: 85%;
+  transform: rotate(2deg); /* 轻微旋转 */
+  transform-origin: center left;
+}
+.form-item-position {
+  margin-left: 40rpx;
+  width: 92%;
+  transform: rotate(-0.5deg);
+  transform-origin: center center;
+}
+.form-item-skills {
+  margin-top: -5rpx;
+  margin-right: 10rpx;
+  width: 88%;
+  transform: rotate(1.5deg);
+  transform-origin: center right;
+}

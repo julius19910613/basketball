@@ -1,0 +1,58 @@
+<!-- ~/projects/basketball/miniprogram/pages/profile/profile.wxml -->
+<view class="container">
+  <!-- 对角线视觉元素 - 装饰性背景 -->
+  <view class="diagonal-bg"></view>
+
+  <!-- 用户信息头部区域 -->
+  <view class="header-section">
+    <!-- 头像 - 点击选择 -->
+    <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+      <image class="avatar" src="{{userProfile.avatarUrl || '/images/default_avatar.png'}}" mode="aspectFill"></image>
+      <view class="avatar-edit-hint">点击更换</view>
+    </button>
+    <!-- 昵称 - 使用 input 的 type="nickname" -->
+    <input class="nickname-input" type="nickname" placeholder="请输入昵称" value="{{userProfile.nickName}}" bindblur="onNicknameChange" />
+    <!-- 球员卡入口 -->
+    <view class="player-card-entry" bindtap="goToPlayerCard">
+      <text>查看球员卡</text>
+      <text class="fa fa-angle-right icon"></text>
+    </view>
+  </view>
+
+  <!-- 球员卡组件 -->
+  <player-card userProfile="{{userProfile}}"></player-card>
+
+  <!-- 个人资料编辑表单 - 非对称布局 -->
+  <form bindsubmit="formSubmit" class="profile-form">
+    <!-- 身高输入 -->
+    <view class="form-item form-item-height">
+      <text class="label">身高 (cm)</text>
+      <input name="height" type="number" value="{{userProfile.height}}" placeholder="请输入身高" />
+    </view>
+
+    <!-- 体重输入 -->
+    <view class="form-item form-item-weight">
+      <text class="label">体重 (kg)</text>
+      <input name="weight" type="number" value="{{userProfile.weight}}" placeholder="请输入体重" />
+    </view>
+
+    <!-- 位置选择器 -->
+    <view class="form-item form-item-position">
+      <text class="label">场上位置</text>
+      <picker bindchange="bindPositionChange" value="{{positionIndex}}" range="{{positions}}">
+        <view class="picker">{{positions[positionIndex] || '请选择位置'}}</view>
+      </picker>
+    </view>
+
+    <!-- 擅长技能输入 -->
+    <view class="form-item form-item-skills">
+      <text class="label">擅长技能</text>
+      <input name="skills" type="text" value="{{userProfile.skills.join('，')}}" placeholder="例如：投篮，突破" />
+    </view>
+
+    <!-- 提交按钮 -->
+    <view class="button-group">
+      <button class="submit-button" formType="submit">保存</button>
+    </view>
+  </form>
+</view>

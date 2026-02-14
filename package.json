@@ -1,0 +1,19 @@
+{
+  "name": "basketball-miniprogram",
+  "version": "1.0.0",
+  "description": "篮球管理小程序",
+  "main": "miniprogram/app.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "fanchen",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.0",
+    "jest": "^26.6.3",
+    "miniprogram-simulate": "^1.0.0",
+    "miniprogram-test": "^2.0.0"
+  }
+}

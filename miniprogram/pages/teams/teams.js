@@ -8,85 +8,85 @@ Page({
     openid: ''
   },
 
-  onLoad: function(options) {
+  onLoad: function (options) {
     this.getOpenId()
   },
 
-  onShow: function() {
+  onShow: function () {
     // 页面显示时刷新列表
     if (this.data.openid) {
       this.loadTeams()
     }
   },
 
-  // 获取用户 openid
-  getOpenId: function() {
-    wx.cloud.callFunction({
-      name: 'getOpenId'
-    }).then(res => {
-      this.setData({
-        openid: res.result.openid
-      })
-      this.loadTeams()
-    }).catch(err => {
-      console.error('获取 openid 失败', err)
-      wx.showToast({
-        title: '获取用户信息失败',
-        icon: 'none'
-      })
+  onPullDownRefresh: function () {
+    this.loadTeams().then(() => {
+      wx.stopPullDownRefresh()
     })
   },
 
-  // 加载球队列表
-  loadTeams: function() {
-    this.setData({ loading: true })
-
-    // 查询用户是队长的球队
-    db.collection('team_members').where({
-      openid: this.data.openid,
-      role: db.command.in(['captain', 'vice-captain', 'member'])
-    }).get().then(membersRes => {
-      const teamIds = membersRes.data.map(item => item.team_id)
-      
-      if (teamIds.length === 0) {
-        this.setData({ teamList: [], loading: false })
+  // 获取用户 openid
+  getOpenId: async function () {
+    try {
+      const app = getApp()
+      if (app.globalData.openid) {
+        this.setData({ openid: app.globalData.openid })
+        this.loadTeams()
         return
       }
 
-      // 查询球队详情
-      db.collection('teams').where({
-        _id: db.command.in(teamIds)
-      }).get().then(teamsRes => {
-        const teamList = teamsRes.data.map(team => {
-          const member = membersRes.data.find(m => m.team_id === team._id)
-          return {
-            ...team,
-            myRole: member ? member.role : 'member'
-          }
-        })
-        this.setData({ teamList, loading: false })
-      }).catch(err => {
-        console.error('获取球队详情失败', err)
-        this.setData({ loading: false })
+      const res = await wx.cloud.callFunction({ name: 'getOpenId' })
+      this.setData({ openid: res.result.openid })
+      this.loadTeams()
+    } catch (err) {
+      console.error('获取 openid 失败', err)
+      wx.showToast({ title: '获取用户信息失败', icon: 'none' })
+    }
+  },
+
+  // 加载球队列表 - 使用新的 schema (members 数组嵌入 teams 集合)
+  loadTeams: async function () {
+    this.setData({ loading: true })
+
+    try {
+      const _ = db.command
+      // 查询用户所在的球队 (作为队长或成员)
+      const res = await db.collection('teams').where(
+        _.or([
+          { captainId: this.data.openid },
+          { 'members.userId': this.data.openid }
+        ])
+      ).orderBy('createdAt', 'desc').get()
+
+      const teamList = res.data.map(team => {
+        // 确定用户在该球队的角色
+        let myRole = 'member'
+        if (team.captainId === this.data.openid) {
+          myRole = 'captain'
+        } else {
+          const member = team.members?.find(m => m.userId === this.data.openid)
+          if (member) myRole = member.role || 'member'
+        }
+        return { ...team, myRole }
       })
-    }).catch(err => {
+
+      this.setData({ teamList, loading: false })
+    } catch (err) {
       console.error('获取球队列表失败', err)
       this.setData({ loading: false })
-    })
+      wx.showToast({ title: '加载失败', icon: 'none' })
+    }
   },
 
   // 跳转到创建球队页面
-  createTeam: function() {
-    wx.navigateTo({
-      url: '/pages/create-team/create-team'
-    })
+  createTeam: function () {
+    wx.navigateTo({ url: '/pages/create-team/create-team' })
   },
 
   // 跳转到球队详情
-  goToTeamDetail: function(e) {
+  goToTeamDetail: function (e) {
     const teamId = e.currentTarget.dataset.id
-    wx.navigateTo({
-      url: `/pages/team-detail/team-detail?id=${teamId}`
-    })
+    wx.navigateTo({ url: `/pages/team-detail/team-detail?id=${teamId}` })
   }
 })
+

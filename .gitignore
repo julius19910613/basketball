@@ -1,28 +1,34 @@
-# 微信开发者工具
-project.private.config.json
-miniprogram/dist/
-miniprogram/miniprogram_npm/
+# System Files
+.DS_Store
+Thumbs.db
 
-# 云函数依赖
-cloudfunctions/**/node_modules/
-cloudfunctions/**/package-lock.json
-
-# 日志
+# Node.js
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# 编辑器
+# WeChat Mini Program
+project.private.config.json
+miniprogram/miniprogram_npm/
+miniprogram/dist/
+
+# Cloud Functions
+cloudfunctions/**/node_modules/
+cloudfunctions/**/test/
+cloudfunctions/**/package-lock.json
+
+# Editors
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# 系统文件
-.DS_Store
-Thumbs.db
-
-# 临时文件
+# Temporary Files
 *.tmp
 *.temp
+*.log
+
+# Disabled Test Files
+**/*.test.js.disabled

@@ -2,9 +2,13 @@
   "pages": [
     "pages/index/index",
     "pages/teams/teams",
+    "pages/match/match-list/match-list",
+    "pages/discovery/discovery",
+    "pages/profile/profile",
     "pages/create-team/create-team",
     "pages/team-detail/team-detail",
-    "pages/member-manage/member-manage"
+    "pages/member-manage/member-manage",
+    "pages/match/create-match/create-match"
   ],
   "tabBar": {
     "color": "#8E8E93",
@@ -23,6 +27,24 @@
         "text": "球队",
         "iconPath": "images/tabbar/team.png",
         "selectedIconPath": "images/tabbar/team-active.png"
+      },
+      {
+        "pagePath": "pages/match/match-list/match-list",
+        "text": "比赛",
+        "iconPath": "images/tabbar/match.png",
+        "selectedIconPath": "images/tabbar/match-active.png"
+      },
+      {
+        "pagePath": "pages/discovery/discovery",
+        "text": "发现",
+        "iconPath": "images/tabbar/discover.png",
+        "selectedIconPath": "images/tabbar/discover-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "images/tabbar/profile.png",
+        "selectedIconPath": "images/tabbar/profile-active.png"
       }
     ]
   },
@@ -35,4 +57,4 @@
   "style": "v2",
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents"
-} 
+}

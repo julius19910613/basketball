@@ -1,0 +1,64 @@
+<!--pages/match/create-match/create-match.wxml-->
+<view class="container">
+  <!-- 比赛类型 -->
+  <view class="form-section">
+    <text class="section-title">比赛类型</text>
+    <view class="type-selector">
+      <view class="type-option {{matchType === 'Friendly' ? 'active' : ''}}" bindtap="selectType" data-type="Friendly">
+        友谊赛
+      </view>
+      <view class="type-option {{matchType === 'League' ? 'active' : ''}}" bindtap="selectType" data-type="League">
+        联赛
+      </view>
+    </view>
+  </view>
+
+  <!-- 参赛球队 -->
+  <view class="form-section">
+    <text class="section-title">参赛球队</text>
+    <view class="form-item">
+      <text class="form-label">主队</text>
+      <view class="team-selector" bindtap="selectHomeTeam">
+        <image class="team-logo" wx:if="{{homeTeam}}" src="{{homeTeam.logo || '/images/default-team.png'}}" mode="aspectFill"></image>
+        <text class="team-name {{homeTeam ? '' : 'team-placeholder'}}">{{homeTeam.name || '选择主队'}}</text>
+        <text class="team-arrow">></text>
+      </view>
+    </view>
+    <view class="form-item">
+      <text class="form-label">客队</text>
+      <view class="team-selector" bindtap="selectAwayTeam">
+        <image class="team-logo" wx:if="{{awayTeam}}" src="{{awayTeam.logo || '/images/default-team.png'}}" mode="aspectFill"></image>
+        <text class="team-name {{awayTeam ? '' : 'team-placeholder'}}">{{awayTeam.name || '选择客队（可选）'}}</text>
+        <text class="team-arrow">></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 比赛时间地点 -->
+  <view class="form-section">
+    <text class="section-title">时间与地点</text>
+    <view class="form-item">
+      <text class="form-label">比赛时间</text>
+      <picker mode="date" bindchange="onDateChange" value="{{matchDate}}">
+        <view class="form-picker {{matchDate ? '' : 'placeholder'}}">{{matchDate || '选择日期'}}</view>
+      </picker>
+    </view>
+    <view class="form-item">
+      <picker mode="time" bindchange="onTimeChange" value="{{matchTime}}">
+        <view class="form-picker {{matchTime ? '' : 'placeholder'}}">{{matchTime || '选择时间'}}</view>
+      </picker>
+    </view>
+    <view class="form-item">
+      <text class="form-label">比赛地点</text>
+      <view class="location-input">
+        <text class="location-icon">📍</text>
+        <input class="form-input" placeholder="输入比赛场地名称" value="{{locationName}}" bindinput="onLocationInput" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-section">
+    <button class="submit-btn" bindtap="createMatch" disabled="{{!canSubmit}}">创建比赛</button>
+  </view>
+</view>

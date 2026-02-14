@@ -80,7 +80,8 @@
 
 #### 方式二：通过 CloudBase 控制台
 
-1. 访问 [腾讯云 CloudBase 控制台](https://console.cloud.tencent.com/tcb)
+1. 访问 [腾讯云 CloudBase 控制台](https
+://console.cloud.tencent.com/tcb)
 2. 创建新的云开发环境
 3. 选择"按量计费"或"包年包月"
 4. 复制环境 ID

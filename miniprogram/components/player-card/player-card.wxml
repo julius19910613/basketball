@@ -1,0 +1,52 @@
+<!-- ~/projects/basketball/miniprogram/components/player-card/player-card.wxml -->
+<view class="player-card">
+  <!-- 对角线视觉元素 - 装饰性背景 -->
+  <view class="card-diagonal-bg"></view>
+
+  <!-- 卡片头部：头像和昵称 -->
+  <view class="card-header">
+    <image class="card-avatar" src="{{userProfile.avatarUrl || '/images/default_avatar.png'}}" mode="aspectFill"></image>
+    <view class="nickname-section">
+      <text class="card-nickname">{{userProfile.nickName || '匿名球员'}}</text>
+      <text class="card-position">{{userProfile.position || '无位置信息'}}</text>
+    </view>
+  </view>
+
+  <!-- 数据区域 -->
+  <view class="card-data-section">
+    <view class="data-item">
+      <text class="data-value">{{userProfile.height || '--'}}</text>
+      <text class="data-label">身高(cm)</text>
+    </view>
+    <view class="data-item">
+      <text class="data-value">{{userProfile.weight || '--'}}</text>
+      <text class="data-label">体重(kg)</text>
+    </view>
+    <view class="data-item full-width">
+      <text class="data-value skills-text">{{userProfile.skills.length > 0 ? userProfile.skills.join(' / ') : '暂无技能'}}</text>
+      <text class="data-label">擅长技能</text>
+    </view>
+  </view>
+
+  <!-- 额外的统计数据区域 (TODO: 后续扩展) -->
+  <view class="card-stats-section">
+    <text class="stats-title">近期表现</text>
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-value">--</text>
+        <text class="stat-label">场均得分</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">--</text>
+        <text class="stat-label">场均篮板</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">--</text>
+        <text class="stat-label">场均助攻</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 卡片底部装饰 -->
+  <view class="card-footer"></view>
+</view>

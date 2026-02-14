@@ -1,6 +1,22 @@
 {
-    "enabledMcpjsonServers": [
-        "cloudbase"
-    ],
-    "enableAllProjectMcpServers": true
+  "permissions": {
+    "allow": [
+      "mcp__cloudbase__envQuery",
+      "mcp__cloudbase__login",
+      "Bash(npm test)",
+      "Bash(npm test:*)",
+      "mcp__cloudbase__executeReadOnlySQL",
+      "mcp__cloudbase__readNoSqlDatabaseStructure",
+      "mcp__cloudbase__getFunctionList",
+      "mcp__cloudbase__writeSecurityRule",
+      "mcp__cloudbase__readSecurityRule",
+      "Bash(git add:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "cloudbase"
+  ],
+  "ANTHROPIC_API_KEY": "sk-e63d252497054b918a8e6604fac4c94e",
+  "ANTHROPIC_BASE_URL": "http://127.0.0.1:8045"
 }

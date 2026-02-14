@@ -13,12 +13,12 @@ Page({
     uploading: false
   },
 
-  onLoad: function(options) {
+  onLoad: function (options) {
     this.getOpenId()
   },
 
   // 获取用户 openid
-  getOpenId: function() {
+  getOpenId: function () {
     wx.cloud.callFunction({
       name: 'getOpenId'
     }).then(res => {
@@ -35,21 +35,21 @@ Page({
   },
 
   // 输入队名
-  inputName: function(e) {
+  inputName: function (e) {
     this.setData({
       'formData.name': e.detail.value
     })
   },
 
   // 输入地区
-  inputRegion: function(e) {
+  inputRegion: function (e) {
     this.setData({
       'formData.region': e.detail.value
     })
   },
 
   // 选择队服颜色
-  chooseColor: function(e) {
+  chooseColor: function (e) {
     const colors = ['#FF6B35', '#4CAF50', '#2196F3', '#FFC107', '#9C27B0', '#E91E63', '#607D8B', '#795548']
     wx.showActionSheet({
       itemList: ['橙色', '绿色', '蓝色', '黄色', '紫色', '粉色', '灰色', '棕色'],
@@ -62,13 +62,13 @@ Page({
   },
 
   // 选择队徽
-  chooseLogo: function() {
+  chooseLogo: function () {
     const that = this
     wx.chooseImage({
       count: 1,
       sizeType: ['compressed'],
       sourceType: ['album', 'camera'],
-      success: function(res) {
+      success: function (res) {
         that.setData({ uploading: true })
         const filePath = res.tempFilePaths[0]
         const cloudPath = `team-logos/${Date.now()}.jpg`
@@ -100,75 +100,56 @@ Page({
   },
 
   // 提交创建
-  submit: function() {
-    const { name, region } = this.data.formData
+  submit: async function () {
+    const { name, region, color, logo } = this.data.formData
 
     if (!name) {
-      wx.showToast({
-        title: '请输入队名',
-        icon: 'none'
-      })
+      wx.showToast({ title: '请输入队名', icon: 'none' })
       return
     }
 
     if (!region) {
-      wx.showToast({
-        title: '请输入地区',
-        icon: 'none'
-      })
+      wx.showToast({ title: '请输入地区', icon: 'none' })
       return
     }
 
     if (!this.data.openid) {
-      wx.showToast({
-        title: '获取用户信息中，请稍候',
-        icon: 'none'
-      })
+      wx.showToast({ title: '获取用户信息中，请稍候', icon: 'none' })
       return
     }
 
-    wx.showLoading({
-      title: '创建中...'
-    })
+    wx.showLoading({ title: '创建中...' })
 
-    // 创建球队
-    db.collection('teams').add({
-      data: {
-        name: this.data.formData.name,
-        region: this.data.formData.region,
-        color: this.data.formData.color,
-        logo: this.data.formData.logo,
-        create_time: db.serverDate(),
-        create_by: this.data.openid
-      }
-    }).then(res => {
-      const teamId = res._id
-
-      // 将创建者添加为队长
-      return db.collection('team_members').add({
+    try {
+      // 创建球队 - 使用新的 schema，队长信息直接嵌入
+      await db.collection('teams').add({
         data: {
-          team_id: teamId,
-          openid: this.data.openid,
-          role: 'captain',
-          join_time: db.serverDate()
+          name: name,
+          description: '',
+          region: region,
+          color: color,
+          logo: logo,
+          captainId: this.data.openid,
+          members: [{
+            userId: this.data.openid,
+            role: 'captain',
+            number: null,
+            joinedAt: db.serverDate()
+          }],
+          createdAt: db.serverDate()
         }
       })
-    }).then(() => {
+
       wx.hideLoading()
-      wx.showToast({
-        title: '创建成功',
-        icon: 'success'
-      })
+      wx.showToast({ title: '创建成功', icon: 'success' })
       setTimeout(() => {
         wx.navigateBack()
       }, 1500)
-    }).catch(err => {
+    } catch (err) {
       console.error('创建球队失败', err)
       wx.hideLoading()
-      wx.showToast({
-        title: '创建失败，请重试',
-        icon: 'none'
-      })
-    })
+      wx.showToast({ title: '创建失败，请重试', icon: 'none' })
+    }
   }
 })
+

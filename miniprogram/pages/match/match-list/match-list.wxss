@@ -1,0 +1,179 @@
+/* pages/match/match-list/match-list.wxss */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 30rpx;
+}
+
+/* Header Tabs */
+.tabs {
+  display: flex;
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 8rpx;
+  margin-bottom: 30rpx;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+  color: #666;
+  border-radius: 12rpx;
+  transition: all 0.3s;
+}
+
+.tab-item.active {
+  background-color: #FF6B35;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* Match List */
+.match-list {
+  flex: 1;
+}
+
+.match-card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.match-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.match-type {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.match-status {
+  font-size: 22rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.match-status.scheduled {
+  background-color: #E3F2FD;
+  color: #1976D2;
+}
+
+.match-status.ongoing {
+  background-color: #FFF3E0;
+  color: #F57C00;
+}
+
+.match-status.finished {
+  background-color: #E8F5E9;
+  color: #388E3C;
+}
+
+.match-teams {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+}
+
+.team-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 200rpx;
+}
+
+.team-logo {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background-color: #eee;
+  margin-bottom: 10rpx;
+}
+
+.team-name {
+  font-size: 28rpx;
+  color: #333;
+  text-align: center;
+}
+
+.vs-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.vs-text {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #FF6B35;
+}
+
+.match-score {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.match-footer {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #eee;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.match-time, .match-location {
+  display: flex;
+  align-items: center;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* FAB Button */
+.fab-button {
+  position: fixed;
+  right: 40rpx;
+  bottom: 120rpx;
+  width: 100rpx;
+  height: 100rpx;
+  background: linear-gradient(135deg, #FF6B35 0%, #FF8F65 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(255, 107, 53, 0.4);
+}
+
+.fab-icon {
+  font-size: 48rpx;
+  color: #fff;
+}
