@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "随机分组",
+  "usingComponents": {
+    "skeleton": "/components/skeleton/skeleton",
+    "group-animation": "/components/group-animation/group-animation"
+  }
+}

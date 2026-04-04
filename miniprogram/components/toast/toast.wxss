@@ -1,0 +1,52 @@
+/* components/toast/toast.wxss */
+
+.toast-container {
+  position: fixed;
+  top: 100rpx;
+  left: 50%;
+  transform: translateX(-50%) translateY(-40rpx);
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 24rpx 40rpx;
+  border-radius: 40rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  opacity: 0;
+  transition: all 300ms ease-out;
+  z-index: 9999;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.3);
+}
+
+.toast-container.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast-container.success {
+  background: rgba(82, 196, 26, 0.95);
+}
+
+.toast-container.error {
+  background: rgba(255, 77, 79, 0.95);
+  animation: shake 0.5s ease-in-out;
+}
+
+.toast-container.warning {
+  background: rgba(250, 140, 22, 0.95);
+}
+
+.toast-icon {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.toast-message {
+  font-size: 28rpx;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(-50%) translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-50%) translateX(-10rpx); }
+  20%, 40%, 60%, 80% { transform: translateX(-50%) translateX(10rpx); }
+}

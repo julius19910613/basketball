@@ -1,0 +1,46 @@
+<view class="container">
+  <!-- Overall 显示 -->
+  <view class="overall-card" style="background: linear-gradient(135deg, {{positionInfo.color}}22, {{positionInfo.color}}11);">
+    <view class="overall-header">
+      <text class="overall-num" style="color: {{positionInfo.color}}">{{overall}}</text>
+      <text class="overall-label">OVERALL</text>
+    </view>
+    <view class="position-badge" style="background: {{positionInfo.color}}">
+      <text class="position-icon">{{positionInfo.icon}}</text>
+      <text class="position-name">{{positionInfo.name}}</text>
+    </view>
+  </view>
+
+  <!-- 基本信息 -->
+  <view class="form-section">
+    <view class="section-title">基本信息</view>
+    
+    <view class="form-item">
+      <view class="item-label">球员姓名</view>
+      <input class="item-input" placeholder="请输入球员姓名" value="{{name}}" bindinput="onNameInput" />
+    </view>
+
+    <view class="form-item">
+      <view class="item-label">场上位置</view>
+      <picker mode="selector" range="{{positionDisplayNames}}" value="{{positionIndex}}" bindchange="onPositionChange">
+        <view class="item-picker">
+          <text>{{positionDisplayNames[positionIndex]}}</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 技能评分 -->
+  <view class="form-section">
+    <view class="section-title">能力值设定 (1-99)</view>
+    <skill-input skills="{{skills}}" bind:change="onSkillsChange" />
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="footer-bar">
+    <button class="submit-btn" loading="{{submitting}}" disabled="{{submitting || !name}}" bindtap="onSubmit">
+      保存球员
+    </button>
+  </view>
+</view>

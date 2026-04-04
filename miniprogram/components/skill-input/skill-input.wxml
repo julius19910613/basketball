@@ -1,0 +1,28 @@
+<view class="skill-input-container">
+  <block wx:for="{{skillGroups}}" wx:key="title" wx:for-item="group">
+    <view class="skill-group">
+      <view class="group-title">{{group.title}}</view>
+      <view class="group-content">
+        <view class="skill-item" wx:for="{{group.items}}" wx:key="key">
+          <view class="skill-info">
+            <text class="skill-label">{{item.label}}</text>
+            <text class="skill-value">{{currentSkills[item.key]}}</text>
+          </view>
+          <slider 
+            class="skill-slider"
+            min="1" 
+            max="99" 
+            step="1" 
+            value="{{currentSkills[item.key]}}" 
+            activeColor="#FF6B35"
+            backgroundColor="#e0e0e0"
+            block-size="20"
+            data-key="{{item.key}}"
+            bindchange="onSkillChange"
+            bindchanging="onSkillChange"
+          />
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

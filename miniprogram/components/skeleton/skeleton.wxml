@@ -1,0 +1,82 @@
+<!--components/skeleton/skeleton.wxml-->
+<view class="skeleton-container {{theme}}">
+  <!-- 头部骨架（队徽 + 标题） -->
+  <view class="skeleton-header" wx:if="{{showHeader}}">
+    <view class="skeleton-avatar skeleton-shimmer"></view>
+    <view class="skeleton-title-group">
+      <view class="skeleton-title skeleton-shimmer"></view>
+      <view class="skeleton-subtitle skeleton-shimmer"></view>
+    </view>
+  </view>
+
+  <!-- 统计卡片骨架 -->
+  <view class="skeleton-stats" wx:if="{{showStats}}">
+    <view class="skeleton-stats-header skeleton-shimmer"></view>
+    <view class="skeleton-stats-dots">
+      <view class="skeleton-dot-group" wx:for="{{[1,2,3,4]}}" wx:key="index">
+        <view class="skeleton-dot skeleton-shimmer"></view>
+        <view class="skeleton-dot-label skeleton-shimmer"></view>
+      </view>
+    </view>
+    <view class="skeleton-stats-footer skeleton-shimmer"></view>
+  </view>
+
+  <!-- 快捷操作骨架 -->
+  <view class="skeleton-actions" wx:if="{{showActions}}">
+    <view class="skeleton-action-item" wx:for="{{actionCount || 2}}" wx:key="index">
+      <view class="skeleton-action-icon skeleton-shimmer"></view>
+      <view class="skeleton-action-content">
+        <view class="skeleton-action-title skeleton-shimmer"></view>
+        <view class="skeleton-action-desc skeleton-shimmer"></view>
+      </view>
+      <view class="skeleton-action-arrow skeleton-shimmer"></view>
+    </view>
+  </view>
+
+  <!-- 列表骨架 -->
+  <view class="skeleton-list" wx:if="{{showList}}">
+    <view class="skeleton-list-header skeleton-shimmer" wx:if="{{listTitle}}"></view>
+    <view class="skeleton-list-items">
+      <view class="skeleton-list-item" wx:for="{{listCount}}" wx:key="index">
+        <view class="skeleton-item-avatar skeleton-shimmer"></view>
+        <view class="skeleton-item-content">
+          <view class="skeleton-item-title skeleton-shimmer"></view>
+          <view class="skeleton-item-desc skeleton-shimmer"></view>
+        </view>
+        <view class="skeleton-item-tag skeleton-shimmer" wx:if="{{showTags}}"></view>
+        <view class="skeleton-item-arrow skeleton-shimmer" wx:if="{{showArrows}}"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 卡片骨架（用于分组结果） -->
+  <view class="skeleton-cards" wx:if="{{showCards}}">
+    <view class="skeleton-stats-row skeleton-shimmer"></view>
+    <view class="skeleton-card" wx:for="{{cardCount}}" wx:key="index">
+      <view class="skeleton-card-header">
+        <view class="skeleton-card-title skeleton-shimmer"></view>
+        <view class="skeleton-card-badge skeleton-shimmer"></view>
+      </view>
+      <view class="skeleton-card-avatars">
+        <view class="skeleton-card-avatar skeleton-shimmer" wx:for="{{5}}" wx:for-item="avatar" wx:key="index"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 选择器骨架（用于 random-group） -->
+  <view class="skeleton-selector" wx:if="{{showSelector}}">
+    <view class="skeleton-selector-header skeleton-shimmer"></view>
+    <view class="skeleton-selector-row skeleton-shimmer"></view>
+    <view class="skeleton-selector-groups">
+      <view class="skeleton-selector-group" wx:for="{{4}}" wx:key="index">
+        <view class="skeleton-group-header skeleton-shimmer"></view>
+        <view class="skeleton-group-chips">
+          <view class="skeleton-chip skeleton-shimmer" wx:for="{{4}}" wx:for-item="chip" wx:key="index"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 槽位：自定义内容 -->
+  <slot></slot>
+</view>

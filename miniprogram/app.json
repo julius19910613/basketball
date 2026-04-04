@@ -8,7 +8,10 @@
     "pages/create-team/create-team",
     "pages/team-detail/team-detail",
     "pages/member-manage/member-manage",
-    "pages/match/create-match/create-match"
+    "pages/match/create-match/create-match",
+    "pages/team/add-player/add-player",
+    "pages/match/match-detail/match-detail",
+    "pages/login/login"
   ],
   "tabBar": {
     "color": "#8E8E93",

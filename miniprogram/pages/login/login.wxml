@@ -1,0 +1,73 @@
+<!-- pages/login/login.wxml -->
+<view class="login-container">
+  <!-- 装饰背景 -->
+  <view class="decorative-bg"></view>
+
+  <!-- 主内容区 -->
+  <view class="login-content">
+    <!-- Logo 和标题 -->
+    <view class="header">
+      <view class="logo-container">
+        <text class="logo-text">🏀</text>
+      </view>
+      <text class="title">篮球管理</text>
+      <text class="subtitle">Basketball Manager</text>
+    </view>
+
+    <!-- 登录表单 -->
+    <view class="login-form">
+      <!-- 头像选择 -->
+      <view class="avatar-section">
+        <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+          <image 
+            class="avatar" 
+            src="{{avatarUrl || '/images/tabbar/profile.png'}}" 
+            mode="aspectFill"
+          ></image>
+          <view class="avatar-placeholder" wx:if="{{!avatarUrl}}">
+            <text class="plus-icon">+</text>
+            <text class="hint-text">选择头像</text>
+          </view>
+          <view class="avatar-mask" wx:if="{{avatarUrl}}">
+            <text class="change-text">更换</text>
+          </view>
+        </button>
+      </view>
+
+      <!-- 昵称输入 -->
+      <view class="nickname-section">
+        <input 
+          class="nickname-input" 
+          type="nickname" 
+          placeholder="请输入昵称（至少2个字）" 
+          value="{{nickName}}"
+          bindnickname="onNicknameInput"
+          bindinput="onNicknameInput"
+          maxlength="12"
+        />
+      </view>
+
+      <!-- 登录按钮 -->
+      <button 
+        class="login-btn {{canSubmit ? 'active' : ''}}" 
+        bindtap="handleLogin"
+        disabled="{{!canSubmit || isLoggingIn}}"
+      >
+        {{isLoggingIn ? '登录中...' : '开始使用'}}
+      </button>
+
+      <!-- 跳过登录 -->
+      <view class="skip-section">
+        <text class="skip-btn" bindtap="handleSkip">稍后再说</text>
+      </view>
+    </view>
+
+    <!-- 用户协议 -->
+    <view class="agreement">
+      <text class="agreement-text">登录即表示同意</text>
+      <text class="agreement-link">《用户协议》</text>
+      <text class="agreement-text">和</text>
+      <text class="agreement-link">《隐私政策》</text>
+    </view>
+  </view>
+</view>

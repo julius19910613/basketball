@@ -1,0 +1,576 @@
+/* ============================================
+   Basketball 小程序 - 动画样式库
+   ============================================ */
+
+/* ----------------
+   CSS 变量
+   ---------------- */
+page {
+  --animation-fast: 200ms;
+  --animation-normal: 300ms;
+  --animation-slow: 500ms;
+  --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ----------------
+   基础动画类
+   ---------------- */
+
+/* 淡入 */
+.fade-in {
+  animation: fadeIn var(--animation-normal) var(--ease-out) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 淡出 */
+.fade-out {
+  animation: fadeOut var(--animation-normal) var(--ease-out) forwards;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* 从上滑入 */
+.slide-in-up {
+  animation: slideInUp var(--animation-normal) var(--ease-out) forwards;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 从右滑入 */
+.slide-in-right {
+  animation: slideInRight var(--animation-normal) var(--ease-out) forwards;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 从左滑入 */
+.slide-in-left {
+  animation: slideInLeft var(--animation-normal) var(--ease-out) forwards;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 从底部弹起 */
+.bounce-in-up {
+  animation: bounceInUp var(--animation-slow) var(--ease-bounce) forwards;
+}
+
+@keyframes bounceInUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 放大弹入 */
+.zoom-in {
+  animation: zoomIn var(--animation-normal) var(--ease-bounce) forwards;
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 缩放淡入 */
+.scale-in {
+  animation: scaleIn var(--animation-normal) var(--ease-out) forwards;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 抖动 */
+.shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-10rpx); }
+  20%, 40%, 60%, 80% { transform: translateX(10rpx); }
+}
+
+/* 旋转 */
+.rotate {
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 脉冲 */
+.pulse {
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* 弹跳 */
+.bounce {
+  animation: bounce 0.6s ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20rpx); }
+}
+
+/* 跳动的点（加载状态） */
+.loading-dots {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.loading-dots .dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: var(--primary-color);
+  animation: dotBounce 1.4s ease-in-out infinite;
+}
+
+.loading-dots .dot:nth-child(1) { animation-delay: 0s; }
+.loading-dots .dot:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots .dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dotBounce {
+  0%, 80%, 100% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ----------------
+   交互反馈动画
+   ---------------- */
+
+/* 按钮点击 */
+.btn-press {
+  transition: all 100ms ease-out;
+}
+
+.btn-press:active {
+  transform: scale(0.95);
+  opacity: 0.8;
+}
+
+/* 卡片选中 */
+.card-selectable {
+  transition: all var(--animation-fast) var(--ease-bounce);
+}
+
+.card-selectable.selected {
+  transform: scale(1.02);
+  box-shadow: 0 0 0 4rpx var(--primary-color);
+}
+
+/* 标签切换 */
+.tag-switch {
+  transition: all var(--animation-fast) var(--ease-out);
+}
+
+/* 复选框动画 */
+.check-icon {
+  transition: all var(--animation-fast) var(--ease-bounce);
+}
+
+.check-icon.checked {
+  animation: checkPop var(--animation-fast) var(--ease-bounce);
+}
+
+@keyframes checkPop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* ----------------
+   列表动画（依次进入）
+   ---------------- */
+
+.list-item-enter {
+  animation: slideInUp var(--animation-normal) var(--ease-out) forwards;
+  opacity: 0;
+}
+
+/* 动画延迟类 */
+.delay-50 { animation-delay: 50ms; }
+.delay-100 { animation-delay: 100ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-250 { animation-delay: 250ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-350 { animation-delay: 350ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-450 { animation-delay: 450ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* ----------------
+   遮罩层动画
+   ---------------- */
+
+.mask-enter {
+  animation: maskFadeIn var(--animation-normal) var(--ease-out) forwards;
+}
+
+@keyframes maskFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mask-leave {
+  animation: maskFadeOut var(--animation-normal) var(--ease-out) forwards;
+}
+
+@keyframes maskFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* ----------------
+   弹窗动画
+   ---------------- */
+
+.popup-enter {
+  animation: popupSlideUp var(--animation-normal) var(--ease-out) forwards;
+}
+
+@keyframes popupSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.popup-leave {
+  animation: popupSlideDown var(--animation-fast) var(--ease-out) forwards;
+}
+
+@keyframes popupSlideDown {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+/* ----------------
+   成功/失败动画
+   ---------------- */
+
+/* 成功打勾 */
+.success-check {
+  animation: successCheck 0.5s var(--ease-bounce) forwards;
+}
+
+@keyframes successCheck {
+  0% {
+    transform: scale(0) rotate(-45deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(-45deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* 失败叉号 */
+.error-cross {
+  animation: errorCross 0.3s var(--ease-out) forwards;
+}
+
+@keyframes errorCross {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Toast 提示动画 */
+.toast-enter {
+  animation: toastSlideIn var(--animation-normal) var(--ease-out) forwards;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-40rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.toast-leave {
+  animation: toastSlideOut var(--animation-normal) var(--ease-out) forwards;
+}
+
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-40rpx);
+  }
+}
+
+/* ----------------
+   分组动画专用
+   ---------------- */
+
+/* 卡片聚合 */
+.group-collect {
+  animation: groupCollect 0.5s var(--ease-out) forwards;
+}
+
+@keyframes groupCollect {
+  from {
+    transform: translate(var(--start-x), var(--start-y)) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(var(--end-x), var(--end-y)) scale(0.6);
+    opacity: 0.8;
+  }
+}
+
+/* 卡片飞舞 */
+.group-fly {
+  animation: groupFly 1.5s ease-in-out infinite;
+}
+
+@keyframes groupFly {
+  0%, 100% {
+    transform: translate(var(--end-x), var(--end-y)) rotate(0deg) scale(0.6);
+  }
+  25% {
+    transform: translate(calc(var(--end-x) + 30rpx), calc(var(--end-y) - 40rpx)) rotate(15deg) scale(0.6);
+  }
+  50% {
+    transform: translate(calc(var(--end-x) - 20rpx), calc(var(--end-y) + 30rpx)) rotate(-10deg) scale(0.6);
+  }
+  75% {
+    transform: translate(calc(var(--end-x) + 35rpx), calc(var(--end-y) + 20rpx)) rotate(12deg) scale(0.6);
+  }
+}
+
+/* 卡片落地（弹跳） */
+.group-land {
+  animation: groupLand 0.6s var(--ease-bounce) forwards;
+}
+
+@keyframes groupLand {
+  0% {
+    transform: translate(var(--from-x), var(--from-y)) scale(0.6);
+    opacity: 0.8;
+  }
+  60% {
+    transform: translate(var(--to-x), calc(var(--to-y) - 20rpx)) scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--to-x), var(--to-y)) scale(1);
+    opacity: 1;
+  }
+}
+
+/* 队伍卡片展开 */
+.team-expand {
+  animation: teamExpand 0.4s var(--ease-out) forwards;
+  overflow: hidden;
+}
+
+@keyframes teamExpand {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 1000rpx;
+    opacity: 1;
+  }
+}
+
+/* ----------------
+   球员卡片动画
+   ---------------- */
+
+/* 球员标签选中 */
+.player-chip-animated {
+  transition: all var(--animation-fast) var(--ease-bounce);
+}
+
+.player-chip-animated.selected {
+  transform: scale(1.05);
+}
+
+/* 头像弹入 */
+.avatar-pop {
+  animation: avatarPop 0.4s var(--ease-bounce) forwards;
+}
+
+@keyframes avatarPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ----------------
+   底部操作栏动画
+   ---------------- */
+
+.bottom-bar-enter {
+  animation: bottomBarSlideUp var(--animation-normal) var(--ease-out) forwards;
+}
+
+@keyframes bottomBarSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* ----------------
+   页面切换动画
+   ---------------- */
+
+.page-enter {
+  animation: pageSlideIn var(--animation-normal) var(--ease-out) forwards;
+}
+
+@keyframes pageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ----------------
+   GPU 加速优化
+   ---------------- */
+
+.animated {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* 动画结束后保持最终状态 */
+.animation-forwards {
+  animation-fill-mode: forwards;
+}
+
+/* 禁用动画（低端机降级） */
+.no-animation {
+  animation: none !important;
+  transition: none !important;
+}
+
+.no-animation .fade-in,
+.no-animation .slide-in-up,
+.no-animation .slide-in-right,
+.no-animation .bounce-in-up,
+.no-animation .zoom-in,
+.no-animation .scale-in,
+.no-animation .shake,
+.no-animation .rotate,
+.no-animation .pulse,
+.no-animation .bounce {
+  animation: none !important;
+}

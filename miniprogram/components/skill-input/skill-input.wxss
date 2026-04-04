@@ -1,0 +1,49 @@
+.skill-input-container {
+  padding: 10rpx 0;
+}
+
+.skill-group {
+  background: #fff;
+  border-radius: 16rpx;
+  margin-bottom: 30rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.05);
+}
+
+.group-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 24rpx;
+  padding-left: 16rpx;
+  border-left: 8rpx solid #FF6B35;
+}
+
+.skill-item {
+  margin-bottom: 20rpx;
+  display: flex;
+  align-items: center;
+}
+
+.skill-item:last-child {
+  margin-bottom: 0;
+}
+
+.skill-label {
+  font-size: 28rpx;
+  color: #666;
+  width: 140rpx;
+}
+
+.skill-slider {
+  flex: 1;
+  margin: 0 20rpx;
+}
+
+.skill-value {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #FF6B35;
+  width: 60rpx;
+  text-align: right;
+}

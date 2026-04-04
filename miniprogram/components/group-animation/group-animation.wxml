@@ -1,0 +1,39 @@
+<!--components/group-animation/group-animation.wxml-->
+<!-- 分组动画容器 -->
+<view class="animation-container" wx:if="{{visible}}">
+  <!-- 遮罩层 -->
+  <view class="animation-mask mask-enter"></view>
+
+  <!-- 球员卡片动画 -->
+  <view 
+    class="player-card-animated {{phase}}"
+    wx:for="{{playerAnimations}}"
+    wx:key="id"
+    style="{{item.style}}"
+  >
+    <image class="card-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
+    <text class="card-name">{{item.name}}</text>
+  </view>
+
+  <!-- 队伍目标区域 -->
+  <view class="team-targets" wx:if="{{phase === 'landing' || phase === 'done'}}">
+    <view 
+      class="team-target fade-in" 
+      wx:for="{{teamTargets}}" 
+      wx:key="index"
+      style="animation-delay: {{index * 100}}ms; top: {{item.top}}px;"
+    >
+      <text class="team-label">{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 加载提示 -->
+  <view class="loading-text" wx:if="{{phase === 'flying'}}">
+    <text class="loading-dots">
+      <text>分组中</text>
+      <text class="dot"></text>
+      <text class="dot"></text>
+      <text class="dot"></text>
+    </text>
+  </view>
+</view>
