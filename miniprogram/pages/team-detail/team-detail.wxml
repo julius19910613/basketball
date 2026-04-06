@@ -10,7 +10,7 @@
     <!-- 队徽 -->
     <image 
       class="team-logo" 
-      src="{{teamInfo.logo || '/images/default-logo.png'}}" 
+      src="{{teamInfo.logo || '/images/logo.svg'}}" 
       mode="aspectFill"
     ></image>
     
@@ -45,7 +45,7 @@
         <!-- 头像 -->
         <image 
           class="avatar" 
-          src="{{item.userInfo.avatarUrl || '/images/default-avatar.png'}}" 
+          src="{{item.userInfo.avatarUrl || '/images/default_avatar.svg'}}" 
           mode="aspectFill"
         ></image>
         

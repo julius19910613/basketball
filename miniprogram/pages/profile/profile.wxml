@@ -7,7 +7,7 @@
   <view class="header-section">
     <!-- 头像 - 点击选择 -->
     <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
-      <image class="avatar" src="{{userProfile.avatarUrl || '/images/default_avatar.png'}}" mode="aspectFill"></image>
+      <image class="avatar" src="{{userProfile.avatarUrl || '/images/default_avatar.svg'}}" mode="aspectFill"></image>
       <view class="avatar-edit-hint">点击更换</view>
     </button>
     <!-- 昵称 - 使用 input 的 type="nickname" -->

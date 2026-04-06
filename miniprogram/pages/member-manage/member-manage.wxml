@@ -9,7 +9,7 @@
   <view class="team-header" wx:if="{{teamInfo && !loading}}">
     <image 
       class="team-logo" 
-      src="{{teamInfo.logo || '/images/default-logo.png'}}" 
+      src="{{teamInfo.logo || '/images/logo.svg'}}" 
       mode="aspectFill"
     ></image>
     <view class="team-name">{{teamInfo.name}}</view>
@@ -30,7 +30,7 @@
       <!-- 头像 -->
       <image 
         class="avatar" 
-        src="{{item.userInfo.avatarUrl || '/images/default-avatar.png'}}" 
+        src="{{item.userInfo.avatarUrl || '/images/default_avatar.svg'}}" 
         mode="aspectFill"
       ></image>
       

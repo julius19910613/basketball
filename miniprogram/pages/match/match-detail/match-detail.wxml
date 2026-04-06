@@ -22,7 +22,7 @@
     <!-- 对阵信息 -->
     <view class="versus-section">
       <view class="team-block">
-        <image class="team-logo" src="{{matchInfo.homeTeam.logo || '/images/default-team.png'}}" mode="aspectFill"></image>
+        <image class="team-logo" src="{{matchInfo.homeTeam.logo || '/images/basketball-placeholder.svg'}}" mode="aspectFill"></image>
         <text class="team-name">{{matchInfo.homeTeam.name || '主队'}}</text>
         <text class="team-label">主队</text>
       </view>
@@ -39,7 +39,7 @@
       </view>
 
       <view class="team-block">
-        <image class="team-logo" src="{{matchInfo.awayTeam.logo || '/images/default-team.png'}}" mode="aspectFill"></image>
+        <image class="team-logo" src="{{matchInfo.awayTeam.logo || '/images/basketball-placeholder.svg'}}" mode="aspectFill"></image>
         <text class="team-name">{{matchInfo.awayTeam.name || '待定'}}</text>
         <text class="team-label">客队</text>
       </view>

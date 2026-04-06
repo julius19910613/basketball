@@ -2,7 +2,7 @@
 <view class="container">
   <!-- 头部用户信息 -->
   <view class="header">
-    <image class="avatar" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+    <image class="avatar" src="{{userInfo.avatarUrl || '/images/default_avatar.svg'}}" mode="aspectFill"></image>
     <view class="user-info">
       <text class="nickname">{{userInfo.nickName || '点击登录'}}</text>
       <text class="tip" wx:if="{{!userInfo}}" bindtap="getUserInfo">点击获取用户信息</text>

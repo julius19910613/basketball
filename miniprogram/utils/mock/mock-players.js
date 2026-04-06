@@ -17,7 +17,7 @@ const mockPlayers = [
     number: 23,
     position: 'PG',
     skillLevel: 5,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 182,
     weight: 75,
     joinDate: '2024-01-15'
@@ -28,7 +28,7 @@ const mockPlayers = [
     number: 11,
     position: 'SF',
     skillLevel: 5,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 188,
     weight: 82,
     joinDate: '2024-01-20'
@@ -41,7 +41,7 @@ const mockPlayers = [
     number: 7,
     position: 'SG',
     skillLevel: 4,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 178,
     weight: 72,
     joinDate: '2024-02-01'
@@ -52,7 +52,7 @@ const mockPlayers = [
     number: 10,
     position: 'PF',
     skillLevel: 4,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 185,
     weight: 80,
     joinDate: '2024-02-10'
@@ -63,7 +63,7 @@ const mockPlayers = [
     number: 15,
     position: 'C',
     skillLevel: 4,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 192,
     weight: 90,
     joinDate: '2024-02-15'
@@ -74,7 +74,7 @@ const mockPlayers = [
     number: 3,
     position: 'PG',
     skillLevel: 4,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 180,
     weight: 74,
     joinDate: '2024-02-20'
@@ -87,7 +87,7 @@ const mockPlayers = [
     number: 8,
     position: 'SG',
     skillLevel: 3,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 176,
     weight: 70,
     joinDate: '2024-03-01'
@@ -98,7 +98,7 @@ const mockPlayers = [
     number: 12,
     position: 'SF',
     skillLevel: 3,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 183,
     weight: 78,
     joinDate: '2024-03-05'
@@ -109,7 +109,7 @@ const mockPlayers = [
     number: 21,
     position: 'PF',
     skillLevel: 3,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 186,
     weight: 83,
     joinDate: '2024-03-10'
@@ -120,7 +120,7 @@ const mockPlayers = [
     number: 5,
     position: 'C',
     skillLevel: 3,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 190,
     weight: 88,
     joinDate: '2024-03-15'
@@ -131,7 +131,7 @@ const mockPlayers = [
     number: 14,
     position: 'PG',
     skillLevel: 3,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 175,
     weight: 68,
     joinDate: '2024-03-20'
@@ -142,7 +142,7 @@ const mockPlayers = [
     number: 9,
     position: 'SG',
     skillLevel: 3,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 179,
     weight: 73,
     joinDate: '2024-03-25'
@@ -153,7 +153,7 @@ const mockPlayers = [
     number: 18,
     position: 'SF',
     skillLevel: 3,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 184,
     weight: 79,
     joinDate: '2024-04-01'
@@ -164,7 +164,7 @@ const mockPlayers = [
     number: 22,
     position: 'PF',
     skillLevel: 3,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 187,
     weight: 84,
     joinDate: '2024-04-05'
@@ -177,7 +177,7 @@ const mockPlayers = [
     number: 4,
     position: 'PG',
     skillLevel: 2,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 172,
     weight: 65,
     joinDate: '2024-04-10'
@@ -188,7 +188,7 @@ const mockPlayers = [
     number: 6,
     position: 'SG',
     skillLevel: 2,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 174,
     weight: 67,
     joinDate: '2024-04-15'
@@ -199,7 +199,7 @@ const mockPlayers = [
     number: 13,
     position: 'SF',
     skillLevel: 2,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 180,
     weight: 75,
     joinDate: '2024-04-20'
@@ -210,7 +210,7 @@ const mockPlayers = [
     number: 16,
     position: 'PF',
     skillLevel: 2,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 182,
     weight: 77,
     joinDate: '2024-04-25'
@@ -221,7 +221,7 @@ const mockPlayers = [
     number: 19,
     position: 'C',
     skillLevel: 2,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 188,
     weight: 85,
     joinDate: '2024-05-01'
@@ -232,7 +232,7 @@ const mockPlayers = [
     number: 24,
     position: 'SG',
     skillLevel: 2,
-    avatar: '/images/default-avatar.png',
+    avatar: '/images/default_avatar.svg',
     height: 177,
     weight: 71,
     joinDate: '2024-05-05'

@@ -86,7 +86,7 @@
 
 1. **导入项目**
    - 打开微信开发者工具
-   - 导入项目目录 `c:/Users/lifan/CodeBuddy/basketball`
+   - 「导入」时选择**本仓库根目录**（包含 `project.config.json` 与 `miniprogram/` 的那一层，勿只选 `miniprogram` 子目录）
 
 2. **配置 CloudBase 环境**
    - 在 `miniprogram/app.js` 中配置环境 ID
@@ -110,6 +110,21 @@
    - 在小程序后台提交审核并发布
 
 详细部署说明请参考 [DEPLOYMENT.md](./DEPLOYMENT.md)
+
+### 自动化测试（Jest + miniprogram-automator）
+
+- 安装依赖：`npm install`
+- **E2E（默认）**：`npm test` 与 `npm run test:e2e` 均使用 `jest.e2e.config.js`。默认会跑 `e2e/health.test.js`（不依赖开发者工具）；需真机/模拟器自动化的用例见下方环境变量。
+- **仅非 E2E 单测**：`npm run test:unit`（使用 `jest.config.js`，当前仓库含 `tests/smoke.test.js` 占位）。
+- **环境变量（可选）**
+  - `E2E_LAUNCH=1`：运行 `e2e/phase01-simple.test.js`（`automator.launch`）。需本机已安装微信开发者工具。
+  - `E2E_WS_CONNECT=1`：运行 `e2e/phase01.test.js`（`automator.connect`）。需已用 CLI 打开项目并开启自动化（默认 `ws://localhost:9420`）。
+  - `WECHAT_DEVTOOLS_CLI`：微信开发者工具 CLI 可执行文件路径。默认 macOS：`/Applications/wechatwebdevtools.app/Contents/MacOS/cli`。
+  - `MINIPROGRAM_PROJECT_PATH`：小程序项目根目录（含 `project.config.json`）。默认自动指向本仓库根目录（与 `e2e` 脚本相对路径一致）。
+- **两种 E2E 方式的区别**
+  - `e2e/phase01-simple.test.js` 使用 `automator.launch()`：需 `E2E_LAUNCH=1`；本机已安装开发者工具且 CLI 路径正确；首页使用 `switchTab` 进入 tabBar 页。
+  - `e2e/phase01.test.js` 使用 `automator.connect({ wsEndpoint: 'ws://localhost:9420' })`：**需先用微信开发者工具 CLI 打开项目并开启自动化监听**，再运行 `E2E_WS_CONNECT=1 npm run test:e2e`。默认 **不会**运行该文件（避免未连接时整批失败）。
+- E2E 使用 `jest.e2e.config.js` 中的 `maxWorkers: 1`，避免多个用例并行连接同一开发者工具实例。
 
 ## 项目结构
 

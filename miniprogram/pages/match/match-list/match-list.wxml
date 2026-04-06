@@ -15,7 +15,7 @@
       </view>
       <view class="match-teams">
         <view class="team-info">
-          <image class="team-logo" src="{{item.homeTeam.logo || '/images/default-team.png'}}" mode="aspectFill"></image>
+          <image class="team-logo" src="{{item.homeTeam.logo || '/images/basketball-placeholder.svg'}}" mode="aspectFill"></image>
           <text class="team-name">{{item.homeTeam.name || '主队'}}</text>
         </view>
         <view class="vs-container">
@@ -23,7 +23,7 @@
           <text class="match-score" wx:else>{{item.homeScore || 0}} : {{item.awayScore || 0}}</text>
         </view>
         <view class="team-info">
-          <image class="team-logo" src="{{item.awayTeam.logo || '/images/default-team.png'}}" mode="aspectFill"></image>
+          <image class="team-logo" src="{{item.awayTeam.logo || '/images/basketball-placeholder.svg'}}" mode="aspectFill"></image>
           <text class="team-name">{{item.awayTeam.name || '客队'}}</text>
         </view>
       </view>

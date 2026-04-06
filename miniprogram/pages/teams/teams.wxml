@@ -8,7 +8,7 @@
 
   <!-- 空状态 -->
   <view class="empty" wx:if="{{teamList.length === 0 && !loading}}">
-    <image src="/images/empty-team.png" mode="aspectFit" class="empty-image"></image>
+    <image src="/images/basketball-placeholder.svg" mode="aspectFit" class="empty-image"></image>
     <text class="empty-text">还没有球队</text>
     <text class="empty-hint">点击"创建球队"开始组建你的篮球队</text>
   </view>
@@ -22,7 +22,7 @@
   <view class="team-list" wx:if="{{teamList.length > 0}}">
     <view class="team-item" wx:for="{{teamList}}" wx:key="_id" data-id="{{item._id}}" bindtap="goToTeamDetail">
       <!-- 队徽 -->
-      <image class="team-logo" src="{{item.logo || '/images/default-logo.png'}}" mode="aspectFill"></image>
+      <image class="team-logo" src="{{item.logo || '/images/logo.svg'}}" mode="aspectFill"></image>
       
       <!-- 球队信息 -->
       <view class="team-info">

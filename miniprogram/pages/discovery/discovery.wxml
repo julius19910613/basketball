@@ -14,7 +14,7 @@
     </view>
     <scroll-view class="team-scroll" scroll-x="true" wx:if="{{nearbyTeams.length > 0}}">
       <view class="team-card" wx:for="{{nearbyTeams}}" wx:key="_id" bindtap="goToTeam" data-id="{{item._id}}">
-        <image class="team-logo" src="{{item.logo || '/images/default-team.png'}}" mode="aspectFill"></image>
+        <image class="team-logo" src="{{item.logo || '/images/basketball-placeholder.svg'}}" mode="aspectFill"></image>
         <text class="team-name">{{item.name}}</text>
         <text class="team-region">{{item.region}}</text>
       </view>

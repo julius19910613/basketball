@@ -7,7 +7,7 @@ Page({
     userProfile: {
       openid: '',
       nickName: '未登录',
-      avatarUrl: '/images/default_avatar.png',
+      avatarUrl: '/images/default_avatar.svg',
       height: null,
       weight: null,
       position: '',

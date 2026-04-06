@@ -19,7 +19,7 @@
     <view class="form-item">
       <text class="form-label">主队</text>
       <view class="team-selector" bindtap="selectHomeTeam">
-        <image class="team-logo" wx:if="{{homeTeam}}" src="{{homeTeam.logo || '/images/default-team.png'}}" mode="aspectFill"></image>
+        <image class="team-logo" wx:if="{{homeTeam}}" src="{{homeTeam.logo || '/images/basketball-placeholder.svg'}}" mode="aspectFill"></image>
         <text class="team-name {{homeTeam ? '' : 'team-placeholder'}}">{{homeTeam.name || '选择主队'}}</text>
         <text class="team-arrow">></text>
       </view>
@@ -27,7 +27,7 @@
     <view class="form-item">
       <text class="form-label">客队</text>
       <view class="team-selector" bindtap="selectAwayTeam">
-        <image class="team-logo" wx:if="{{awayTeam}}" src="{{awayTeam.logo || '/images/default-team.png'}}" mode="aspectFill"></image>
+        <image class="team-logo" wx:if="{{awayTeam}}" src="{{awayTeam.logo || '/images/basketball-placeholder.svg'}}" mode="aspectFill"></image>
         <text class="team-name {{awayTeam ? '' : 'team-placeholder'}}">{{awayTeam.name || '选择客队（可选）'}}</text>
         <text class="team-arrow">></text>
       </view>
