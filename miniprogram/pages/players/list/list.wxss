@@ -1,0 +1,94 @@
+.container {
+  min-height: 100vh;
+  background: #f4f8ff;
+  padding: 24rpx;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.title {
+  font-size: 40rpx;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.add-btn {
+  height: 64rpx;
+  line-height: 64rpx;
+  border-radius: 32rpx;
+  border: none;
+  padding: 0 24rpx;
+  background: #1652f0;
+  color: #fff;
+  font-size: 26rpx;
+}
+
+.loading,
+.empty {
+  margin-top: 120rpx;
+  text-align: center;
+  color: #64748b;
+}
+
+.empty-title {
+  display: block;
+  color: #334155;
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 10rpx;
+}
+
+.empty-sub {
+  font-size: 24rpx;
+}
+
+.card {
+  background: #fff;
+  border-radius: 16rpx;
+  border: 1rpx solid #d9e4fb;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 6rpx 16rpx rgba(22, 82, 240, 0.08);
+}
+
+.card-main {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.nickname {
+  font-size: 32rpx;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.real-name {
+  font-size: 24rpx;
+  color: #64748b;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tag {
+  padding: 6rpx 14rpx;
+  border-radius: 999rpx;
+  background: #eef4ff;
+  color: #1652f0;
+  font-size: 22rpx;
+}
+
+.metrics {
+  font-size: 22rpx;
+  color: #64748b;
+}

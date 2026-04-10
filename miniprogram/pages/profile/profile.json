@@ -1,6 +1,0 @@
-{
-  "navigationBarTitleText": "个人资料",
-  "usingComponents": {
-    "player-card": "/components/player-card/player-card"
-  }
-}

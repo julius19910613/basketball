@@ -1,0 +1,32 @@
+<view class="container">
+  <view class="header">
+    <text class="title">球员列表</text>
+    <button class="add-btn" bindtap="goToCreate">新增球员</button>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading">加载中...</view>
+
+  <view wx:elif="{{players.length === 0}}" class="empty">
+    <text class="empty-title">暂无球员</text>
+    <text class="empty-sub">点击右上角“新增球员”开始创建</text>
+  </view>
+
+  <view wx:else class="list">
+    <view
+      class="card"
+      wx:for="{{players}}"
+      wx:key="_id"
+      data-id="{{item._id}}"
+      bindtap="goToDetail"
+    >
+      <view class="card-main">
+        <text class="nickname">{{item.displayNickname}}</text>
+        <text class="real-name">{{item.displayRealName}}</text>
+      </view>
+      <view class="meta">
+        <text class="tag">{{item.displayPosition}}</text>
+        <text class="metrics">{{item.height || '-'}}cm / {{item.weight || '-'}}kg / {{item.age || '-'}}岁</text>
+      </view>
+    </view>
+  </view>
+</view>

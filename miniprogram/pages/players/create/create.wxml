@@ -1,0 +1,42 @@
+<view class="container">
+  <view class="card">
+    <view class="title">新增球员</view>
+
+    <view class="form-item">
+      <text class="label">昵称</text>
+      <input class="input" placeholder="请输入昵称" value="{{form.nickname}}" data-field="nickname" bindinput="onFieldInput" maxlength="20" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">真实姓名</text>
+      <input class="input" placeholder="请输入真实姓名" value="{{form.realName}}" data-field="realName" bindinput="onFieldInput" maxlength="30" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">场上位置</text>
+      <picker mode="selector" range="{{positionDisplayNames}}" value="{{positionIndex}}" bindchange="onPositionChange">
+        <view class="picker">{{positionDisplayNames[positionIndex]}}</view>
+      </picker>
+    </view>
+
+    <view class="row">
+      <view class="form-item half">
+        <text class="label">年龄</text>
+        <input class="input" type="number" placeholder="10-60" value="{{form.age}}" data-field="age" bindinput="onFieldInput" />
+      </view>
+      <view class="form-item half">
+        <text class="label">身高(cm)</text>
+        <input class="input" type="digit" placeholder="120-250" value="{{form.height}}" data-field="height" bindinput="onFieldInput" />
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="label">体重(kg)</text>
+      <input class="input" type="digit" placeholder="30-200" value="{{form.weight}}" data-field="weight" bindinput="onFieldInput" />
+    </view>
+  </view>
+
+  <view class="footer">
+    <button class="submit-btn" loading="{{submitting}}" disabled="{{submitting}}" bindtap="onSubmit">保存球员</button>
+  </view>
+</view>

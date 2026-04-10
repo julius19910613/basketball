@@ -1,11 +1,12 @@
 /**app.wxss**/
 page {
-  --primary-color: #6A5ACD;
-  --secondary-color: #9370DB;
-  --text-color: #333333;
-  --light-text: #888888;
-  --background: #F5F5F5;
+  --primary-color: #1652F0;
+  --secondary-color: #3B82F6;
+  --text-color: #0F172A;
+  --light-text: #64748B;
+  --background: #F4F8FF;
   --white: #FFFFFF;
+  --card-border: #D9E4FB;
   
   background-color: var(--background);
   font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica,
@@ -52,7 +53,8 @@ page {
   border-radius: 16rpx;
   padding: 30rpx;
   margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  border: 1rpx solid var(--card-border);
+  box-shadow: 0 6rpx 18rpx rgba(22, 82, 240, 0.08);
 }
 
 /* 小精灵共同样式 */
@@ -86,19 +88,19 @@ page {
 }
 
 .hunger-fill {
-  background: linear-gradient(to right, #FFA500, #FF8C00);
+  background: linear-gradient(to right, #3B82F6, #1652F0);
 }
 
 .mood-fill {
-  background: linear-gradient(to right, #FF69B4, #FF1493);
+  background: linear-gradient(to right, #60A5FA, #3B82F6);
 }
 
 .energy-fill {
-  background: linear-gradient(to right, #32CD32, #008000);
+  background: linear-gradient(to right, #0EA5A4, #14B8A6);
 }
 
 .exp-fill {
-  background: linear-gradient(to right, #1E90FF, #0000CD);
+  background: linear-gradient(to right, #2563EB, #1D4ED8);
 }
 
 /* flex 布局辅助类 */
@@ -161,7 +163,7 @@ page {
 }
 
 .badge-primary {
-  background-color: rgba(106, 90, 205, 0.2);
+  background-color: rgba(22, 82, 240, 0.12);
   color: var(--primary-color);
 }
 

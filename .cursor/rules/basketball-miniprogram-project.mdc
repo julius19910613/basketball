@@ -1,0 +1,85 @@
+---
+description: Basketball mini program project rule (CloudBase + WeChat)
+globs:
+  - "miniprogram/**/*.js"
+  - "miniprogram/**/*.wxml"
+  - "miniprogram/**/*.wxss"
+  - "cloudfunctions/**/*.js"
+alwaysApply: true
+---
+
+# 篮球管理小程序项目规则
+
+## 项目定位
+
+- 这是一个 **微信小程序 + CloudBase** 的球队管理应用。
+- 已实现核心能力：球队创建/列表/详情、成员管理、比赛列表与创建、发现页、个人资料页。
+- 认证方式固定为 **微信原生身份 + openid**（通过 `getOpenId` 云函数），不要引入 Web 登录流程。
+
+## 架构与数据约束（必须遵守）
+
+- 优先使用 `wx.cloud.database()` 直连数据库完成 CRUD。
+- 仅在以下场景新增云函数：跨集合事务性逻辑、敏感写操作、第三方 API 调用、需要服务端权限提升。
+- 核心集合字段保持兼容：
+  - `teams`: `name`, `region`, `logo`, `color`, `create_by`, `create_time`
+  - `team_members`: `team_id`, `openid`, `role`, `number`, `join_time`
+  - `users`: `openid`, `nickName`, `avatarUrl`, `create_time`
+- 角色语义固定：`captain` / `vice-captain` / `member`，不要发明新角色值。
+
+## CloudBase 安全规则协同约束（新增）
+
+- 前端查询条件必须与安全规则表达式兼容，遵循“**查询条件是规则条件的子集**”原则；否则会触发权限拒绝。
+- 若安全规则表达式引用了 `doc.xxx`（或通过 `get()` 依赖某字段），前端 `where` 必须包含对应字段条件。
+- 当使用 `get()` 做跨文档权限校验时：
+  - 单条规则表达式最多 3 个 `get()`
+  - 嵌套深度最多 2 层
+  - 每个 `get()` 会产生一次额外读操作（注意成本与性能）
+- 推荐在查询中优先使用 `'{openid}'` 变量语义对应条件（由平台替换），避免手写不一致身份字段。
+
+## 页面与交互约束
+
+- Tab 页面：`index`, `teams`, `match/match-list`, `discovery`, `profile`。
+- 子页面：`create-team`, `team-detail`, `member-manage`, `match/create-match` 等。
+- 修改页面时优先保持现有信息架构与路径，避免无必要重命名目录、路由或数据字段。
+- 涉及成员管理时，必须校验“仅队长可管理”这一前端可见逻辑（同时依赖云端规则兜底）。
+
+## UI 与样式约束（当前主题：Coinbase 蓝色系）
+
+- 全局样式 token 以 `miniprogram/app.wxss` 为唯一事实来源，优先复用变量：
+  - `--primary-color: #1652F0`
+  - `--secondary-color: #3B82F6`
+  - `--background: #F4F8FF`
+  - `--text-color: #0F172A`
+  - `--light-text: #64748B`
+- 新样式优先“浅背景 + 白卡片 + 蓝色主按钮”，保持卡片圆角与轻阴影一致。
+- 避免回退到旧橙色主题（如 `#FF6B35`、`#F7931E`）。
+- 小程序尺寸单位统一使用 `rpx`。
+
+## 代码实现习惯
+
+- 小程序端使用 Promise/async 风格处理异步，所有云调用都要有错误处理与用户提示。
+- 不要在客户端存储敏感凭据；身份判断基于 `openid` 和数据库安全规则。
+- 公共逻辑优先抽离到 `utils` 或可复用组件，避免页面间复制粘贴。
+- 小程序调用云函数优先 `wx.cloud.callFunction`，并显式处理 `success/fail` 或 `try/catch` 分支。
+
+## 测试与回归
+
+- 改动涉及数据读写时，至少补充或更新一条对应 Jest 用例（单测或页面集成测试）。
+- 提交前至少执行：
+  - `npm test`（E2E 默认健康检查）
+  - 若改动纯逻辑/组件，可补跑 `npm run test:unit`
+- 不要破坏现有 E2E 运行约定（`E2E_LAUNCH` / `E2E_WS_CONNECT`）。
+- E2E 用例保持串行（`runInBand` 或等效单 worker），避免多个测试并发连接同一开发者工具实例导致波动。
+
+## Cursor 规则/技能分工（新增）
+
+- `.cursor/rules/*.mdc` 仅放“强约束、总是成立”的项目规则（数据模型、权限、主题、测试门槛）。
+- `.cursor/skills/**/SKILL.md` 放“任务型执行流程”（例如：新增页面流程、比赛功能扩展流程、发布流程）。
+- 规则尽量短且可检查；技能尽量步骤化且可复用，避免把长篇背景介绍塞进 rules。
+
+## 禁止事项
+
+- 禁止把 Web 技术栈方案（如 React 组件、DOM API、CloudBase Web Auth）直接搬进小程序代码。
+- 禁止随意变更数据库字段名、集合名与角色枚举，除非同步提供迁移方案。
+- 禁止在未确认的情况下修改 `project.config.json` 的关键配置（如 `appid`）。
+

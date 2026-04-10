@@ -1,60 +1,13 @@
 {
   "pages": [
-    "pages/index/index",
-    "pages/teams/teams",
-    "pages/match/match-list/match-list",
-    "pages/discovery/discovery",
-    "pages/profile/profile",
-    "pages/create-team/create-team",
-    "pages/team-detail/team-detail",
-    "pages/member-manage/member-manage",
-    "pages/match/create-match/create-match",
-    "pages/team/add-player/add-player",
-    "pages/match/match-detail/match-detail",
-    "pages/login/login"
+    "pages/players/list/list",
+    "pages/players/create/create",
+    "pages/players/detail/detail"
   ],
-  "tabBar": {
-    "color": "#8E8E93",
-    "selectedColor": "#FF6B35",
-    "backgroundColor": "#FFFFFF",
-    "borderStyle": "black",
-    "list": [
-      {
-        "pagePath": "pages/index/index",
-        "text": "首页",
-        "iconPath": "images/tabbar/home.png",
-        "selectedIconPath": "images/tabbar/home-active.png"
-      },
-      {
-        "pagePath": "pages/teams/teams",
-        "text": "球队",
-        "iconPath": "images/tabbar/team.png",
-        "selectedIconPath": "images/tabbar/team-active.png"
-      },
-      {
-        "pagePath": "pages/match/match-list/match-list",
-        "text": "比赛",
-        "iconPath": "images/tabbar/match.png",
-        "selectedIconPath": "images/tabbar/match-active.png"
-      },
-      {
-        "pagePath": "pages/discovery/discovery",
-        "text": "发现",
-        "iconPath": "images/tabbar/discover.png",
-        "selectedIconPath": "images/tabbar/discover-active.png"
-      },
-      {
-        "pagePath": "pages/profile/profile",
-        "text": "我的",
-        "iconPath": "images/tabbar/profile.png",
-        "selectedIconPath": "images/tabbar/profile-active.png"
-      }
-    ]
-  },
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#FF6B35",
-    "navigationBarTitleText": "篮球管理",
+    "navigationBarBackgroundColor": "#1652F0",
+    "navigationBarTitleText": "球员管理",
     "navigationBarTextStyle": "white"
   },
   "style": "v2",
