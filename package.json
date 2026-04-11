@@ -6,6 +6,7 @@
   "scripts": {
     "test": "jest --config jest.e2e.config.js",
     "test:unit": "jest --config jest.config.js",
+    "test:self": "jest --config jest.config.js tests/player-module.self-test.test.js --runInBand",
     "test:e2e": "jest --config jest.e2e.config.js",
     "test:e2e:watch": "jest --config jest.e2e.config.js --watch"
   },

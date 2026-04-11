@@ -1,4 +1,11 @@
 const db = wx.cloud.database();
+const COLLECTION_MISSING_CODE = -502005;
+
+function isCollectionMissing(error) {
+  if (!error) return false;
+  const message = String(error.message || error.errMsg || "");
+  return Number(error.errCode) === COLLECTION_MISSING_CODE || message.includes("DATABASE_COLLECTION_NOT_EXIST");
+}
 
 function formatDate(value) {
   if (!value) return "-";
@@ -51,15 +58,21 @@ Page({
           realName: player.realName || "-",
           position: player.position || "-",
           age: player.age || "-",
+          birthdayText: player.birthday ? (player.birthday instanceof Date
+            ? player.birthday.getFullYear() + '-' + String(player.birthday.getMonth()+1).padStart(2,'0') + '-' + String(player.birthday.getDate()).padStart(2,'0')
+            : String(player.birthday).split('T')[0]) : "-",
           height: player.height || "-",
           weight: player.weight || "-",
           createdAtText: formatDate(player.createdAt)
         }
       });
     } catch (error) {
+      const message = isCollectionMissing(error)
+        ? "当前环境缺少 players 集合，请先在 CloudBase 控制台创建"
+        : "加载失败，请稍后重试";
       this.setData({
         loading: false,
-        errorMessage: "加载失败，请稍后重试"
+        errorMessage: message
       });
       console.error("load player detail failed:", error);
     }

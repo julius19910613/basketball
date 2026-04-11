@@ -1,4 +1,11 @@
 const db = wx.cloud.database();
+const COLLECTION_MISSING_CODE = -502005;
+
+function isCollectionMissing(error) {
+  if (!error) return false;
+  const message = String(error.message || error.errMsg || "");
+  return Number(error.errCode) === COLLECTION_MISSING_CODE || message.includes("DATABASE_COLLECTION_NOT_EXIST");
+}
 
 Page({
   data: {
@@ -93,7 +100,15 @@ Page({
       }, 500);
     } catch (error) {
       wx.hideLoading();
-      wx.showToast({ title: "新增失败，请重试", icon: "none" });
+      if (isCollectionMissing(error)) {
+        wx.showModal({
+          title: "请先初始化数据库",
+          content: "当前环境缺少 players 集合。请到 CloudBase 控制台创建 players 集合后再新增球员。",
+          showCancel: false
+        });
+      } else {
+        wx.showToast({ title: "新增失败，请重试", icon: "none" });
+      }
       console.error("create player failed:", error);
       this.setData({ submitting: false });
     }
