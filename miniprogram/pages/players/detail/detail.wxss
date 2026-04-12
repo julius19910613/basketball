@@ -2,6 +2,7 @@
   min-height: 100vh;
   background: #f4f8ff;
   padding: 24rpx;
+  padding-bottom: 200rpx;
 }
 
 .loading,
@@ -21,6 +22,10 @@
   border: 1rpx solid #d9e4fb;
   padding: 28rpx;
   box-shadow: 0 6rpx 16rpx rgba(22, 82, 240, 0.08);
+}
+
+.card.editing {
+  border-color: #1652f0;
 }
 
 .head {
@@ -67,4 +72,77 @@
   color: #0f172a;
   font-size: 26rpx;
   font-weight: 600;
+}
+
+/* 编辑模式样式 */
+.form-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f1f5f9;
+}
+
+.form-item:last-child {
+  border-bottom: none;
+}
+
+.edit-input {
+  flex: 1;
+  text-align: right;
+  font-size: 26rpx;
+  color: #1652f0;
+  font-weight: 600;
+  margin-left: 20rpx;
+}
+
+.picker-value {
+  font-size: 26rpx;
+  color: #1652f0;
+  font-weight: 600;
+}
+
+.picker-value.placeholder {
+  color: #cbd5e1;
+  font-weight: normal;
+}
+
+/* 底部操作栏 */
+.action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 30rpx 40rpx calc(30rpx + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  gap: 20rpx;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.btn {
+  flex: 1;
+  height: 88rpx;
+  line-height: 88rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  border-radius: 44rpx;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.btn-primary {
+  background: #1652f0;
+  color: #fff;
+}
+
+.btn-outline {
+  background: #fff;
+  color: #64748b;
+  border: 1rpx solid #e2e8f0;
+}
+
+.btn::after {
+  border: none;
 }

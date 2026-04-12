@@ -5,35 +5,88 @@
     <text class="error">{{errorMessage}}</text>
   </view>
 
-  <view wx:elif="{{player}}" class="card">
-    <view class="head">
-      <text class="nickname">{{player.nickname}}</text>
-      <text class="position">{{player.position}}</text>
-    </view>
+  <view wx:elif="{{player}}" class="card {{editing ? 'editing' : ''}}">
+    <!-- 查看模式 -->
+    <block wx:if="{{!editing}}">
+      <view class="head">
+        <text class="nickname">{{player.nickname}}</text>
+        <text class="position">{{player.position}}</text>
+      </view>
 
-    <view class="row">
-      <text class="label">真实姓名</text>
-      <text class="value">{{player.realName}}</text>
-    </view>
-    <view class="row" wx:if="{{player.birthdayText}}">
-      <text class="label">生日</text>
-      <text class="value">{{player.birthdayText}}</text>
-    </view>
-    <view class="row">
-      <text class="label">年龄</text>
-      <text class="value">{{player.age}} 岁</text>
-    </view>
-    <view class="row">
-      <text class="label">身高</text>
-      <text class="value">{{player.height}} cm</text>
-    </view>
-    <view class="row">
-      <text class="label">体重</text>
-      <text class="value">{{player.weight}} kg</text>
-    </view>
-    <view class="row">
-      <text class="label">创建时间</text>
-      <text class="value">{{player.createdAtText}}</text>
-    </view>
+      <view class="row">
+        <text class="label">真实姓名</text>
+        <text class="value">{{player.realName}}</text>
+      </view>
+      <view class="row" wx:if="{{player.birthdayText && player.birthdayText !== '-'}}">
+        <text class="label">生日</text>
+        <text class="value">{{player.birthdayText}}</text>
+      </view>
+      <view class="row">
+        <text class="label">年龄</text>
+        <text class="value">{{player.age}} 岁</text>
+      </view>
+      <view class="row">
+        <text class="label">身高</text>
+        <text class="value">{{player.height}} cm</text>
+      </view>
+      <view class="row">
+        <text class="label">体重</text>
+        <text class="value">{{player.weight}} kg</text>
+      </view>
+      <view class="row">
+        <text class="label">创建时间</text>
+        <text class="value">{{player.createdAtText}}</text>
+      </view>
+    </block>
+
+    <!-- 编辑模式 -->
+    <block wx:else>
+      <view class="form-item">
+        <text class="label">昵称</text>
+        <input class="edit-input" placeholder="请输入昵称" value="{{editForm.nickname}}" data-field="nickname" bindinput="onEditInput" maxlength="20" />
+      </view>
+
+      <view class="form-item">
+        <text class="label">真实姓名</text>
+        <input class="edit-input" placeholder="请输入真实姓名" value="{{editForm.realName}}" data-field="realName" bindinput="onEditInput" maxlength="30" />
+      </view>
+
+      <view class="form-item">
+        <text class="label">场上位置</text>
+        <picker mode="selector" range="{{positionDisplayNames}}" value="{{editForm.positionIndex}}" bindchange="onEditPositionChange">
+          <view class="picker-value">{{positionDisplayNames[editForm.positionIndex]}}</view>
+        </picker>
+      </view>
+
+      <view class="form-item">
+        <text class="label">生日</text>
+        <picker mode="date" value="{{editForm.birthday}}" bindchange="onEditBirthdayChange">
+          <view class="picker-value {{!editForm.birthday ? 'placeholder' : ''}}">
+            {{editForm.birthday || '请选择生日'}}
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-item">
+        <text class="label">身高(cm)</text>
+        <input class="edit-input" type="digit" placeholder="120-250" value="{{editForm.height}}" data-field="height" bindinput="onEditInput" />
+      </view>
+
+      <view class="form-item">
+        <text class="label">体重(kg)</text>
+        <input class="edit-input" type="digit" placeholder="30-200" value="{{editForm.weight}}" data-field="weight" bindinput="onEditInput" />
+      </view>
+    </block>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view wx:if="{{player}}" class="action-bar">
+    <block wx:if="{{!editing}}">
+      <button class="btn btn-primary" bindtap="onEdit">编辑球员</button>
+    </block>
+    <block wx:else>
+      <button class="btn btn-outline" bindtap="onCancel">取消</button>
+      <button class="btn btn-primary" loading="{{saving}}" disabled="{{saving}}" bindtap="onSave">保存修改</button>
+    </block>
   </view>
 </view>
