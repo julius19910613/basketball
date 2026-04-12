@@ -1,0 +1,91 @@
+<view class="container">
+  <!-- 已关联球员 - 个人中心 -->
+  <block wx:if="{{linkedPlayer}}">
+    <view class="profile-card">
+      <view class="profile-header">
+        <image class="avatar" src="{{userInfo.avatarUrl || '/images/default_avatar.svg'}}" mode="aspectFill"></image>
+        <view class="profile-info">
+          <text class="nickname">{{userInfo.nickName || linkedPlayer.nickname || '未设置'}}</text>
+          <text class="linked-tag">已关联：{{linkedPlayer.nickname}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="section-title">我的球员信息</view>
+      <view class="info-row">
+        <text class="info-label">昵称</text>
+        <text class="info-value">{{linkedPlayer.nickname}}</text>
+      </view>
+      <view class="info-row" wx:if="{{linkedPlayer.realName}}">
+        <text class="info-label">真实姓名</text>
+        <text class="info-value">{{linkedPlayer.realName}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">位置</text>
+        <text class="info-value">{{linkedPlayer.position}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">身高/体重</text>
+        <text class="info-value">{{linkedPlayer.height || '-'}}cm / {{linkedPlayer.weight || '-'}}kg</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">关联时间</text>
+        <text class="info-value">{{linkedAtText}}</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="section-title">编辑资料</view>
+      <view class="edit-avatar-row">
+        <text class="info-label">头像</text>
+        <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+          <image class="avatar-small" src="{{editAvatarUrl || userInfo.avatarUrl || '/images/default_avatar.svg'}}" mode="aspectFill"></image>
+          <text class="change-text">更换</text>
+        </button>
+      </view>
+      <view class="info-row">
+        <text class="info-label">昵称</text>
+        <input class="nickname-edit" type="nickname" placeholder="微信昵称" value="{{editNickName}}" bindinput="onNickNameInput" />
+      </view>
+      <button class="btn btn-primary btn-block" bindtap="saveProfile">保存资料</button>
+    </view>
+
+    <view class="card danger-zone">
+      <view class="section-title danger">解绑球员</view>
+      <text class="danger-desc">解绑后你的微信将不再关联此球员，可重新关联其他球员</text>
+      <button class="btn btn-danger btn-block" bindtap="onUnlink">解绑关联</button>
+    </view>
+  </block>
+
+  <!-- 未关联球员 - 选择关联 -->
+  <block wx:else>
+    <view class="guide-card">
+      <image class="guide-avatar" src="/images/default_avatar.svg" mode="aspectFill"></image>
+      <text class="guide-title">欢迎！请关联你的球员身份</text>
+      <text class="guide-desc">选择已有球员或创建新球员，绑定后即可参与分组</text>
+    </view>
+
+    <view class="card">
+      <view class="section-title">选择已有球员</view>
+      <view class="player-list">
+        <view class="player-item {{selectedPlayerId === item._id ? 'selected' : ''}}"
+          wx:for="{{unlinkedPlayers}}"
+          wx:key="_id"
+          data-id="{{item._id}}"
+          bindtap="onSelectPlayer">
+          <text class="player-name">{{item.nickname}}</text>
+          <text class="player-meta">{{item.position}} · {{item.height || '-'}}cm</text>
+          <view wx:if="{{selectedPlayerId === item._id}}" class="check-icon">✓</view>
+        </view>
+      </view>
+      <view wx:if="{{unlinkedPlayers.length === 0}}" class="empty-tip">暂无可关联的球员</view>
+      <button wx:else class="btn btn-primary btn-block" disabled="{{!selectedPlayerId}}" bindtap="onLinkPlayer">关联选中的球员</button>
+    </view>
+
+    <view class="card">
+      <view class="section-title">或者创建新球员</view>
+      <button class="btn btn-outline btn-block" bindtap="goCreatePlayer">+ 创建新球员</button>
+    </view>
+  </block>
+</view>

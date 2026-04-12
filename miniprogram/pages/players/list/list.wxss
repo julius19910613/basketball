@@ -17,6 +17,19 @@
   font-weight: 700;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.user-avatar {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  border: 2rpx solid #d9e4fb;
+}
+
 .add-btn {
   height: 64rpx;
   line-height: 64rpx;

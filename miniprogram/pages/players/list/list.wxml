@@ -1,7 +1,10 @@
 <view class="container">
   <view class="header">
     <text class="title">球员列表</text>
-    <button class="add-btn" bindtap="goToCreate">新增球员</button>
+    <view class="header-right">
+      <image class="user-avatar" src="{{userAvatar || '/images/default_avatar.svg'}}" mode="aspectFill" bindtap="goToProfile"></image>
+      <button class="add-btn" bindtap="goToCreate">新增球员</button>
+    </view>
   </view>
 
   <view wx:if="{{loading}}" class="loading">加载中...</view>

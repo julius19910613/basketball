@@ -11,11 +11,13 @@ Page({
   data: {
     loading: true,
     players: [],
-    collectionMissingNotified: false
+    collectionMissingNotified: false,
+    userAvatar: ""
   },
 
   onShow() {
     this.loadPlayers();
+    this.loadUserAvatar();
   },
 
   onPullDownRefresh() {
@@ -66,6 +68,19 @@ Page({
     if (!id) return;
     wx.navigateTo({
       url: `/pages/players/detail/detail?id=${id}`
+    });
+  },
+
+  loadUserAvatar() {
+    var app = getApp();
+    if (app.globalData.userInfo && app.globalData.userInfo.avatarUrl) {
+      this.setData({ userAvatar: app.globalData.userInfo.avatarUrl });
+    }
+  },
+
+  goToProfile() {
+    wx.navigateTo({
+      url: "/pages/profile/profile"
     });
   }
 });

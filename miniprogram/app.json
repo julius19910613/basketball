@@ -2,7 +2,8 @@
   "pages": [
     "pages/players/list/list",
     "pages/players/create/create",
-    "pages/players/detail/detail"
+    "pages/players/detail/detail",
+    "pages/profile/profile"
   ],
   "window": {
     "backgroundTextStyle": "light",

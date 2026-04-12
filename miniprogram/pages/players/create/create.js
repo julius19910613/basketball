@@ -31,6 +31,17 @@ Page({
       birthday: "",
       height: "",
       weight: ""
+    },
+    fromProfile: false,
+    linkedOpenid: ""
+  },
+
+  onLoad: function (options) {
+    if (options && options.fromProfile === "1") {
+      this.setData({
+        fromProfile: true,
+        linkedOpenid: options.openid || ""
+      });
     }
   },
 
@@ -104,19 +115,38 @@ Page({
       const { nickname, realName, birthday, height, weight } = this.data.form;
       const age = calcAge(birthday);
 
-      await db.collection("players").add({
-        data: {
-          nickname: nickname.trim(),
-          realName: realName.trim(),
-          position: this.data.positions[this.data.positionIndex],
-          birthday: new Date(birthday),
-          age: age,
-          height: Number(height),
-          weight: Number(weight),
-          createdAt: db.serverDate(),
-          updatedAt: db.serverDate()
+      var newPlayerData = {
+        nickname: nickname.trim(),
+        realName: realName.trim(),
+        position: this.data.positions[this.data.positionIndex],
+        birthday: new Date(birthday),
+        age: age,
+        height: Number(height),
+        weight: Number(weight),
+        createdAt: db.serverDate(),
+        updatedAt: db.serverDate()
+      };
+
+      // 如果从 profile 页面跳转，自动绑定 openid
+      if (this.data.linkedOpenid) {
+        newPlayerData.linkedOpenid = this.data.linkedOpenid;
+      }
+
+      var addResult = await db.collection("players").add({ data: newPlayerData });
+
+      // 如果从 profile 跳转，还需要更新 users 表
+      if (this.data.linkedOpenid && addResult._id) {
+        var uRes = await db.collection("users").where({ _openid: this.data.linkedOpenid }).get();
+        if (uRes.data && uRes.data.length > 0) {
+          await db.collection("users").doc(uRes.data[0]._id).update({
+            data: {
+              linkedPlayerId: addResult._id,
+              linkedAt: db.serverDate(),
+              updatedAt: db.serverDate()
+            }
+          });
         }
-      });
+      }
 
       wx.hideLoading();
       wx.showToast({ title: "新增成功", icon: "success" });

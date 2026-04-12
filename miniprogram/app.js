@@ -86,20 +86,29 @@ App({
 
     try {
       const db = wx.cloud.database();
-      const res = await db.collection('users').where({
+      var res = await db.collection('users').where({
         _openid: openid
       }).get();
 
       if (res.data && res.data.length > 0) {
-        const userInfo = res.data[0];
+        var userInfo = res.data[0];
         this.globalData.userInfo = userInfo;
         this.globalData.isLoggedIn = true;
         wx.setStorageSync('userInfo', userInfo);
 
-        // 触发回调，通知页面用户信息已加载
         if (this.userInfoReadyCallback) {
           this.userInfoReadyCallback(userInfo);
         }
+      } else {
+        // 自动创建空记录
+        await db.collection('users').add({
+          data: {
+            _openid: openid,
+            createdAt: db.serverDate(),
+            updatedAt: db.serverDate()
+          }
+        });
+        console.log('新用户已自动创建');
       }
     } catch (err) {
       console.error('加载用户资料失败:', err);
