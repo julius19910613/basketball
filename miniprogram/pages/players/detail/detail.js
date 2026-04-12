@@ -19,6 +19,19 @@ function formatDate(value) {
   return `${y}-${m}-${d} ${hh}:${mm}`;
 }
 
+function calcAge(birthday) {
+  if (!birthday) return null;
+  var birthDate = birthday instanceof Date ? birthday : new Date(birthday);
+  if (Number.isNaN(birthDate.getTime())) return null;
+  var now = new Date();
+  var age = now.getFullYear() - birthDate.getFullYear();
+  var mDiff = now.getMonth() - birthDate.getMonth();
+  if (mDiff < 0 || (mDiff === 0 && now.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+}
+
 Page({
   data: {
     loading: true,
@@ -57,7 +70,7 @@ Page({
           nickname: player.nickname || player.name || "未命名球员",
           realName: player.realName || "-",
           position: player.position || "-",
-          age: player.age || "-",
+          age: calcAge(player.birthday) !== null ? calcAge(player.birthday) : (player.age || "-"),
           birthdayText: player.birthday ? (player.birthday instanceof Date
             ? player.birthday.getFullYear() + '-' + String(player.birthday.getMonth()+1).padStart(2,'0') + '-' + String(player.birthday.getDate()).padStart(2,'0')
             : String(player.birthday).split('T')[0]) : "-",

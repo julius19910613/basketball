@@ -1,238 +1,136 @@
-# 篮球管理小程序
+# 球员管理（微信小程序 + CloudBase）
 
-基于微信云开发的篮球球队管理小程序，帮助业余篮球爱好者管理球队、组织比赛、记录数据。
+面向业余篮球场景的**球员信息管理**小程序：在云端维护球员档案，支持按场上五个位置分类、录入体测与姓名信息，并提供列表与详情查看。
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Powered by CloudBase](https://7463-tcb-advanced-a656fc-1257967285.tcb.qcloud.la/mcp/powered-by-cloudbase-badge.svg)](https://github.com/TencentCloudBase/CloudBase-AI-ToolKit)
 
-> 本项目基于 [**CloudBase AI ToolKit**](https://github.com/TencentCloudBase/CloudBase-AI-ToolKit) 开发，通过AI提示词和 MCP 协议+云开发，让开发更智能、更高效。
+> 仓库说明文档结构参考 [GitHub 关于 README 的说明](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes)：优先让读者在首屏看到「是什么、如何跑起来、去哪查细节」。
 
-## 项目特点
+## 目录
 
-- 🏀 **球队管理**：创建球队、上传队徽、设置队服颜色
-- 👥 **成员管理**：邀请成员、设置副队长、管理球队成员
-- 📊 **数据统计**：球队统计、成员数据展示
-- ☁️ **云开发**：基于微信云开发，无需自建服务器
-- 🚀 **快速部署**：一键部署至腾讯云 CloudBase
+- [功能概览](#功能概览)
+- [技术栈](#技术栈)
+- [快速开始](#快速开始)
+- [数据模型](#数据模型)
+- [项目结构](#项目结构)
+- [脚本与测试](#脚本与测试)
+- [常见问题](#常见问题)
+- [相关文档](#相关文档)
+- [许可证](#许可证)
 
-## 核心功能
+## 功能概览
 
-### 1. 球队管理
-- 创建球队：自定义队名、地区、队徽、队服颜色
-- 球队列表：查看所有加入的球队
-- 球队详情：展示球队信息和成员列表
-
-### 2. 成员管理
-- 邀请成员：通过小程序分享邀请好友
-- 角色设置：设置队长、副队长
-- 成员管理：移除成员、查看成员信息
-
-### 3. 用户系统
-- 微信登录：基于 openid 的免登认证
-- 用户信息：头像、昵称展示
+| 能力 | 说明 |
+| --- | --- |
+| 球员列表 | 从 CloudBase 文档库读取 `players`，按创建时间倒序展示；支持下拉刷新 |
+| 新增球员 | 昵称、真实姓名、年龄、身高(cm)、体重(kg)、场上位置（PG/SG/SF/PF/C） |
+| 球员详情 | 通过文档 `_id` 查看单条球员信息 |
+| 历史数据兼容 | 列表展示优先 `nickname`，兼容旧数据中的 `name` 字段 |
 
 ## 技术栈
 
-- **前端框架**：微信小程序原生框架
-- **云服务**：腾讯云 CloudBase（云数据库 + 云函数 + 云存储）
-- **UI 组件**：自定义组件 + 原生组件
-
-## 数据库设计
-
-### teams（球队集合）
-```javascript
-{
-  _id: String,              // 球队ID
-  name: String,             // 队名
-  region: String,           // 地区
-  color: String,            // 队服颜色
-  logo: String,             // 队徽URL
-  create_time: Date,        // 创建时间
-  create_by: String         // 创建者openid
-}
-```
-
-### team_members（成员集合）
-```javascript
-{
-  _id: String,              // 成员记录ID
-  team_id: String,         // 球队ID
-  openid: String,          // 用户openid
-  role: String,            // 角色: captain/vice-captain/member
-  number: Number,          // 球员号码
-  join_time: Date          // 加入时间
-}
-```
-
-### users（用户集合）
-```javascript
-{
-  _id: String,              // 用户ID
-  openid: String,           // 微信openid
-  nickName: String,         // 昵称
-  avatarUrl: String,       // 头像URL
-  create_time: Date         // 创建时间
-}
-```
+- **客户端**：微信小程序原生（`miniprogram/`）
+- **后端**：腾讯云 CloudBase（`wx.cloud` 云数据库；身份通过 `cloudfunctions/getOpenId` 获取 openid）
+- **测试**：Jest（单元/自测脚本 + 可选 E2E，见下文）
 
 ## 快速开始
 
 ### 前置条件
 
 1. 安装 [微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)
-2. 注册 [微信小程序账号](https://mp.weixin.qq.com/)
-3. 开通 [腾讯云 CloudBase](https://console.cloud.tencent.com/tcb)
+2. 注册小程序账号并开通 [云开发 / CloudBase](https://console.cloud.tencent.com/tcb)
+3. 本机安装 Node.js（用于运行仓库内 Jest 脚本）
 
-### 部署步骤
+### 三步跑通
 
-1. **导入项目**
-   - 打开微信开发者工具
-   - 「导入」时选择**本仓库根目录**（包含 `project.config.json` 与 `miniprogram/` 的那一层，勿只选 `miniprogram` 子目录）
+1. **克隆并安装依赖**
 
-2. **配置 CloudBase 环境**
-   - 在 `miniprogram/app.js` 中配置环境 ID
-   ```javascript
-   wx.cloud.init({
-     env: 'your-env-id', // 替换为你的云开发环境 ID
-     traceUser: true,
-   });
+   ```bash
+   git clone https://github.com/julius19910613/basketball.git
+   cd basketball
+   npm install
    ```
 
-3. **创建数据库集合**
-   - 在 CloudBase 控制台创建 `teams`、`team_members`、`users` 集合
-   - 配置数据库安全规则（详见 [DEPLOYMENT.md](./DEPLOYMENT.md)）
+2. **配置云环境**  
+   在 [`miniprogram/app.js`](miniprogram/app.js) 中将 `wx.cloud.init({ env: '...' })` 的 `env` 改为你自己的 CloudBase 环境 ID。
 
-4. **部署云函数**
-   - 右键 `cloudfunctions/getOpenId` 文件夹
-   - 选择"上传并部署：云端安装依赖"
+3. **创建数据库集合并导入项目**  
+   - 在 CloudBase 控制台 → 文档型数据库 → **新建集合 `players`**（名称需与代码一致，否则会出现 `-502005` 集合不存在错误）。  
+   - 用微信开发者工具 **导入仓库根目录**（包含 `project.config.json` 与 `miniprogram/`，不要只选子目录）。  
+   - 部署云函数：右键 `cloudfunctions/getOpenId` → 上传并部署（云端安装依赖）。
 
-5. **上传小程序**
-   - 点击"上传"按钮
-   - 在小程序后台提交审核并发布
+完成以上步骤后，在开发者工具中编译预览，首页即进入 **球员列表**。
 
-详细部署说明请参考 [DEPLOYMENT.md](./DEPLOYMENT.md)
+## 数据模型
 
-### 自动化测试（Jest + miniprogram-automator）
+### `players`（球员集合）
 
-- 安装依赖：`npm install`
-- **E2E（默认）**：`npm test` 与 `npm run test:e2e` 均使用 `jest.e2e.config.js`。默认会跑 `e2e/health.test.js`（不依赖开发者工具）；需真机/模拟器自动化的用例见下方环境变量。
-- **仅非 E2E 单测**：`npm run test:unit`（使用 `jest.config.js`，当前仓库含 `tests/smoke.test.js` 占位）。
-- **环境变量（可选）**
-  - `E2E_LAUNCH=1`：运行 `e2e/phase01-simple.test.js`（`automator.launch`）。需本机已安装微信开发者工具。
-  - `E2E_WS_CONNECT=1`：运行 `e2e/phase01.test.js`（`automator.connect`）。需已用 CLI 打开项目并开启自动化（默认 `ws://localhost:9420`）。
-  - `WECHAT_DEVTOOLS_CLI`：微信开发者工具 CLI 可执行文件路径。默认 macOS：`/Applications/wechatwebdevtools.app/Contents/MacOS/cli`。
-  - `MINIPROGRAM_PROJECT_PATH`：小程序项目根目录（含 `project.config.json`）。默认自动指向本仓库根目录（与 `e2e` 脚本相对路径一致）。
-- **两种 E2E 方式的区别**
-  - `e2e/phase01-simple.test.js` 使用 `automator.launch()`：需 `E2E_LAUNCH=1`；本机已安装开发者工具且 CLI 路径正确；首页使用 `switchTab` 进入 tabBar 页。
-  - `e2e/phase01.test.js` 使用 `automator.connect({ wsEndpoint: 'ws://localhost:9420' })`：**需先用微信开发者工具 CLI 打开项目并开启自动化监听**，再运行 `E2E_WS_CONNECT=1 npm run test:e2e`。默认 **不会**运行该文件（避免未连接时整批失败）。
-- E2E 使用 `jest.e2e.config.js` 中的 `maxWorkers: 1`，避免多个用例并行连接同一开发者工具实例。
+小程序读写字段约定如下（新增页写入；列表/详情读取）：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `nickname` | string | 昵称 |
+| `realName` | string | 真实姓名 |
+| `position` | string | `PG` / `SG` / `SF` / `PF` / `C` |
+| `age` | number | 年龄 |
+| `height` | number | 身高（厘米） |
+| `weight` | number | 体重（千克） |
+| `createdAt` | serverDate | 创建时间 |
+| `updatedAt` | serverDate | 更新时间 |
+
+**安全规则**：请在控制台为 `players` 配置符合你产品要求的读写规则；开发阶段可先用较宽规则验证链路，上线前务必收紧（仅创建者可写、按 openid 隔离等）。更细的规则示例见 [DEPLOYMENT.md](./DEPLOYMENT.md)。
 
 ## 项目结构
 
 ```
-├── cloudfunctions/           # 云函数目录
-│   └── getOpenId/          # 获取用户openid
-│       ├── index.js
-│       └── package.json
-├── miniprogram/             # 小程序代码
-│   ├── app.js              # 小程序入口
-│   ├── app.json            # 小程序配置
-│   ├── app.wxss            # 全局样式
-│   ├── pages/              # 页面目录
-│   │   ├── index/          # 首页
-│   │   ├── teams/          # 球队列表
-│   │   ├── create-team/    # 创建球队
-│   │   ├── team-detail/    # 球队详情
-│   │   └── member-manage/  # 成员管理
-│   ├── components/         # 自定义组件
-│   │   └── cloudbase-badge/
-│   └── images/             # 图片资源
-│       └── tabbar/         # 底部导航图标
-├── project.config.json     # 项目配置
-├── DEPLOYMENT.md          # 部署指南
-├── 产品功能设计.md         # 产品功能文档
-└── README.md              # 项目说明
+├── cloudfunctions/getOpenId/   # 获取 openid
+├── miniprogram/
+│   ├── app.js                    # 云初始化、登录
+│   ├── app.json                  # 全局路由（仅球员三页）
+│   ├── app.wxss                  # 全局样式变量
+│   └── pages/players/
+│       ├── list/                 # 球员列表（入口页）
+│       ├── create/               # 新增球员
+│       └── detail/               # 球员详情
+├── e2e/                          # E2E 测试（可选，需开发者工具）
+├── tests/                        # 单元与自测
+├── project.config.json           # 小程序项目配置
+├── DEPLOYMENT.md                 # 部署与数据库说明
+└── README.md
 ```
 
-## 页面说明
+## 脚本与测试
 
-### 首页（index）
-- 展示用户信息
-- 统计概览（球队数、比赛数、数据数）
-- 快捷入口（创建球队、发现球队、数据统计）
-
-### 球队列表（teams）
-- 展示用户加入的所有球队
-- 支持创建新球队
-- 查看球队详情
-
-### 创建球队（create-team）
-- 填写队名、地区
-- 上传队徽
-- 选择队服颜色
-
-### 球队详情（team-detail）
-- 展示球队基本信息
-- 成员列表
-- 队长可进入成员管理
-
-### 成员管理（member-manage）
-- 查看所有成员
-- 设置副队长
-- 移除成员
-- 邀请新成员
-
-## 开发说明
-
-### 云函数
-目前使用 `getOpenId` 云函数获取用户 openid，所有数据库操作通过前端 SDK 直接进行。
-
-### 数据库安全规则
-- **teams**：所有人可读，仅创建者可写
-- **team_members**：成员本人和球队队长可读写
-- **users**：仅用户本人可读写
-
-### 样式规范
-- 主色调：#FF6B35（橙色）
-- 辅助色：#4CAF50（绿色）、#2196F3（蓝色）
-- 圆角：16rpx
-- 间距：20rpx
-
-## 后续规划
-
-### 第二阶段
-- [ ] 比赛记录与数据统计
-- [ ] 发现球队功能
-- [ ] 约球功能
-- [ ] 个人数据看板
-
-### 第三阶段
-- [ ] 联赛系统
-- [ ] 数据分析报表
-- [ ] 社交动态广场
-- [ ] 战术板工具
+| 命令 | 作用 |
+| --- | --- |
+| `npm test` | 默认 E2E 配置下的健康检查（`jest.e2e.config.js`） |
+| `npm run test:unit` | 单元测试（`jest.config.js`） |
+| `npm run test:self` | **球员模块自测**：校验位置枚举、表单写入字段、列表兼容与详情加载（`tests/player-module.self-test.test.js`） |
+| `npm run test:e2e` | 完整 E2E 套件（部分用例需本机微信开发者工具与环境变量，见 `package.json` 与 `e2e/`） |
 
 ## 常见问题
 
-**Q: 为什么无法获取 openid？**
-A: 请检查 CloudBase 环境 ID 是否正确配置，以及云函数是否成功部署。
+**Q: 控制台报错 `DATABASE_COLLECTION_NOT_EXIST` / `-502005`，提示 `players` 不存在？**  
+A: 在 CloudBase 控制台创建名为 **`players`** 的文档集合后再试。代码中已对缺失集合做了提示，但必须先创建集合才能正常读写。
 
-**Q: 为什么无法创建球队？**
-A: 请确认数据库集合 `teams` 和 `team_members` 已创建，并配置了正确的安全规则。
+**Q: 无法获取 openid？**  
+A: 确认 `app.js` 中环境 ID 正确，且 `getOpenId` 云函数已成功部署到同一环境。
 
-**Q: 如何配置数据库安全规则？**
-A: 请参考 [DEPLOYMENT.md](./DEPLOYMENT.md) 中的详细说明。
+**Q: 旧文档里还有球队/比赛模块说明？**  
+A: 当前产品已收敛为球员管理；历史说明以本 README 与 `DEPLOYMENT.md` 为准，若文档内有冲突请优先以代码与本文为准。
 
-## 技术支持
+## 相关文档
 
 - [微信云开发文档](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/basis/getting-started.html)
 - [腾讯云 CloudBase 文档](https://docs.cloudbase.net/)
-- [CloudBase AI ToolKit](https://github.com/TencentCloudBase/CloudBase-AI-ToolKit)
+- [错误码：数据库集合不存在](https://docs.cloudbase.net/error-code/basic/DATABASE_COLLECTION_NOT_EXIST)
+- 本仓库部署细节：[DEPLOYMENT.md](./DEPLOYMENT.md)
 
 ## 许可证
 
-MIT License
+[MIT License](LICENSE)
 
 ---
 
-**项目版本**：v1.0
-**最后更新**：2026-01-28
+维护提示：更新功能或数据模型时，请同步修改本文件中的「功能概览」「数据模型」「项目结构」三节，避免读者与代码脱节。

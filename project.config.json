@@ -80,5 +80,6 @@
   },
   "simulatorPluginLibVersion": {},
   "editorSetting": {},
-  "appid": "wxe8d95bf55ebc2ae7"
+  "appid": "wxe8d95bf55ebc2ae7",
+  "cloudfunctionTemplateRoot": "cloudfunctionTemplate/"
 }

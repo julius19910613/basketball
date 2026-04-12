@@ -7,6 +7,18 @@ function isCollectionMissing(error) {
   return Number(error.errCode) === COLLECTION_MISSING_CODE || message.includes("DATABASE_COLLECTION_NOT_EXIST");
 }
 
+function calcAge(birthdayStr) {
+  if (!birthdayStr) return 0;
+  var birthDate = new Date(birthdayStr);
+  var today = new Date();
+  var age = today.getFullYear() - birthDate.getFullYear();
+  var m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+}
+
 Page({
   data: {
     submitting: false,
@@ -16,7 +28,7 @@ Page({
     form: {
       nickname: "",
       realName: "",
-      age: "",
+      birthday: "",
       height: "",
       weight: ""
     }
@@ -29,6 +41,12 @@ Page({
     });
   },
 
+  onBirthdayChange(e) {
+    this.setData({
+      "form.birthday": e.detail.value
+    });
+  },
+
   onPositionChange(e) {
     this.setData({
       positionIndex: Number(e.detail.value)
@@ -36,7 +54,7 @@ Page({
   },
 
   validateForm() {
-    const { nickname, realName, age, height, weight } = this.data.form;
+    const { nickname, realName, birthday, height, weight } = this.data.form;
 
     if (!nickname.trim()) {
       return "请输入昵称";
@@ -51,12 +69,16 @@ Page({
       return "真实姓名不能超过30个字符";
     }
 
-    const ageNum = Number(age);
+    if (!birthday) {
+      return "请选择生日";
+    }
+
+    const age = calcAge(birthday);
     const heightNum = Number(height);
     const weightNum = Number(weight);
 
-    if (!Number.isInteger(ageNum) || ageNum < 10 || ageNum > 60) {
-      return "年龄需为10-60之间的整数";
+    if (age < 10 || age > 60) {
+      return "年龄需在10-60岁之间 (当前 " + age + " 岁)";
     }
     if (!Number.isFinite(heightNum) || heightNum < 120 || heightNum > 250) {
       return "身高需为120-250cm";
@@ -79,13 +101,16 @@ Page({
     wx.showLoading({ title: "保存中...", mask: true });
 
     try {
-      const { nickname, realName, age, height, weight } = this.data.form;
+      const { nickname, realName, birthday, height, weight } = this.data.form;
+      const age = calcAge(birthday);
+
       await db.collection("players").add({
         data: {
           nickname: nickname.trim(),
           realName: realName.trim(),
           position: this.data.positions[this.data.positionIndex],
-          age: Number(age),
+          birthday: new Date(birthday),
+          age: age,
           height: Number(height),
           weight: Number(weight),
           createdAt: db.serverDate(),
