@@ -5,6 +5,7 @@
 
 const db = wx.cloud.database()
 const _ = db.command
+const matchHelper = require("./match-helper")
 
 /**
  * 数据库集合常量
@@ -264,6 +265,207 @@ async function deleteGroupResult(groupId) {
 }
 
 /**
+ * ================== Matches 相关操作 ==================
+ */
+
+function buildMatchWhere(teamId, filter) {
+  var where = {}
+  if (teamId) where.teamId = teamId
+  if (filter && filter.result) where.result = filter.result
+  if (filter && filter.matchType) where.matchType = filter.matchType
+  return where
+}
+
+async function createPlayerMatchStats(match) {
+  var stats = matchHelper.extractPlayerMatchStats(match)
+  if (!stats.length) return
+  await Promise.all(
+    stats.map(function (item) {
+      return db.collection(COLLECTIONS.PLAYER_MATCH_STATS).add({
+        data: Object.assign({}, item, { createdAt: db.serverDate() })
+      })
+    })
+  )
+}
+
+/**
+ * 创建比赛
+ */
+async function createMatch(matchData) {
+  try {
+    var payload = matchHelper.prepareMatchForSave(matchData)
+    var nowData = Object.assign({}, payload, {
+      createdAt: db.serverDate(),
+      updatedAt: db.serverDate()
+    })
+    var res = await db.collection(COLLECTIONS.MATCHES).add({ data: nowData })
+    await createPlayerMatchStats(Object.assign({}, payload, { _id: res._id }))
+    return res._id
+  } catch (err) {
+    console.error("创建比赛失败:", err)
+    throw err
+  }
+}
+
+/**
+ * 获取比赛列表
+ */
+async function getMatchList(teamId, filter = {}, page = 0, pageSize = 20) {
+  try {
+    var where = buildMatchWhere(teamId, filter)
+    var query = db
+      .collection(COLLECTIONS.MATCHES)
+      .where(where)
+      .orderBy("matchDate", "desc")
+      .skip(page * pageSize)
+      .limit(pageSize)
+
+    if (filter && filter.playerId) {
+      var history = await db
+        .collection(COLLECTIONS.PLAYER_MATCH_STATS)
+        .where({ playerId: filter.playerId })
+        .orderBy("matchDate", "desc")
+        .get()
+      var matchIds = (history.data || []).map(function (item) {
+        return item.matchId
+      })
+      if (!matchIds.length) return []
+      where._id = _.in(matchIds)
+      query = db
+        .collection(COLLECTIONS.MATCHES)
+        .where(where)
+        .orderBy("matchDate", "desc")
+        .skip(page * pageSize)
+        .limit(pageSize)
+    }
+
+    var res = await query.get()
+    return res.data || []
+  } catch (err) {
+    console.error("获取比赛列表失败:", err)
+    throw err
+  }
+}
+
+/**
+ * 获取比赛详情
+ */
+async function getMatchDetail(matchId) {
+  try {
+    var res = await db.collection(COLLECTIONS.MATCHES).doc(matchId).get()
+    return res.data || null
+  } catch (err) {
+    console.error("获取比赛详情失败:", err)
+    throw err
+  }
+}
+
+/**
+ * 更新比赛
+ */
+async function updateMatch(matchId, updateData) {
+  try {
+    var payload = matchHelper.prepareMatchForSave(updateData)
+    await db.collection(COLLECTIONS.MATCHES).doc(matchId).update({
+      data: Object.assign({}, payload, { updatedAt: db.serverDate() })
+    })
+    await db
+      .collection(COLLECTIONS.PLAYER_MATCH_STATS)
+      .where({ matchId: matchId })
+      .remove()
+    await createPlayerMatchStats(Object.assign({}, payload, { _id: matchId }))
+    return true
+  } catch (err) {
+    console.error("更新比赛失败:", err)
+    throw err
+  }
+}
+
+/**
+ * 删除比赛
+ */
+async function deleteMatch(matchId) {
+  try {
+    await db.collection(COLLECTIONS.MATCHES).doc(matchId).remove()
+    await db
+      .collection(COLLECTIONS.PLAYER_MATCH_STATS)
+      .where({ matchId: matchId })
+      .remove()
+    return true
+  } catch (err) {
+    console.error("删除比赛失败:", err)
+    throw err
+  }
+}
+
+/**
+ * 获取球员比赛历史
+ */
+async function getPlayerMatchHistory(playerId, limit = 20) {
+  try {
+    var res = await db
+      .collection(COLLECTIONS.PLAYER_MATCH_STATS)
+      .where({ playerId: playerId })
+      .orderBy("matchDate", "desc")
+      .limit(limit)
+      .get()
+    return res.data || []
+  } catch (err) {
+    console.error("获取球员比赛历史失败:", err)
+    throw err
+  }
+}
+
+/**
+ * 获取球员赛季统计
+ */
+async function getPlayerSeasonStats(playerId, season) {
+  try {
+    var history = await getPlayerMatchHistory(playerId, 200)
+    var list = history
+    if (season) {
+      list = history.filter(function (item) {
+        return String(item.matchDate || "").startsWith(String(season))
+      })
+    }
+    if (!list.length) {
+      return {
+        games: 0,
+        avgPoints: 0,
+        avgRebounds: 0,
+        avgAssists: 0,
+        maxPoints: 0,
+        fgPct: 0
+      }
+    }
+    var total = list.reduce(
+      function (acc, item) {
+        acc.points += Number(item.points) || 0
+        acc.rebounds += Number(item.rebounds) || 0
+        acc.assists += Number(item.assists) || 0
+        acc.maxPoints = Math.max(acc.maxPoints, Number(item.points) || 0)
+        acc.shotsMade += Number(item.shotsMade) || 0
+        acc.shotsAttempted += Number(item.shotsAttempted) || 0
+        return acc
+      },
+      { points: 0, rebounds: 0, assists: 0, maxPoints: 0, shotsMade: 0, shotsAttempted: 0 }
+    )
+    var games = list.length
+    return {
+      games: games,
+      avgPoints: Math.round((total.points / games) * 10) / 10,
+      avgRebounds: Math.round((total.rebounds / games) * 10) / 10,
+      avgAssists: Math.round((total.assists / games) * 10) / 10,
+      maxPoints: total.maxPoints,
+      fgPct: matchHelper.calcFgPct(total.shotsMade, total.shotsAttempted)
+    }
+  } catch (err) {
+    console.error("获取球员赛季统计失败:", err)
+    throw err
+  }
+}
+
+/**
  * ================== 辅助函数 ==================
  */
 
@@ -460,6 +662,15 @@ async function getTeamMembersDetail(teamId) {
 }
 
 module.exports = {
+  // matches 相关
+  createMatch,
+  getMatchList,
+  getMatchDetail,
+  updateMatch,
+  deleteMatch,
+  getPlayerMatchHistory,
+  getPlayerSeasonStats,
+
   // skillLevel 相关
   getTeamMembersWithSkillLevel,
   updateMemberSkillLevel,

@@ -1,0 +1,34 @@
+<view class="container">
+  <view class="header">
+    <text class="title">比赛记录</text>
+    <button class="add-btn" bindtap="goCreate">新增比赛</button>
+  </view>
+
+  <view class="tabs">
+    <view class="tab {{activeTab === 0 ? 'tab-active' : ''}}" data-tab="0" bindtap="onTabChange">全部</view>
+    <view class="tab {{activeTab === 1 ? 'tab-active' : ''}}" data-tab="1" bindtap="onTabChange">胜</view>
+    <view class="tab {{activeTab === 2 ? 'tab-active' : ''}}" data-tab="2" bindtap="onTabChange">负</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="status-text">加载中...</view>
+  <view wx:elif="{{!matches.length}}" class="status-text">暂无比赛记录</view>
+
+  <view wx:else class="list">
+    <view wx:for="{{matches}}" wx:key="_id" class="card {{item.resultClass}}">
+      <view class="card-main" data-id="{{item._id}}" bindtap="goDetail">
+        <view class="row">
+          <text class="opponent">vs {{item.opponent}}</text>
+          <text class="type {{item.typeClass}}">{{item.matchTypeText}}</text>
+        </view>
+        <view class="row score-row">
+          <text class="date">{{item.matchDate}}</text>
+          <text class="score {{item.scoreClass}}">{{item.scoreUs}} : {{item.scoreOpponent}}</text>
+        </view>
+        <text class="meta">📍 {{item.location || '未填写地点'}} · {{item.startTime || '--:--'}}-{{item.endTime || '--:--'}}</text>
+      </view>
+      <button class="delete-btn" data-id="{{item._id}}" bindtap="onDelete">删除</button>
+    </view>
+  </view>
+
+  <view wx:if="{{loadingMore}}" class="status-text">加载更多...</view>
+</view>

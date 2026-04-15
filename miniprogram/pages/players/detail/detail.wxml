@@ -79,6 +79,18 @@
     </block>
   </view>
 
+  <view wx:if="{{player}}" class="match-card" bindtap="goMatchRecords">
+    <view class="match-head">
+      <text class="match-title">📊 比赛记录</text>
+      <text class="match-link">查看详情 ></text>
+    </view>
+    <view wx:if="{{matchStats && matchStats.games > 0}}">
+      <text class="match-text">总场次：{{matchStats.games}} 场 · 场均：{{matchStats.avgPoints}} 分 / {{matchStats.avgRebounds}} 板 / {{matchStats.avgAssists}} 助</text>
+      <text class="match-text">最高分：{{matchStats.maxPoints}} · 命中率：{{matchStats.fgPct}}%</text>
+    </view>
+    <text wx:else class="match-empty">暂无比赛数据，点击查看比赛列表</text>
+  </view>
+
   <!-- 底部操作栏 -->
   <view wx:if="{{player}}" class="action-bar">
     <block wx:if="{{!editing}}">

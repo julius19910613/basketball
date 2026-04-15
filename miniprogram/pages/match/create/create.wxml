@@ -1,0 +1,40 @@
+<view class="container">
+  <view wx:if="{{loading}}" class="loading">加载中...</view>
+  <view wx:else>
+    <view class="tabs">
+      <view class="tab {{tab===0?'active':''}}" data-tab="0" bindtap="switchTab">基本信息</view>
+      <view class="tab {{tab===1?'active':''}}" data-tab="1" bindtap="switchTab">比分录入</view>
+      <view class="tab {{tab===2?'active':''}}" data-tab="2" bindtap="switchTab">球员数据</view>
+    </view>
+
+    <view wx:if="{{tab===0}}" class="card">
+      <view class="field"><text>对手 *</text><input value="{{form.opponent}}" data-field="opponent" bindinput="onInput" placeholder="输入对手名称" /></view>
+      <view class="field"><text>比赛日期 *</text><picker mode="date" value="{{form.matchDate}}" bindchange="onDateChange"><view>{{form.matchDate}}</view></picker></view>
+      <view class="field"><text>开始时间</text><picker mode="time" value="{{form.startTime}}" data-field="startTime" bindchange="onTimeChange"><view>{{form.startTime || '选择时间'}}</view></picker></view>
+      <view class="field"><text>结束时间</text><picker mode="time" value="{{form.endTime}}" data-field="endTime" bindchange="onTimeChange"><view>{{form.endTime || '选择时间'}}</view></picker></view>
+      <view class="field"><text>比赛地点</text><input value="{{form.location}}" data-field="location" bindinput="onInput" placeholder="输入地点" /></view>
+      <view class="field"><text>比赛类型</text><picker mode="selector" range="{{['友谊赛','联赛','杯赛']}}" bindchange="onTypeChange"><view>{{form.matchType === 'league' ? '联赛' : form.matchType === 'cup' ? '杯赛' : '友谊赛'}}</view></picker></view>
+    </view>
+
+    <view wx:if="{{tab===1}}" class="card">
+      <view class="score-line"><text>总分</text><input type="number" value="{{form.scoreUs}}" data-field="scoreUs" bindinput="onInput" /><text>:</text><input type="number" value="{{form.scoreOpponent}}" data-field="scoreOpponent" bindinput="onInput" /></view>
+      <view wx:for="{{form.quarters}}" wx:key="quarter" class="score-line">
+        <text>第{{item.quarter}}节</text>
+        <input type="number" value="{{item.scoreUs}}" data-quarter="{{index}}" data-field="scoreUs" bindinput="onQuarterInput" />
+        <text>:</text>
+        <input type="number" value="{{item.scoreOpponent}}" data-quarter="{{index}}" data-field="scoreOpponent" bindinput="onQuarterInput" />
+      </view>
+    </view>
+
+    <view wx:if="{{tab===2}}" class="card">
+      <player-stat-input players="{{players}}" value="{{form.playerStats}}" bind:change="onPlayerStatChange" />
+      <view class="summary">球员得分合计：{{playerTotalPoints}} / 比分总分：{{form.scoreUs}}</view>
+    </view>
+
+    <view class="action-bar">
+      <button wx:if="{{tab>0}}" class="btn btn-secondary" bindtap="prevTab">上一步</button>
+      <button wx:if="{{tab<2}}" class="btn btn-primary" bindtap="nextTab">下一步</button>
+      <button wx:if="{{tab===2}}" class="btn btn-primary" loading="{{saving}}" disabled="{{saving}}" bindtap="onSubmit">保存比赛</button>
+    </view>
+  </view>
+</view>

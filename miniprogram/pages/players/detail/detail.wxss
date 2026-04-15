@@ -146,3 +146,38 @@
 .btn::after {
   border: none;
 }
+
+.match-card {
+  margin-top: 20rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  border: 1rpx solid #d9e4fb;
+  box-shadow: 0 6rpx 16rpx rgba(22, 82, 240, 0.08);
+  padding: 24rpx;
+}
+
+.match-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.match-title {
+  color: #0f172a;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.match-link {
+  color: #1652f0;
+  font-size: 22rpx;
+}
+
+.match-text,
+.match-empty {
+  display: block;
+  color: #64748b;
+  font-size: 24rpx;
+  line-height: 1.6;
+}

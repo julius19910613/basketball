@@ -1,0 +1,31 @@
+<view class="wrapper">
+  <view wx:for="{{players}}" wx:key="_id" class="player-card">
+    <view class="head">
+      <view class="left">
+        <switch checked="{{statsMap[item._id].played}}" data-player-id="{{item._id}}" bindchange="onTogglePlayer" color="#1652f0" />
+        <text class="name">{{item.displayNickname || item.nickname || item.name}}</text>
+        <text class="pos">{{item.displayPosition || item.position || '-'}}</text>
+      </view>
+      <text wx:if="{{statsMap[item._id].played}}" class="pct">命中率 {{statsMap[item._id].fgPct || 0}}%</text>
+    </view>
+
+    <view wx:if="{{statsMap[item._id].played}}" class="content">
+      <view class="stat-line">
+        <text>得</text><input type="number" value="{{statsMap[item._id].points}}" data-player-id="{{item._id}}" data-field="points" bindinput="onStatInput" />
+        <text>板</text><input type="number" value="{{statsMap[item._id].rebounds}}" data-player-id="{{item._id}}" data-field="rebounds" bindinput="onStatInput" />
+        <text>助</text><input type="number" value="{{statsMap[item._id].assists}}" data-player-id="{{item._id}}" data-field="assists" bindinput="onStatInput" />
+        <text>抢</text><input type="number" value="{{statsMap[item._id].steals}}" data-player-id="{{item._id}}" data-field="steals" bindinput="onStatInput" />
+      </view>
+      <view class="stat-line">
+        <text>投</text><input type="number" value="{{statsMap[item._id].shotsMade}}" data-player-id="{{item._id}}" data-field="shotsMade" bindinput="onStatInput" />
+        <text>/</text><input type="number" value="{{statsMap[item._id].shotsAttempted}}" data-player-id="{{item._id}}" data-field="shotsAttempted" bindinput="onStatInput" />
+        <text>三</text><input type="number" value="{{statsMap[item._id].threePtMade}}" data-player-id="{{item._id}}" data-field="threePtMade" bindinput="onStatInput" />
+        <text>/</text><input type="number" value="{{statsMap[item._id].threePtAttempted}}" data-player-id="{{item._id}}" data-field="threePtAttempted" bindinput="onStatInput" />
+      </view>
+      <view class="stat-line">
+        <text>罚</text><input type="number" value="{{statsMap[item._id].ftMade}}" data-player-id="{{item._id}}" data-field="ftMade" bindinput="onStatInput" />
+        <text>/</text><input type="number" value="{{statsMap[item._id].ftAttempted}}" data-player-id="{{item._id}}" data-field="ftAttempted" bindinput="onStatInput" />
+      </view>
+    </view>
+  </view>
+</view>

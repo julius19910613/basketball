@@ -1,4 +1,5 @@
-const db = wx.cloud.database();
+const cloudDb = wx.cloud.database();
+const appDb = require("../../../utils/db");
 const COLLECTION_MISSING_CODE = -502005;
 
 function isCollectionMissing(error) {
@@ -66,7 +67,8 @@ Page({
       height: "",
       weight: ""
     },
-    positionDisplayNames: positionDisplayNames
+    positionDisplayNames: positionDisplayNames,
+    matchStats: null
   },
 
   onLoad: function (options) {
@@ -85,7 +87,7 @@ Page({
   loadPlayer: function (id) {
     var that = this;
     that.setData({ loading: true, errorMessage: "" });
-    db.collection("players").doc(id).get().then(function (res) {
+    cloudDb.collection("players").doc(id).get().then(function (res) {
       var player = res.data;
       if (!player) {
         that.setData({
@@ -109,6 +111,7 @@ Page({
           createdAtText: formatDate(player.createdAt)
         }
       });
+      that.loadPlayerMatchStats(id);
     }).catch(function (error) {
       var message = isCollectionMissing(error)
         ? "当前环境缺少 players 集合，请先在 CloudBase 控制台创建"
@@ -208,7 +211,7 @@ Page({
       position: positions[form.positionIndex],
       height: form.height ? Number(form.height) : null,
       weight: form.weight ? Number(form.weight) : null,
-      updatedAt: db.serverDate()
+      updatedAt: cloudDb.serverDate()
     };
 
     if (form.birthday) {
@@ -219,7 +222,7 @@ Page({
     that.setData({ saving: true });
     wx.showLoading({ title: "保存中...", mask: true });
 
-    db.collection("players").doc(that.data.playerId).update({
+    cloudDb.collection("players").doc(that.data.playerId).update({
       data: updateData
     }).then(function () {
       wx.hideLoading();
@@ -232,6 +235,22 @@ Page({
       that.setData({ saving: false });
       wx.showToast({ title: "保存失败，请重试", icon: "none" });
       console.error("update player failed:", error);
+    });
+  },
+
+  async loadPlayerMatchStats(playerId) {
+    try {
+      const year = new Date().getFullYear();
+      const stats = await appDb.getPlayerSeasonStats(playerId, String(year));
+      this.setData({ matchStats: stats });
+    } catch (error) {
+      console.error("load player match stats failed:", error);
+    }
+  },
+
+  goMatchRecords() {
+    wx.navigateTo({
+      url: `/pages/match/list/list?playerId=${this.data.playerId}`
     });
   }
 });

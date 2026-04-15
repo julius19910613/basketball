@@ -1,0 +1,80 @@
+<!-- pages/index/index.wxml -->
+<view class="container">
+  <!-- Hero Section -->
+  <view class="hero-card">
+    <view class="hero-content">
+      <view class="hero-title">欢迎回来，勇士</view>
+      <view class="hero-subtitle">今天也要在球场上挥洒汗水吗？</view>
+    </view>
+    <view class="hero-stats">
+      <view class="stat-item">
+        <text class="stat-value">{{teamCount || 0}}</text>
+        <text class="stat-label">我的球队</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-value">{{matchCount || 0}}</text>
+        <text class="stat-label">参赛记录</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Quick Actions Grid -->
+  <view class="section-title">核心管理</view>
+  <van-grid column-num="2" border="{{ false }}" gutter="{{ 10 }}">
+    <van-grid-item 
+      use-slot 
+      bindtap="navToPlayers"
+      content-class="action-card"
+    >
+      <image class="action-icon" src="/images/tabbar/teams-active.png" />
+      <text class="action-name">球员管理</text>
+      <text class="action-desc">管理队友与数据</text>
+    </van-grid-item>
+    <van-grid-item 
+      use-slot 
+      bindtap="navToMatches"
+      content-class="action-card"
+    >
+      <image class="action-icon" src="/images/tabbar/match-active.png" />
+      <text class="action-name">比赛历史</text>
+      <text class="action-desc">记录荣耀瞬间</text>
+    </van-grid-item>
+  </van-grid>
+
+  <!-- Secondary Actions -->
+  <view class="section-title">更多发现</view>
+  <view class="secondary-actions">
+    <view class="action-item" bindtap="navToDiscovery">
+      <view class="action-left">
+        <view class="icon-wrapper blue">
+          <van-icon name="search" color="#fff" size="20px" />
+        </view>
+        <view class="action-info">
+          <text class="name">发现球队</text>
+          <text class="desc">加入附近的篮球圈子</text>
+        </view>
+      </view>
+      <van-icon name="arrow" color="#cbd5e1" />
+    </view>
+    
+    <view class="action-item" bindtap="navToProfile">
+      <view class="action-left">
+        <view class="icon-wrapper sky">
+          <van-icon name="user-o" color="#fff" size="20px" />
+        </view>
+        <view class="action-info">
+          <text class="name">个人中心</text>
+          <text class="desc">完善资料与设置</text>
+        </view>
+      </view>
+      <van-icon name="arrow" color="#cbd5e1" />
+    </view>
+  </view>
+
+  <!-- Footer Banner -->
+  <view class="footer-banner" bindtap="navToCreateMatch">
+    <text>正在组织比赛？立即创建任务</text>
+    <van-icon name="plus" />
+  </view>
+</view>

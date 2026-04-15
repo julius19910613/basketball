@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "新建比赛",
+  "usingComponents": {
+    "player-stat-input": "/components/player-stat-input/player-stat-input"
+  }
+}

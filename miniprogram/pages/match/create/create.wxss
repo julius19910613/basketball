@@ -1,0 +1,74 @@
+.container {
+  min-height: 100vh;
+  background: #f4f8ff;
+  padding: 24rpx;
+  padding-bottom: 160rpx;
+}
+.loading {
+  text-align: center;
+  color: #64748b;
+  margin-top: 120rpx;
+}
+.tabs {
+  display: flex;
+  gap: 10rpx;
+  margin-bottom: 18rpx;
+}
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 14rpx 0;
+  border-radius: 999rpx;
+  border: 1rpx solid #d9e4fb;
+  background: #fff;
+  color: #64748b;
+  font-size: 24rpx;
+}
+.tab.active {
+  color: #1652f0;
+  border-color: #1652f0;
+  background: #eef4ff;
+}
+.card {
+  background: #fff;
+  border-radius: 16rpx;
+  border: 1rpx solid #d9e4fb;
+  box-shadow: 0 6rpx 16rpx rgba(22, 82, 240, 0.08);
+  padding: 20rpx;
+}
+.field,
+.score-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12rpx;
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid #f1f5f9;
+}
+.field text,
+.score-line text {
+  color: #64748b;
+  font-size: 24rpx;
+}
+.field input,
+.score-line input {
+  flex: 1;
+  text-align: right;
+  color: #0f172a;
+  font-size: 26rpx;
+}
+.summary {
+  margin-top: 14rpx;
+  font-size: 24rpx;
+  color: #1652f0;
+}
+.action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 20rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
+  display: flex;
+  gap: 14rpx;
+}

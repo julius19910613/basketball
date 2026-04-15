@@ -28,6 +28,7 @@ Page({
     form: {
       nickname: "",
       realName: "",
+      age: "",
       birthday: "",
       height: "",
       weight: ""
@@ -65,7 +66,7 @@ Page({
   },
 
   validateForm() {
-    const { nickname, realName, birthday, height, weight } = this.data.form;
+    const { nickname, realName, age, birthday, height, weight } = this.data.form;
 
     if (!nickname.trim()) {
       return "请输入昵称";
@@ -80,16 +81,12 @@ Page({
       return "真实姓名不能超过30个字符";
     }
 
-    if (!birthday) {
-      return "请选择生日";
-    }
-
-    const age = calcAge(birthday);
+    const ageNumber = birthday ? calcAge(birthday) : Number(age);
     const heightNum = Number(height);
     const weightNum = Number(weight);
 
-    if (age < 10 || age > 60) {
-      return "年龄需在10-60岁之间 (当前 " + age + " 岁)";
+    if (!Number.isFinite(ageNumber) || ageNumber < 10 || ageNumber > 60) {
+      return "年龄需在10-60岁之间 (当前 " + ageNumber + " 岁)";
     }
     if (!Number.isFinite(heightNum) || heightNum < 120 || heightNum > 250) {
       return "身高需为120-250cm";
@@ -112,20 +109,23 @@ Page({
     wx.showLoading({ title: "保存中...", mask: true });
 
     try {
-      const { nickname, realName, birthday, height, weight } = this.data.form;
-      const age = calcAge(birthday);
+      const { nickname, realName, age, birthday, height, weight } = this.data.form;
+      const ageValue = birthday ? calcAge(birthday) : Number(age);
 
       var newPlayerData = {
         nickname: nickname.trim(),
         realName: realName.trim(),
         position: this.data.positions[this.data.positionIndex],
-        birthday: new Date(birthday),
-        age: age,
+        age: ageValue,
         height: Number(height),
         weight: Number(weight),
         createdAt: db.serverDate(),
         updatedAt: db.serverDate()
       };
+
+      if (birthday) {
+        newPlayerData.birthday = new Date(birthday);
+      }
 
       // 如果从 profile 页面跳转，自动绑定 openid
       if (this.data.linkedOpenid) {

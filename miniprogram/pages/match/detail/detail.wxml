@@ -1,0 +1,49 @@
+<view class="container">
+  <view wx:if="{{loading}}" class="status">加载中...</view>
+  <view wx:elif="{{!match}}" class="status">比赛不存在</view>
+  <view wx:else>
+    <view class="card">
+      <view class="head">
+        <text class="title">vs {{match.opponent}}</text>
+        <text class="type">{{match.matchTypeText}}</text>
+      </view>
+      <view class="score">{{match.scoreUs}} : {{match.scoreOpponent}}</view>
+      <text class="diff">分差 {{match.diff > 0 ? '+' : ''}}{{match.diff}}</text>
+      <text class="meta">📍 {{match.location || '未填写地点'}}</text>
+      <text class="meta">📅 {{match.matchDate}} {{match.startTime}}-{{match.endTime}}</text>
+    </view>
+
+    <view class="tabs">
+      <view class="tab {{tab===0?'active':''}}" data-tab="0" bindtap="onTabChange">每节比分</view>
+      <view class="tab {{tab===1?'active':''}}" data-tab="1" bindtap="onTabChange">球员数据</view>
+      <view class="tab {{tab===2?'active':''}}" data-tab="2" bindtap="onTabChange">备注</view>
+    </view>
+
+    <view wx:if="{{tab===0}}" class="panel">
+      <view wx:for="{{match.quarters}}" wx:key="quarter" class="row">
+        <text>第{{item.quarter}}节</text><text>{{item.scoreUs}} : {{item.scoreOpponent}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{tab===1}}" class="panel">
+      <view wx:for="{{playedPlayers}}" wx:key="playerId" class="player">
+        <text class="name">{{item.nickname}} {{item.position}}</text>
+        <text class="line">{{item.points}}分 {{item.rebounds}}板 {{item.assists}}助 {{item.steals}}抢</text>
+        <text class="line">投篮 {{item.shotsMade}}/{{item.shotsAttempted}} ({{item.fgPct}}%)</text>
+      </view>
+      <view wx:if="{{benchedPlayers.length}}" class="bench">
+        未出场：
+        <text wx:for="{{benchedPlayers}}" wx:key="playerId">{{item.nickname}} </text>
+      </view>
+    </view>
+
+    <view wx:if="{{tab===2}}" class="panel">
+      <text>{{match.highlights || '暂无备注'}}</text>
+    </view>
+
+    <view class="action-bar">
+      <button class="btn btn-secondary" bindtap="onEdit">编辑</button>
+      <button class="btn btn-danger" bindtap="onDelete">删除</button>
+    </view>
+  </view>
+</view>
