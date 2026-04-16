@@ -1,4 +1,11 @@
 /**app.wxss**/
+@font-face {
+  font-family: 'vant-icon';
+  src: url('https://at.alicdn.com/t/font_2553510_kfwma2yq1rs.woff2?t=1694918397022') format('woff2'),
+       url('https://at.alicdn.com/t/font_2553510_kfwma2yq1rs.woff?t=1694918397022') format('woff'),
+       url('https://at.alicdn.com/t/font_2553510_kfwma2yq1rs.ttf?t=1694918397022') format('truetype');
+}
+
 page {
   --primary-color: #1652F0;
   --secondary-color: #3B82F6;
@@ -7,6 +14,7 @@ page {
   --background: #F4F8FF;
   --white: #FFFFFF;
   --card-border: #D9E4FB;
+  --van-icon-font-family: 'vant-icon' !important;
   
   background-color: var(--background);
   font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica,

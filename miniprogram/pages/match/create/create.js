@@ -13,6 +13,9 @@ Page({
     loading: true,
     saving: false,
     players: [],
+    selectedPlayerIds: [],
+    tempSelectedPlayerIds: [],
+    showPlayerPicker: false,
     playerTotalPoints: 0,
     form: helper.createEmptyMatch("")
   },
@@ -45,7 +48,12 @@ Page({
   async loadDetail(id) {
     try {
       const detail = await db.getMatchDetail(id);
+      const selectedPlayerIds = (detail.playerStats || [])
+        .filter(p => p.played)
+        .map(p => p.playerId);
+
       this.setData({
+        selectedPlayerIds,
         form: Object.assign(helper.createEmptyMatch(this.data.teamId), detail, {
           matchTypeIndex: matchTypeOptions.indexOf(detail.matchType)
         })
@@ -55,6 +63,66 @@ Page({
       wx.showToast({ title: "加载比赛失败", icon: "none" });
     }
   },
+
+  onShowPlayerPicker() {
+    this.setData({
+      showPlayerPicker: true,
+      tempSelectedPlayerIds: [...this.data.selectedPlayerIds]
+    });
+  },
+
+  onHidePlayerPicker() {
+    this.setData({ showPlayerPicker: false });
+  },
+
+  onPlayerSelectionChange(e) {
+    this.setData({ tempSelectedPlayerIds: e.detail });
+  },
+
+  onConfirmPlayers() {
+    const { tempSelectedPlayerIds, players, form } = this.data;
+    const currentStatsMap = {};
+    (form.playerStats || []).forEach(s => {
+      currentStatsMap[s.playerId] = s;
+    });
+
+    const newPlayerStats = players.map(p => {
+      const existing = currentStatsMap[p._id];
+      const isSelected = tempSelectedPlayerIds.includes(p._id);
+      if (existing) {
+        return { ...existing, played: isSelected };
+      } else {
+        const stat = helper.createEmptyPlayerStat(p);
+        stat.played = isSelected;
+        return stat;
+      }
+    });
+
+    this.setData({
+      "form.playerStats": newPlayerStats,
+      selectedPlayerIds: [...tempSelectedPlayerIds],
+      showPlayerPicker: false
+    });
+
+    // Recalculate total points
+    const totalPoints = helper.calcTeamPoints(newPlayerStats);
+    this.setData({ playerTotalPoints: totalPoints });
+  },
+
+  onTogglePlayerSelection(e) {
+    const { id } = e.currentTarget.dataset;
+    const { tempSelectedPlayerIds } = this.data;
+    const index = tempSelectedPlayerIds.indexOf(id);
+    const newSelected = [...tempSelectedPlayerIds];
+    if (index > -1) {
+      newSelected.splice(index, 1);
+    } else {
+      newSelected.push(id);
+    }
+    this.setData({ tempSelectedPlayerIds: newSelected });
+  },
+
+  noop() {},
 
   onInput(e) {
     const field = e.currentTarget.dataset.field;
@@ -87,9 +155,15 @@ Page({
   },
 
   onPlayerStatChange(e) {
+    const stats = e.detail.value || [];
+    const selectedPlayerIds = stats
+      .filter(p => p.played)
+      .map(p => p.playerId);
+
     this.setData({
-      "form.playerStats": e.detail.value,
-      playerTotalPoints: e.detail.totalPoints
+      "form.playerStats": stats,
+      playerTotalPoints: e.detail.totalPoints,
+      selectedPlayerIds
     });
   },
 

@@ -1,6 +1,11 @@
 {
   "navigationBarTitleText": "新建比赛",
   "usingComponents": {
-    "player-stat-input": "/components/player-stat-input/player-stat-input"
+    "player-stat-input": "/components/player-stat-input/player-stat-input",
+    "van-cell": "@vant/weapp/cell/index",
+    "van-popup": "@vant/weapp/popup/index",
+    "van-checkbox": "@vant/weapp/checkbox/index",
+    "van-checkbox-group": "@vant/weapp/checkbox-group/index",
+    "van-button": "@vant/weapp/button/index"
   }
 }

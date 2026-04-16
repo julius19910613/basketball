@@ -44,7 +44,9 @@ function formatMatchType(type) {
   var map = {
     friendly: "友谊赛",
     league: "联赛",
-    cup: "杯赛"
+    cup: "杯赛",
+    fiba: "全场球赛 (FIBA)",
+    ncaa: "全场球赛 (NCAA)"
   };
   return map[type] || "友谊赛";
 }
@@ -53,7 +55,9 @@ function getMatchTypeTagClass(type) {
   var map = {
     friendly: "tag-friendly",
     league: "tag-league",
-    cup: "tag-cup"
+    cup: "tag-cup",
+    fiba: "tag-fiba",
+    ncaa: "tag-ncaa"
   };
   return map[type] || "tag-friendly";
 }
