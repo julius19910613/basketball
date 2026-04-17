@@ -6,8 +6,8 @@
 
   <view class="tabs">
     <view class="tab {{activeTab === 0 ? 'tab-active' : ''}}" data-tab="0" bindtap="onTabChange">全部</view>
-    <view class="tab {{activeTab === 1 ? 'tab-active' : ''}}" data-tab="1" bindtap="onTabChange">胜</view>
-    <view class="tab {{activeTab === 2 ? 'tab-active' : ''}}" data-tab="2" bindtap="onTabChange">负</view>
+    <view class="tab {{activeTab === 1 ? 'tab-active' : ''}}" data-tab="1" bindtap="onTabChange">草稿</view>
+    <view class="tab {{activeTab === 2 ? 'tab-active' : ''}}" data-tab="2" bindtap="onTabChange">已完成</view>
   </view>
 
   <view wx:if="{{loading}}" class="status-text">加载中...</view>
@@ -15,14 +15,17 @@
 
   <view wx:else class="list">
     <view wx:for="{{matches}}" wx:key="_id" class="card {{item.resultClass}}">
-      <view class="card-main" data-id="{{item._id}}" bindtap="goDetail">
+      <view class="card-main" data-id="{{item._id}}" data-status="{{item.status}}" bindtap="goDetail">
         <view class="row">
-          <text class="opponent">vs {{item.opponent}}</text>
+          <text class="opponent">{{item.teamsText}}</text>
           <text class="type {{item.typeClass}}">{{item.matchTypeText}}</text>
         </view>
         <view class="row score-row">
           <text class="date">{{item.matchDate}}</text>
           <text class="score {{item.scoreClass}}">{{item.scoreUs}} : {{item.scoreOpponent}}</text>
+        </view>
+        <view class="row">
+          <text class="status-badge {{item.statusClass}}">{{item.statusText}}</text>
         </view>
         <text class="meta">📍 {{item.location || '未填写地点'}} · {{item.startTime || '--:--'}}-{{item.endTime || '--:--'}}</text>
       </view>

@@ -2,6 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Repository-Wide Mandatory Rules
+
+Read `AGENTS.md` first and treat it as the shared baseline for all agents.
+
+Additional mandatory enforcement:
+- For every feature implementation and bug fix, you MUST perform research with Context7 and Brave Search, and reference high-star GitHub projects before finalizing design or implementation.
+- Before any commit, you MUST verify current behavior matches `README.md`; if not, update `README.md` in the same change set.
+- README content and structure must follow best practices found via Context7 + Brave Search.
+
 ## Project Overview
 
 This is a WeChat Mini Program for basketball team management built on Tencent CloudBase. It enables amateur basketball enthusiasts to create teams, manage members, and organize matches.

@@ -46,8 +46,8 @@ Page({
 
     try {
       const filter = {};
-      if (this.data.activeTab === 1) filter.result = "win";
-      if (this.data.activeTab === 2) filter.result = "loss";
+      if (this.data.activeTab === 1) filter.status = "draft";
+      if (this.data.activeTab === 2) filter.status = "finalized";
       if (this.data.playerId) filter.playerId = this.data.playerId;
 
       const page = reset ? 0 : this.data.page;
@@ -69,11 +69,16 @@ Page({
 
   formatMatchCard(item) {
     const diff = Number(item.scoreUs || 0) - Number(item.scoreOpponent || 0);
+    const status = item.status || "finalized";
     return Object.assign({}, item, {
+      teamsText: (item.teamNames || []).filter(Boolean).join(" vs ") || item.opponent || "未设置队伍",
       matchTypeText: helper.formatMatchType(item.matchType),
       typeClass: helper.getMatchTypeTagClass(item.matchType),
       scoreClass: diff >= 0 ? "score-win" : "score-loss",
-      resultClass: item.result === "win" ? "result-win" : item.result === "loss" ? "result-loss" : "result-draw"
+      resultClass: item.result === "win" ? "result-win" : item.result === "loss" ? "result-loss" : "result-draw",
+      status,
+      statusText: status === "draft" ? "草稿" : "已完成",
+      statusClass: status === "draft" ? "status-draft" : "status-finalized"
     });
   },
 
@@ -84,6 +89,11 @@ Page({
 
   goDetail(e) {
     const id = e.currentTarget.dataset.id;
+    const status = e.currentTarget.dataset.status;
+    if (status === "draft") {
+      wx.navigateTo({ url: `/pages/match/grouping/grouping?id=${id}` });
+      return;
+    }
     wx.navigateTo({ url: `/pages/match/detail/detail?id=${id}` });
   },
 

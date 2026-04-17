@@ -8,7 +8,11 @@ Page({
     tab: 0,
     match: null,
     playedPlayers: [],
-    benchedPlayers: []
+    benchedPlayers: [],
+    teamAPlayers: [],
+    teamBPlayers: [],
+    groupedPlayers: [],
+    canEditGrouping: false
   },
 
   onLoad(options) {
@@ -26,14 +30,36 @@ Page({
       const match = await db.getMatchDetail(this.data.id);
       const played = (match.playerStats || []).filter((item) => item.played).sort((a, b) => (b.points || 0) - (a.points || 0));
       const benched = (match.playerStats || []).filter((item) => !item.played);
+      const statsMap = {};
+      (match.playerStats || []).forEach((item) => {
+        statsMap[item.playerId] = item;
+      });
+      const teamAPlayers = ((match.grouping && match.grouping.teamAPlayerIds) || []).map((id) => statsMap[id]).filter(Boolean);
+      const teamBPlayers = ((match.grouping && match.grouping.teamBPlayerIds) || []).map((id) => statsMap[id]).filter(Boolean);
+      let groups = ((match.grouping && match.grouping.teams) || []).map((group) => ({
+        teamName: group.teamName,
+        players: (group.playerIds || []).map((id) => statsMap[id]).filter(Boolean)
+      }));
+      if (!groups.length && match.grouping) {
+        const teamNames = (match.teamNames && match.teamNames.length >= 2) ? match.teamNames : ["A队", "B队"];
+        groups = [
+          { teamName: teamNames[0], players: (match.grouping.teamAPlayerIds || []).map((id) => statsMap[id]).filter(Boolean) },
+          { teamName: teamNames[1], players: (match.grouping.teamBPlayerIds || []).map((id) => statsMap[id]).filter(Boolean) }
+        ];
+      }
       this.setData({
         loading: false,
         match: Object.assign({}, match, {
+          teamsText: (match.teamNames || []).filter(Boolean).join(" vs ") || match.opponent || "未设置队伍",
           matchTypeText: helper.formatMatchType(match.matchType),
           diff: Number(match.scoreUs || 0) - Number(match.scoreOpponent || 0)
         }),
         playedPlayers: played,
-        benchedPlayers: benched
+        benchedPlayers: benched,
+        teamAPlayers,
+        teamBPlayers,
+        groupedPlayers: groups,
+        canEditGrouping: match.status === "draft" && !match.isGroupingLocked
       });
     } catch (err) {
       console.error("load match detail failed", err);
@@ -47,7 +73,8 @@ Page({
   },
 
   onEdit() {
-    wx.navigateTo({ url: `/pages/match/create/create?id=${this.data.id}` });
+    if (!this.data.canEditGrouping) return;
+    wx.navigateTo({ url: `/pages/match/grouping/grouping?id=${this.data.id}` });
   },
 
   async onDelete() {

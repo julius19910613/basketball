@@ -1,0 +1,150 @@
+.container {
+  min-height: 100vh;
+  background: #f4f8ff;
+  padding: 20rpx;
+  padding-bottom: 140rpx;
+}
+
+.status {
+  text-align: center;
+  color: #64748b;
+  margin-top: 200rpx;
+}
+
+.card {
+  background: #fff;
+  border: 1rpx solid #d9e4fb;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  margin-bottom: 16rpx;
+}
+
+.header-card .title {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 8rpx;
+}
+
+.meta {
+  display: block;
+  color: #64748b;
+  font-size: 24rpx;
+}
+
+.action-row {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  color: #0f172a;
+  font-weight: 600;
+  margin-bottom: 12rpx;
+}
+
+.empty {
+  color: #94a3b8;
+  font-size: 24rpx;
+}
+
+.player-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid #eef2ff;
+}
+
+.player-row:last-child {
+  border-bottom: none;
+}
+
+.name {
+  font-size: 28rpx;
+  color: #0f172a;
+  margin-right: 10rpx;
+}
+
+.pos {
+  font-size: 22rpx;
+  color: #64748b;
+}
+
+.ops {
+  display: flex;
+  gap: 8rpx;
+}
+
+.mini {
+  height: 56rpx;
+  line-height: 56rpx;
+  border-radius: 28rpx;
+  padding: 0 16rpx;
+  font-size: 22rpx;
+  border: 1rpx solid #d9e4fb;
+}
+
+.team-wrap {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12rpx;
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  gap: 12rpx;
+  padding: 20rpx;
+  border-top: 1rpx solid #d9e4fb;
+  background: #fff;
+}
+
+.btn {
+  flex: 1;
+  height: 84rpx;
+  line-height: 84rpx;
+  border-radius: 42rpx;
+  font-size: 28rpx;
+  border: none;
+}
+
+.btn-primary {
+  background: #1652f0;
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #eef4ff;
+  color: #1652f0;
+}
+
+.popup-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx;
+  border-bottom: 1rpx solid #eef2ff;
+}
+
+.popup-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.player-list-scroll {
+  flex: 1;
+}

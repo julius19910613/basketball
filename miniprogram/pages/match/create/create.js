@@ -9,14 +9,13 @@ Page({
     teamId: "",
     matchId: "",
     editMode: false,
-    tab: 0,
     loading: true,
     saving: false,
     players: [],
     selectedPlayerIds: [],
     tempSelectedPlayerIds: [],
     showPlayerPicker: false,
-    playerTotalPoints: 0,
+    isAllPlayersSelected: false,
     form: helper.createEmptyMatch("")
   },
 
@@ -33,11 +32,14 @@ Page({
     try {
       const cloudDb = wx.cloud.database();
       const res = await cloudDb.collection("players").orderBy("createdAt", "desc").get();
-      const players = (res.data || []).map((item) => ({
-        ...item,
-        displayNickname: item.nickname || item.name || "未命名球员",
-        displayPosition: item.position || "-"
-      }));
+      const players = (res.data || [])
+        .map((item) => ({
+          ...item,
+          playerId: item._id || item.id || item.playerId || "",
+          displayNickname: item.nickname || item.name || "未命名球员",
+          displayPosition: item.position || "-"
+        }))
+        .filter((item) => !!item.playerId);
       this.setData({ players });
     } catch (err) {
       console.error("load players failed", err);
@@ -48,14 +50,12 @@ Page({
   async loadDetail(id) {
     try {
       const detail = await db.getMatchDetail(id);
-      const selectedPlayerIds = (detail.playerStats || [])
-        .filter(p => p.played)
-        .map(p => p.playerId);
-
+      const selectedPlayerIds = (detail.selectedPlayerIds || [])
+        .concat((detail.playerStats || []).filter((p) => p.played).map((p) => p.playerId));
       this.setData({
-        selectedPlayerIds,
+        selectedPlayerIds: [...new Set(selectedPlayerIds)],
         form: Object.assign(helper.createEmptyMatch(this.data.teamId), detail, {
-          matchTypeIndex: matchTypeOptions.indexOf(detail.matchType)
+          matchTypeIndex: Math.max(0, matchTypeOptions.indexOf(detail.matchType))
         })
       });
     } catch (err) {
@@ -65,9 +65,12 @@ Page({
   },
 
   onShowPlayerPicker() {
+    const tempSelectedPlayerIds = [...this.data.selectedPlayerIds];
+    const allIds = this.data.players.map((player) => player.playerId);
     this.setData({
       showPlayerPicker: true,
-      tempSelectedPlayerIds: [...this.data.selectedPlayerIds]
+      tempSelectedPlayerIds,
+      isAllPlayersSelected: allIds.length > 0 && allIds.every((id) => tempSelectedPlayerIds.includes(id))
     });
   },
 
@@ -76,23 +79,31 @@ Page({
   },
 
   onPlayerSelectionChange(e) {
-    this.setData({ tempSelectedPlayerIds: e.detail });
+    const tempSelectedPlayerIds = Array.isArray(e.detail)
+      ? e.detail
+      : (e.detail && Array.isArray(e.detail.value) ? e.detail.value : []);
+    const allIds = this.data.players.map((player) => player.playerId);
+    this.setData({
+      tempSelectedPlayerIds,
+      isAllPlayersSelected: allIds.length > 0 && allIds.every((id) => tempSelectedPlayerIds.includes(id))
+    });
   },
 
   onConfirmPlayers() {
     const { tempSelectedPlayerIds, players, form } = this.data;
     const currentStatsMap = {};
-    (form.playerStats || []).forEach(s => {
+    (form.playerStats || []).forEach((s) => {
       currentStatsMap[s.playerId] = s;
     });
 
-    const newPlayerStats = players.map(p => {
-      const existing = currentStatsMap[p._id];
-      const isSelected = tempSelectedPlayerIds.includes(p._id);
+    const newPlayerStats = players.map((p) => {
+      const existing = currentStatsMap[p.playerId];
+      const isSelected = tempSelectedPlayerIds.includes(p.playerId);
       if (existing) {
         return { ...existing, played: isSelected };
       } else {
         const stat = helper.createEmptyPlayerStat(p);
+        stat.playerId = p.playerId;
         stat.played = isSelected;
         return stat;
       }
@@ -103,10 +114,6 @@ Page({
       selectedPlayerIds: [...tempSelectedPlayerIds],
       showPlayerPicker: false
     });
-
-    // Recalculate total points
-    const totalPoints = helper.calcTeamPoints(newPlayerStats);
-    this.setData({ playerTotalPoints: totalPoints });
   },
 
   onTogglePlayerSelection(e) {
@@ -119,7 +126,29 @@ Page({
     } else {
       newSelected.push(id);
     }
-    this.setData({ tempSelectedPlayerIds: newSelected });
+    const allIds = this.data.players.map((player) => player.playerId);
+    this.setData({
+      tempSelectedPlayerIds: newSelected,
+      isAllPlayersSelected: allIds.length > 0 && allIds.every((itemId) => newSelected.includes(itemId))
+    });
+  },
+
+  onToggleSelectAllPlayers() {
+    const allIds = this.data.players.map((player) => player.playerId);
+    if (!allIds.length) {
+      this.setData({
+        tempSelectedPlayerIds: [],
+        isAllPlayersSelected: false
+      });
+      return;
+    }
+
+    const isAllPlayersSelected = allIds.every((id) => this.data.tempSelectedPlayerIds.includes(id));
+    const nextSelectedIds = isAllPlayersSelected ? [] : allIds;
+    this.setData({
+      tempSelectedPlayerIds: nextSelectedIds,
+      isAllPlayersSelected: !isAllPlayersSelected
+    });
   },
 
   noop() {},
@@ -138,100 +167,73 @@ Page({
     });
   },
 
-  onDateChange(e) {
-    this.setData({ "form.matchDate": e.detail.value });
+  onTeamNameInput(e) {
+    const index = Number(e.currentTarget.dataset.index);
+    const value = e.detail.value;
+    this.setData({ [`form.teamNames[${index}]`]: value });
   },
 
-  onTimeChange(e) {
-    const field = e.currentTarget.dataset.field;
-    this.setData({ [`form.${field}`]: e.detail.value });
+  onAddTeam() {
+    const names = (this.data.form.teamNames || []).slice();
+    names.push(`队伍${names.length + 1}`);
+    this.setData({ "form.teamNames": names });
   },
 
-  onQuarterInput(e) {
-    const quarter = Number(e.currentTarget.dataset.quarter);
-    const field = e.currentTarget.dataset.field;
-    const value = Number(e.detail.value || 0);
-    this.setData({ [`form.quarters[${quarter}].${field}`]: value });
-  },
-
-  onPlayerStatChange(e) {
-    const stats = e.detail.value || [];
-    const selectedPlayerIds = stats
-      .filter(p => p.played)
-      .map(p => p.playerId);
-
-    this.setData({
-      "form.playerStats": stats,
-      playerTotalPoints: e.detail.totalPoints,
-      selectedPlayerIds
-    });
-  },
-
-  switchTab(e) {
-    this.setData({ tab: Number(e.currentTarget.dataset.tab) || 0 });
-  },
-
-  nextTab() {
-    this.setData({ tab: Math.min(this.data.tab + 1, 2) });
-  },
-
-  prevTab() {
-    this.setData({ tab: Math.max(this.data.tab - 1, 0) });
+  onRemoveTeam(e) {
+    const index = Number(e.currentTarget.dataset.index);
+    const names = (this.data.form.teamNames || []).slice();
+    if (names.length <= 2) {
+      wx.showToast({ title: "至少保留2支队伍", icon: "none" });
+      return;
+    }
+    names.splice(index, 1);
+    this.setData({ "form.teamNames": names });
   },
 
   validateForm() {
     const form = this.data.form;
-    if (!form.opponent || !form.opponent.trim()) return "请输入对手名称";
+    const teamNames = (form.teamNames || []).map((name) => String(name || "").trim()).filter(Boolean);
+    if (teamNames.length < 2) return "至少录入2支球队";
+    const uniq = new Set(teamNames);
+    if (uniq.size !== teamNames.length) return "球队名称不能重复";
     if (!form.matchDate) return "请选择比赛日期";
-    if (Number(form.scoreUs) < 0 || Number(form.scoreOpponent) < 0) return "比分不能为负数";
+    if (this.data.selectedPlayerIds.length < 4) return "至少选择4名球员";
     return "";
   },
 
-  async onSubmit() {
+  async onGoGrouping() {
     const errorMessage = this.validateForm();
     if (errorMessage) {
       wx.showToast({ title: errorMessage, icon: "none" });
       return;
     }
 
-    const quarterTotal = helper.calcQuarterTotals(this.data.form.quarters);
-    const playerPoints = helper.calcTeamPoints(this.data.form.playerStats);
-    const warnMessages = [];
-    if (quarterTotal.scoreUs !== Number(this.data.form.scoreUs) || quarterTotal.scoreOpponent !== Number(this.data.form.scoreOpponent)) {
-      warnMessages.push("每节合计与总分不一致");
-    }
-    if (playerPoints !== Number(this.data.form.scoreUs)) {
-      warnMessages.push("球员得分合计与总分不一致");
-    }
-
-    if (warnMessages.length) {
-      const confirm = await new Promise((resolve) => {
-        wx.showModal({
-          title: "数据提醒",
-          content: warnMessages.join("；") + "，是否继续保存？",
-          success: (res) => resolve(res.confirm),
-          fail: () => resolve(false)
-        });
-      });
-      if (!confirm) return;
-    }
-
     this.setData({ saving: true });
-    wx.showLoading({ title: "保存中...", mask: true });
+    wx.showLoading({ title: "处理中...", mask: true });
     try {
-      const payload = Object.assign({}, this.data.form, { teamId: this.data.teamId || this.data.form.teamId || "" });
-      if (this.data.editMode) {
-        await db.updateMatch(this.data.matchId, payload);
-      } else {
-        await db.createMatch(payload);
-      }
+      const payload = Object.assign({}, this.data.form, {
+        _id: this.data.matchId || undefined,
+        teamId: this.data.teamId || this.data.form.teamId || "",
+        status: "draft",
+        isGroupingLocked: false,
+        selectedPlayerIds: this.data.selectedPlayerIds,
+        teamNames: this.data.form.teamNames.map((name) => String(name || "").trim()).filter(Boolean),
+        grouping: this.data.form.grouping || {
+          teams: this.data.form.teamNames.map((name) => ({ teamName: String(name || "").trim(), playerIds: [] })),
+          lockedAt: null
+        },
+        playerStats: (this.data.form.playerStats || []).map((item) => ({
+          ...item,
+          played: this.data.selectedPlayerIds.includes(item.playerId)
+        }))
+      });
+      const matchId = await db.saveMatchDraft(payload);
       wx.hideLoading();
-      wx.showToast({ title: "保存成功", icon: "success" });
-      setTimeout(() => wx.navigateBack(), 500);
+      wx.navigateTo({ url: `/pages/match/grouping/grouping?id=${matchId}` });
     } catch (err) {
-      console.error("save match failed", err);
+      console.error("go grouping failed", err);
       wx.hideLoading();
-      wx.showToast({ title: "保存失败", icon: "none" });
+      wx.showToast({ title: "操作失败", icon: "none" });
     } finally {
       this.setData({ saving: false });
     }

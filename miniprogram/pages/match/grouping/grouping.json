@@ -1,12 +1,11 @@
 {
-  "navigationBarTitleText": "新建比赛",
+  "navigationBarTitleText": "比赛分组",
   "usingComponents": {
     "van-cell": "@vant/weapp/cell/index",
     "van-cell-group": "@vant/weapp/cell-group/index",
     "van-popup": "@vant/weapp/popup/index",
     "van-checkbox": "@vant/weapp/checkbox/index",
     "van-checkbox-group": "@vant/weapp/checkbox-group/index",
-    "van-button": "@vant/weapp/button/index",
-    "van-icon": "@vant/weapp/icon/index"
+    "van-button": "@vant/weapp/button/index"
   }
 }

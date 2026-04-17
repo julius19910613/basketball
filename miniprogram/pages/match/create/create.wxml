@@ -1,47 +1,33 @@
 <view class="container">
   <view wx:if="{{loading}}" class="loading">加载中...</view>
   <view wx:else>
-    <view class="tabs">
-      <view class="tab {{tab===0?'active':''}}" data-tab="0" bindtap="switchTab">基本信息</view>
-      <view class="tab {{tab===1?'active':''}}" data-tab="1" bindtap="switchTab">比分录入</view>
-      <view class="tab {{tab===2?'active':''}}" data-tab="2" bindtap="switchTab">球员数据</view>
-    </view>
-
-    <view wx:if="{{tab===0}}" class="card">
-      <view class="field"><text>对手 *</text><input value="{{form.opponent}}" data-field="opponent" bindinput="onInput" placeholder="输入对手名称" /></view>
-      <view class="field"><text>比赛日期 *</text><picker mode="date" value="{{form.matchDate}}" bindchange="onDateChange"><view>{{form.matchDate}}</view></picker></view>
-      <view class="field"><text>开始时间</text><picker mode="time" value="{{form.startTime}}" data-field="startTime" bindchange="onTimeChange"><view>{{form.startTime || '选择时间'}}</view></picker></view>
-      <view class="field"><text>结束时间</text><picker mode="time" value="{{form.endTime}}" data-field="endTime" bindchange="onTimeChange"><view>{{form.endTime || '选择时间'}}</view></picker></view>
+    <view class="card">
+      <view class="field multi-field">
+        <text>比赛队伍 *</text>
+        <view class="team-name-list">
+          <view wx:for="{{form.teamNames}}" wx:key="index" class="team-name-row">
+            <input value="{{item}}" data-index="{{index}}" bindinput="onTeamNameInput" placeholder="输入队伍名" />
+            <button class="mini-remove" data-index="{{index}}" bindtap="onRemoveTeam">删除</button>
+          </view>
+          <button class="mini-add" bindtap="onAddTeam">新增队伍</button>
+        </view>
+      </view>
+      <view class="field"><text>比赛日期 *</text><input value="{{form.matchDate}}" data-field="matchDate" bindinput="onInput" placeholder="YYYY-MM-DD" /></view>
+      <view class="field"><text>开始时间</text><input value="{{form.startTime}}" data-field="startTime" bindinput="onInput" placeholder="如 19:00" /></view>
+      <view class="field"><text>结束时间</text><input value="{{form.endTime}}" data-field="endTime" bindinput="onInput" placeholder="如 21:00" /></view>
       <view class="field"><text>比赛地点</text><input value="{{form.location}}" data-field="location" bindinput="onInput" placeholder="输入地点" /></view>
       <view class="field"><text>比赛类型</text><picker mode="selector" range="{{['友谊赛','联赛','杯赛']}}" bindchange="onTypeChange"><view>{{form.matchType === 'league' ? '联赛' : form.matchType === 'cup' ? '杯赛' : '友谊赛'}}</view></picker></view>
       <view class="field" bindtap="onShowPlayerPicker">
-        <text>参赛球员</text>
+        <text>参赛球员 *</text>
         <view class="picker-value">
-          <text wx:if="{{selectedPlayerIds.length > 0}}" class="selected-count">已选 {{selectedPlayerIds.length}} 人</text>
+          <text wx:if="{{selectedPlayerIds.length > 0}}" class="selected-count">已选 {{selectedPlayerIds.length}} 人（至少4人）</text>
           <text wx:else style="color: #64748b;">点击选择球员</text>
         </view>
       </view>
     </view>
 
-    <view wx:if="{{tab===1}}" class="card">
-      <view class="score-line"><text>总分</text><input type="number" value="{{form.scoreUs}}" data-field="scoreUs" bindinput="onInput" /><text>:</text><input type="number" value="{{form.scoreOpponent}}" data-field="scoreOpponent" bindinput="onInput" /></view>
-      <view wx:for="{{form.quarters}}" wx:key="quarter" class="score-line">
-        <text>第{{item.quarter}}节</text>
-        <input type="number" value="{{item.scoreUs}}" data-quarter="{{index}}" data-field="scoreUs" bindinput="onQuarterInput" />
-        <text>:</text>
-        <input type="number" value="{{item.scoreOpponent}}" data-quarter="{{index}}" data-field="scoreOpponent" bindinput="onQuarterInput" />
-      </view>
-    </view>
-
-    <view wx:if="{{tab===2}}" class="card">
-      <player-stat-input players="{{players}}" value="{{form.playerStats}}" bind:change="onPlayerStatChange" />
-      <view class="summary">球员得分合计：{{playerTotalPoints}} / 比分总分：{{form.scoreUs}}</view>
-    </view>
-
     <view class="action-bar">
-      <button wx:if="{{tab>0}}" class="btn btn-secondary" bindtap="prevTab">上一步</button>
-      <button wx:if="{{tab<2}}" class="btn btn-primary" bindtap="nextTab">下一步</button>
-      <button wx:if="{{tab===2}}" class="btn btn-primary" loading="{{saving}}" disabled="{{saving}}" bindtap="onSubmit">保存比赛</button>
+      <button class="btn btn-primary" loading="{{saving}}" disabled="{{saving}}" bindtap="onGoGrouping">下一步：进入分组</button>
     </view>
   </view>
 
@@ -58,22 +44,46 @@
         <van-button type="primary" size="small" round bind:click="onConfirmPlayers">确定</van-button>
       </view>
       <scroll-view scroll-y class="player-list-scroll">
+        <van-cell-group border="{{ false }}">
+          <van-cell
+            title="{{ isAllPlayersSelected ? '取消全选' : '全选' }}"
+            label="共 {{ players.length }} 人，已选 {{ tempSelectedPlayerIds.length }} 人"
+            label-class="select-all-meta"
+            clickable
+            bind:click="onToggleSelectAllPlayers"
+          >
+            <view slot="right-icon" class="select-all-icon">
+              <van-icon
+                wx:if="{{ isAllPlayersSelected }}"
+                name="checked"
+                size="22px"
+                color="#1652f0"
+              />
+              <van-icon
+                wx:else
+                name="circle"
+                size="22px"
+                color="#c8d2e1"
+              />
+            </view>
+          </van-cell>
+        </van-cell-group>
         <van-checkbox-group value="{{ tempSelectedPlayerIds }}" bind:change="onPlayerSelectionChange">
           <van-cell-group border="{{ false }}">
             <van-cell
               wx:for="{{ players }}"
-              wx:key="_id"
+              wx:key="playerId"
               title="{{ item.displayNickname }}"
               label="{{ item.displayPosition }}"
               clickable
-              data-id="{{ item._id }}"
+              data-id="{{ item.playerId }}"
               bind:click="onTogglePlayerSelection"
             >
               <van-checkbox
                 slot="right-icon"
-                name="{{ item._id }}"
+                name="{{ item.playerId }}"
                 catch:tap="noop"
-                class="checkbox-{{ item._id }}"
+                class="checkbox-{{ item.playerId }}"
               />
             </van-cell>
           </van-cell-group>

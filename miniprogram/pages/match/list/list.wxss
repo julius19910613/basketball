@@ -122,3 +122,19 @@
 .result-draw {
   border-left: 6rpx solid #94a3b8;
 }
+
+.status-badge {
+  font-size: 22rpx;
+  border-radius: 999rpx;
+  padding: 4rpx 12rpx;
+}
+
+.status-draft {
+  color: #d97706;
+  background: #fff7ed;
+}
+
+.status-finalized {
+  color: #166534;
+  background: #f0fdf4;
+}

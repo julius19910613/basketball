@@ -1,14 +1,20 @@
 {
-    "mcpServers": {
-        "cloudbase": {
-            "command": "npx",
-            "args": [
-                "npm-global-exec@latest",
-                "@cloudbase/cloudbase-mcp@latest"
-            ],
-            "env": {
-                "INTEGRATION_IDE": "Cursor"
-            }
-        }
+  "mcpServers": {
+    "cloudbase": {
+      "command": "npx",
+      "args": [
+        "npm-global-exec@latest",
+        "@cloudbase/cloudbase-mcp@latest"
+      ],
+      "env": {
+        "INTEGRATION_IDE": "Cursor"
+      }
+    },
+    "brave-search": {
+      "command": "mcp-server-brave-search",
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      }
     }
+  }
 }

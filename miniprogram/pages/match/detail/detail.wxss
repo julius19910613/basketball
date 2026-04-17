@@ -80,6 +80,12 @@
   font-size: 28rpx;
   font-weight: 600;
 }
+.group-title {
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  color: #0f172a;
+  font-weight: 700;
+}
 .action-bar {
   position: fixed;
   left: 0;

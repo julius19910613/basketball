@@ -3,6 +3,7 @@
     "pages/index/index",
     "pages/match/list/list",
     "pages/match/create/create",
+    "pages/match/grouping/grouping",
     "pages/match/detail/detail",
     "pages/players/list/list",
     "pages/players/create/create",

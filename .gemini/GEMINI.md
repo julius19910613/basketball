@@ -7,6 +7,22 @@ inclusion: always
 
 # CloudBase AI Development Rules Guide
 
+## Repository Overrides (Highest Priority For This Repo)
+
+When working in this repository, the following are mandatory:
+
+1. **Context7 + Brave + GitHub Research First**  
+   For every feature development, bug fix, functional design, and technical solution selection:
+   - MUST query Context7 for current official/library docs and best practices;
+   - MUST query Brave Search for additional best practices;
+   - MUST reference relevant high-star GitHub open-source projects.
+
+2. **README Consistency Gate Before Commit**  
+   Before any commit:
+   - MUST verify implemented behavior is consistent with `README.md`;
+   - if not consistent, MUST update `README.md` in the same change set;
+   - README structure/writing should follow best practices from Context7 + Brave Search research.
+
 ## 🗂️ Rule File Path Resolution Strategy
 
 **CRITICAL: All rule file paths in this document follow a smart resolution strategy to support multiple AI editors.**

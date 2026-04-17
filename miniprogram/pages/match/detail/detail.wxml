@@ -4,11 +4,12 @@
   <view wx:else>
     <view class="card">
       <view class="head">
-        <text class="title">vs {{match.opponent}}</text>
+        <text class="title">{{match.teamsText}}</text>
         <text class="type">{{match.matchTypeText}}</text>
       </view>
       <view class="score">{{match.scoreUs}} : {{match.scoreOpponent}}</view>
       <text class="diff">分差 {{match.diff > 0 ? '+' : ''}}{{match.diff}}</text>
+      <text class="meta">状态：{{match.status === 'draft' ? '草稿' : '已完成'}}</text>
       <text class="meta">📍 {{match.location || '未填写地点'}}</text>
       <text class="meta">📅 {{match.matchDate}} {{match.startTime}}-{{match.endTime}}</text>
     </view>
@@ -38,11 +39,18 @@
     </view>
 
     <view wx:if="{{tab===2}}" class="panel">
+      <view wx:for="{{groupedPlayers}}" wx:key="teamName" wx:for-item="group">
+        <view class="group-title">{{group.teamName}}</view>
+        <view wx:if="{{!group.players.length}}" class="bench">暂无分组</view>
+        <view wx:for="{{group.players}}" wx:key="playerId" wx:for-item="member" class="player">
+          <text class="name">{{member.nickname}} {{member.position}}</text>
+        </view>
+      </view>
       <text>{{match.highlights || '暂无备注'}}</text>
     </view>
 
     <view class="action-bar">
-      <button class="btn btn-secondary" bindtap="onEdit">编辑</button>
+      <button wx:if="{{canEditGrouping}}" class="btn btn-secondary" bindtap="onEdit">继续分组</button>
       <button class="btn btn-danger" bindtap="onDelete">删除</button>
     </view>
   </view>

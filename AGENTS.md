@@ -2,6 +2,34 @@
 
 This file provides guidance to all coding agents (Claude Code, Cursor, Gemini CLI, etc.) when working with this repository.
 
+## Mandatory Research And README Alignment Rules
+
+The following rules are mandatory for all feature development and bug fixes:
+
+1. **Research first (required)**  
+   Before implementing any feature, fixing any bug, deciding functionality design, or choosing a technical solution, agents MUST:
+   - query Context7 for up-to-date official/library documentation and best practices;
+   - query Brave Search for complementary best-practice references;
+   - benchmark against relevant high-star GitHub open-source projects.
+   Implementation should be based on these sources, not only prior model memory.
+
+2. **README alignment before commit (required)**  
+   Before any commit, agents MUST verify that implemented behavior matches `README.md`.
+   - If mismatch exists, update `README.md` in the same change set before commit.
+   - README writing style and structure MUST reference best practices discovered from Context7 + Brave Search.
+
+### Pre-Commit Mandatory Checklist
+
+Before running `git commit`, agents MUST complete and satisfy all items below:
+
+- [ ] Context7 queried for relevant docs/best practices of touched tech stack and APIs
+- [ ] Brave Search queried for complementary best-practice references
+- [ ] At least one relevant high-star GitHub project reviewed for implementation/design alignment
+- [ ] Current implemented behavior compared against `README.md`
+- [ ] `README.md` updated in the same change set if any mismatch was found
+- [ ] README organization/content follows best practices learned from Context7 + Brave Search
+- [ ] Commit message summarizes user-facing behavior changes and docs alignment
+
 ## Project Overview
 
 WeChat Mini Program for basketball team management, built on Tencent CloudBase.

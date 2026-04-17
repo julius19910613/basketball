@@ -96,13 +96,22 @@ function createEmptyPlayerStat(player) {
 function createEmptyMatch(teamId) {
   return {
     teamId: teamId || "",
-    opponent: "",
+    teamNames: ["A队", "B队"],
     matchDate: formatDate(new Date()),
     startTime: "",
     endTime: "",
     location: "",
     matchType: "friendly",
-    status: "completed",
+    status: "draft",
+    isGroupingLocked: false,
+    selectedPlayerIds: [],
+    grouping: {
+      teams: [
+        { teamName: "A队", playerIds: [] },
+        { teamName: "B队", playerIds: [] }
+      ],
+      lockedAt: null
+    },
     scoreUs: 0,
     scoreOpponent: 0,
     quarters: [
@@ -113,6 +122,72 @@ function createEmptyMatch(teamId) {
     ],
     playerStats: [],
     highlights: ""
+  };
+}
+
+function uniqIds(ids) {
+  return Array.from(new Set((ids || []).filter(Boolean)));
+}
+
+function validateGrouping(selectedPlayerIds, grouping) {
+  var selected = uniqIds(selectedPlayerIds);
+  var teams = (grouping && grouping.teams) || [];
+  if (!selected.length) return { ok: false, message: "请先选择球员" };
+  if (teams.length < 2) return { ok: false, message: "至少需要2支队伍" };
+  var emptyTeam = teams.some(function (item) {
+    return !uniqIds(item && item.playerIds).length;
+  });
+  if (emptyTeam) return { ok: false, message: "每支队伍至少1名球员" };
+  var assigned = [];
+  teams.forEach(function (item) {
+    assigned = assigned.concat(uniqIds(item && item.playerIds));
+  });
+  var uniqAssigned = uniqIds(assigned);
+  if (uniqAssigned.length !== assigned.length) return { ok: false, message: "同一球员不能同时在多支队伍" };
+  var missing = selected.filter(function (id) {
+    return !uniqAssigned.includes(id);
+  });
+  if (missing.length) return { ok: false, message: "仍有球员未分组" };
+  return { ok: true, message: "" };
+}
+
+function buildSnakeGrouping(players, selectedPlayerIds, teamCount) {
+  var selectedSet = new Set(uniqIds(selectedPlayerIds));
+  var count = Math.max(2, Number(teamCount) || 2);
+  var sorted = (players || [])
+    .filter(function (item) {
+      return selectedSet.has(item.playerId || item._id || item.id);
+    })
+    .map(function (item) {
+      var playerId = item.playerId || item._id || item.id;
+      var score = Number(item.overall || item.skillLevel || 0);
+      return Object.assign({}, item, { playerId: playerId, score: Number.isFinite(score) ? score : 0 });
+    })
+    .sort(function (a, b) {
+      return b.score - a.score;
+    });
+
+  var groups = Array.from({ length: count }, function () {
+    return [];
+  });
+  var pointer = 0;
+  var step = 1;
+  sorted.forEach(function (item) {
+    groups[pointer].push(item.playerId);
+    pointer += step;
+    if (pointer >= count) {
+      pointer = count - 1;
+      step = -1;
+    } else if (pointer < 0) {
+      pointer = 0;
+      step = 1;
+    }
+  });
+
+  return {
+    groups: groups.map(function (ids) {
+      return uniqIds(ids);
+    })
   };
 }
 
@@ -210,5 +285,7 @@ module.exports = {
   createEmptyPlayerStat: createEmptyPlayerStat,
   createEmptyMatch: createEmptyMatch,
   prepareMatchForSave: prepareMatchForSave,
-  extractPlayerMatchStats: extractPlayerMatchStats
+  extractPlayerMatchStats: extractPlayerMatchStats,
+  validateGrouping: validateGrouping,
+  buildSnakeGrouping: buildSnakeGrouping
 };
