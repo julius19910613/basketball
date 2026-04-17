@@ -1,6 +1,7 @@
 # 篮球管理小程序（WeChat Mini Program + CloudBase）
 
 业余篮球场景的小程序项目，覆盖 **球员管理** 与 **比赛分组** 两条核心链路：
+
 - 球员：新增、列表、详情
 - 比赛：创建比赛（多队名）-> 分组（草稿/继续编辑）-> 发布锁定
 
@@ -38,6 +39,7 @@ npm install
 ### 3) 创建数据库集合
 
 至少创建以下集合（名称需与代码一致）：
+
 - `players`
 - `matches`
 
@@ -47,30 +49,34 @@ npm install
 
 ### `players`
 
-| 字段 | 类型 | 说明 |
-| --- | --- | --- |
-| `nickname` | string | 昵称 |
-| `realName` | string | 真实姓名 |
-| `position` | string | `PG` / `SG` / `SF` / `PF` / `C` |
-| `age` | number | 年龄 |
-| `height` | number | 身高（cm） |
-| `weight` | number | 体重（kg） |
-| `createdAt` | serverDate | 创建时间 |
-| `updatedAt` | serverDate | 更新时间 |
+
+| 字段          | 类型         | 说明                              |
+| ----------- | ---------- | ------------------------------- |
+| `nickname`  | string     | 昵称                              |
+| `realName`  | string     | 真实姓名                            |
+| `position`  | string     | `PG` / `SG` / `SF` / `PF` / `C` |
+| `age`       | number     | 年龄                              |
+| `height`    | number     | 身高（cm）                          |
+| `weight`    | number     | 体重（kg）                          |
+| `createdAt` | serverDate | 创建时间                            |
+| `updatedAt` | serverDate | 更新时间                            |
+
 
 ### `matches`
 
-| 字段 | 类型 | 说明 |
-| --- | --- | --- |
-| `title` | string | 比赛标题 |
-| `date` | string | 比赛日期 |
-| `location` | string | 比赛地点 |
-| `teamNames` | string[] | 队伍名称数组（>=2） |
-| `selectedPlayerIds` | string[] | 参赛球员 ID（>=4） |
-| `grouping` | object | 分组结构（各队球员 ID） |
-| `status` | string | `draft` / `finalized` |
-| `createdAt` | serverDate | 创建时间 |
-| `updatedAt` | serverDate | 更新时间 |
+
+| 字段                  | 类型         | 说明                    |
+| ------------------- | ---------- | --------------------- |
+| `title`             | string     | 比赛标题                  |
+| `date`              | string     | 比赛日期                  |
+| `location`          | string     | 比赛地点                  |
+| `teamNames`         | string[]   | 队伍名称数组（>=2）           |
+| `selectedPlayerIds` | string[]   | 参赛球员 ID（>=4）          |
+| `grouping`          | object     | 分组结构（各队球员 ID）         |
+| `status`            | string     | `draft` / `finalized` |
+| `createdAt`         | serverDate | 创建时间                  |
+| `updatedAt`         | serverDate | 更新时间                  |
+
 
 ## 页面结构
 
@@ -105,6 +111,11 @@ npm install
 - [微信小程序云开发文档](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/basis/getting-started.html)
 - [CloudBase 官方文档](https://docs.cloudbase.net/)
 - [DEPLOYMENT.md](./DEPLOYMENT.md)
+
+## 文档维护规范
+
+- 进行功能开发或 bug 修复时，先通过 Context7 与 Brave Search 收集最新最佳实践，并参考高星 GitHub 项目
+- 提交代码前，必须检查实现与本 README 是否一致；如不一致，需在同一变更中更新 README
 
 ## License
 
