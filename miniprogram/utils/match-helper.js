@@ -151,6 +151,181 @@ function validateGrouping(selectedPlayerIds, grouping) {
   return { ok: true, message: "" };
 }
 
+var POSITION_ORDER = ["PG", "SG", "SF", "PF", "C", "OTHER"];
+
+function normalizePositionKey(pos) {
+  var p = String(pos || "")
+    .trim()
+    .toUpperCase();
+  if (p === "PG" || p === "SG" || p === "SF" || p === "PF" || p === "C") return p;
+  return "OTHER";
+}
+
+function getPlayerNumericScore(player) {
+  var s = Number(player.overall || player.skillLevel || player.score || 0);
+  return Number.isFinite(s) ? s : 0;
+}
+
+function avgOf(arr, getter) {
+  if (!arr.length) return 0;
+  var sum = 0;
+  for (var i = 0; i < arr.length; i += 1) {
+    sum += getter(arr[i]);
+  }
+  return sum / arr.length;
+}
+
+function numericRange(values) {
+  var min = Infinity;
+  var max = -Infinity;
+  for (var i = 0; i < values.length; i += 1) {
+    var v = values[i];
+    if (!Number.isFinite(v)) continue;
+    if (v < min) min = v;
+    if (v > max) max = v;
+  }
+  var r = max - min;
+  return Number.isFinite(r) && r > 0 ? r : 1;
+}
+
+function bucketSplitPenalty(team0, team1) {
+  var countPen = Math.abs(team0.length - team1.length) * 1e6;
+  var all = team0.concat(team1);
+  var hs = [];
+  var ws = [];
+  var ss = [];
+  for (var i = 0; i < all.length; i += 1) {
+    hs.push(toNumber(all[i].height));
+    ws.push(toNumber(all[i].weight));
+    ss.push(getPlayerNumericScore(all[i]));
+  }
+  var rh = numericRange(hs);
+  var rw = numericRange(ws);
+  var rs = numericRange(ss);
+  var h0 = avgOf(team0, function (p) {
+    return toNumber(p.height);
+  });
+  var h1 = avgOf(team1, function (p) {
+    return toNumber(p.height);
+  });
+  var w0 = avgOf(team0, function (p) {
+    return toNumber(p.weight);
+  });
+  var w1 = avgOf(team1, function (p) {
+    return toNumber(p.weight);
+  });
+  var s0 = avgOf(team0, getPlayerNumericScore);
+  var s1 = avgOf(team1, getPlayerNumericScore);
+  return (
+    countPen +
+    (Math.abs(h0 - h1) / rh) * 10 +
+    (Math.abs(w0 - w1) / rw) * 10 +
+    (Math.abs(s0 - s1) / rs) * 10
+  );
+}
+
+function greedyPartitionBucket(bucket) {
+  var sorted = bucket.slice().sort(function (a, b) {
+    return getPlayerNumericScore(b) - getPlayerNumericScore(a);
+  });
+  var team0 = [];
+  var team1 = [];
+  for (var i = 0; i < sorted.length; i += 1) {
+    var p = sorted[i];
+    var c0 = team0.length;
+    var c1 = team1.length;
+    if (c0 > c1) {
+      team1.push(p);
+    } else if (c1 > c0) {
+      team0.push(p);
+    } else {
+      var cIf0 = bucketSplitPenalty(team0.concat([p]), team1);
+      var cIf1 = bucketSplitPenalty(team0, team1.concat([p]));
+      if (cIf0 <= cIf1) team0.push(p);
+      else team1.push(p);
+    }
+  }
+  return { team0: team0, team1: team1 };
+}
+
+function bestPartitionTwoTeamsInBucket(bucket) {
+  var n = bucket.length;
+  if (n === 0) return { team0: [], team1: [] };
+  if (n === 1) return { team0: [bucket[0]], team1: [] };
+  if (n > 14) return greedyPartitionBucket(bucket);
+
+  var k = Math.floor(n / 2);
+  var bestCost = Infinity;
+  var best0 = [];
+  var best1 = [];
+  var chosen = [];
+
+  function dfs(start) {
+    if (chosen.length === k) {
+      var pick = {};
+      for (var i = 0; i < chosen.length; i += 1) pick[chosen[i]] = true;
+      var t0 = [];
+      var t1 = [];
+      for (var j = 0; j < n; j += 1) {
+        if (pick[j]) t0.push(bucket[j]);
+        else t1.push(bucket[j]);
+      }
+      var c = bucketSplitPenalty(t0, t1);
+      if (c < bestCost) {
+        bestCost = c;
+        best0 = t0;
+        best1 = t1;
+      }
+      return;
+    }
+    var remain = n - start;
+    var need = k - chosen.length;
+    if (remain < need) return;
+    for (var s = start; s < n; s += 1) {
+      chosen.push(s);
+      dfs(s + 1);
+      chosen.pop();
+    }
+  }
+
+  dfs(0);
+  return { team0: best0, team1: best1 };
+}
+
+function buildBalancedTwoTeamGrouping(players, selectedPlayerIds) {
+  var selectedSet = new Set(uniqIds(selectedPlayerIds));
+  var selectedList = (players || [])
+    .filter(function (item) {
+      var id = item.playerId || item._id || item.id;
+      return selectedSet.has(id);
+    })
+    .map(function (item) {
+      var playerId = item.playerId || item._id || item.id;
+      return Object.assign({}, item, { playerId: playerId });
+    });
+
+  var buckets = { PG: [], SG: [], SF: [], PF: [], C: [], OTHER: [] };
+  for (var b = 0; b < selectedList.length; b += 1) {
+    var pl = selectedList[b];
+    buckets[normalizePositionKey(pl.position)].push(pl);
+  }
+
+  var team0Ids = [];
+  var team1Ids = [];
+  for (var pi = 0; pi < POSITION_ORDER.length; pi += 1) {
+    var posKey = POSITION_ORDER[pi];
+    var bucket = buckets[posKey];
+    if (!bucket.length) continue;
+    var part = bestPartitionTwoTeamsInBucket(bucket);
+    for (var u = 0; u < part.team0.length; u += 1) team0Ids.push(part.team0[u].playerId);
+    for (var v = 0; v < part.team1.length; v += 1) team1Ids.push(part.team1[v].playerId);
+  }
+
+  return {
+    groups: [uniqIds(team0Ids), uniqIds(team1Ids)]
+  };
+}
+
 function buildSnakeGrouping(players, selectedPlayerIds, teamCount) {
   var selectedSet = new Set(uniqIds(selectedPlayerIds));
   var count = Math.max(2, Number(teamCount) || 2);
@@ -287,5 +462,6 @@ module.exports = {
   prepareMatchForSave: prepareMatchForSave,
   extractPlayerMatchStats: extractPlayerMatchStats,
   validateGrouping: validateGrouping,
-  buildSnakeGrouping: buildSnakeGrouping
+  buildSnakeGrouping: buildSnakeGrouping,
+  buildBalancedTwoTeamGrouping: buildBalancedTwoTeamGrouping
 };

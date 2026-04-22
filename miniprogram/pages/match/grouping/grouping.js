@@ -168,7 +168,10 @@ Page({
       wx.showToast({ title: "至少选择2名球员", icon: "none" });
       return;
     }
-    const grouped = helper.buildSnakeGrouping(this.data.players, this.data.selectedPlayerIds, this.data.teamGroups.length);
+    const grouped =
+      (this.data.teamGroups || []).length === 2
+        ? helper.buildBalancedTwoTeamGrouping(this.data.players, this.data.selectedPlayerIds)
+        : helper.buildSnakeGrouping(this.data.players, this.data.selectedPlayerIds, this.data.teamGroups.length);
     const teamGroups = (this.data.teamGroups || []).map((group, index) => ({
       ...group,
       playerIds: (grouped.groups && grouped.groups[index]) || []

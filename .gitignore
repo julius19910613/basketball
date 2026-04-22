@@ -25,10 +25,16 @@ cloudfunctions/**/package-lock.json
 *.swo
 *~
 
+# Test Coverage
+coverage/
+
 # Temporary Files
 *.tmp
 *.temp
 *.log
+
+# Debug Logs
+.cursor/debug-*.log
 
 # Disabled Test Files
 **/*.test.js.disabled

@@ -1,28 +1,99 @@
-# 篮球管理小程序（WeChat Mini Program + CloudBase）
+# 🏀 篮球管理小程序
 
-业余篮球场景的小程序项目，覆盖 **球员管理** 与 **比赛分组** 两条核心链路：
+业余篮球球队的微信小程序，覆盖 **球员管理**、**比赛记录**、**智能分组** 与 **个人中心** 四条核心链路。
 
-- 球员：新增、列表、详情
-- 比赛：创建比赛（多队名）-> 分组（草稿/继续编辑）-> 发布锁定
+基于微信原生开发 + 腾讯云 CloudBase，零后端运维。
 
 ## 功能特性
 
-- **球员管理**：支持 `PG/SG/SF/PF/C` 五个位置，录入昵称、真实姓名、年龄、身高、体重
-- **比赛创建**：创建比赛时可输入至少两支球队名称，并选择参赛球员（最少 4 人）
-- **分组工作流**：支持一键均衡分组 + 手动调整；可保存草稿并在比赛列表继续分组
-- **发布锁定**：分组发布后状态变为 `finalized`，分组不可再修改
-- **状态化列表**：比赛列表按 `draft` / `finalized` 分类展示
-- **云端数据**：基于 CloudBase 文档数据库与云函数 `getOpenId`
+### 球员管理
+- 创建 / 编辑 / 删除球员，支持 `PG / SG / SF / PF / C` 五个位置
+- 录入昵称、身高、体重、生日、综合评分
+- 批量导入球员（云函数 `batchImportPlayers`）
+- 下拉刷新 + 骨架屏加载
+
+### 比赛记录
+- 创建比赛（友谊赛 / 联赛 / 杯赛 / FIBA / NCAA）
+- 逐节比分记录（4 节制）
+- 球员数据统计（得分、篮板、助攻、抢断、盖帽、失误、犯规、投篮命中率）
+- 比赛结果自动判定（胜 / 负 / 平）
+- 比赛列表按时间倒序 + 分页加载
+
+### 智能分组
+- **按位置均衡分组**（2 队）：按篮球位置分桶，桶内暴力搜索最优解（≤14人），均衡身高 / 体重 / 综合评分
+- **蛇形分组**（2~N 队）：按综合评分降序蛇形轮流分配
+- 一键自动分组 + 手动拖拽调整
+- 草稿保存，支持继续编辑
+- 发布后锁定，分组不可变更
+
+### 个人中心
+- 微信静默登录 + OpenID 识别
+- 球员关联绑定
+- 球衣号码 / 位置 / 身份信息展示
 
 ## 技术栈
 
-- 微信小程序原生开发（`miniprogram/`）
-- 腾讯云 CloudBase（`wx.cloud.database()` + 云函数）
-- Jest（单元/自测/E2E）
+| 层级 | 技术 |
+|------|------|
+| 前端 | 微信小程序原生框架（WXML / WXSS / JS） |
+| UI 组件 | [Vant Weapp](https://vant-ui.github.io/vant-weapp/) |
+| 后端 | 腾讯云 CloudBase（`wx.cloud`） |
+| 数据库 | CloudBase NoSQL 文档数据库 |
+| 云函数 | Node.js（`getOpenId`、`batchImportPlayers`） |
+| 测试 | Jest（单元测试 + E2E） |
+
+## 项目结构
+
+```
+basketball/
+├── miniprogram/                # 小程序前端
+│   ├── app.js                  # CloudBase 初始化
+│   ├── app.json                # 页面路由 & TabBar 配置
+│   ├── app.wxss                # 全局样式（Coinbase Blue 主题）
+│   ├── pages/
+│   │   ├── index/              # 首页
+│   │   ├── players/            # 球员（列表 / 新增 / 详情）
+│   │   ├── match/              # 比赛（列表 / 创建 / 分组 / 详情）
+│   │   └── profile/            # 个人中心
+│   ├── components/             # 自定义组件
+│   │   ├── player-card/        # 球员卡片
+│   │   ├── player-stat-input/  # 数据录入组件
+│   │   ├── group-animation/    # 分组动画
+│   │   ├── skeleton/           # 骨架屏
+│   │   └── toast/              # Toast 提示
+│   ├── utils/                  # 工具函数
+│   │   ├── match-helper.js     # 比赛工具（分组算法、数据计算）
+│   │   ├── group-algorithm.js  # 分组算法
+│   │   ├── db.js               # 数据库封装
+│   │   └── basketball.js       # 篮球常量 & 工具
+│   └── styles/                 # 样式文件
+├── cloudfunctions/             # 云函数
+│   ├── getOpenId/              # OpenID 获取
+│   └── batchImportPlayers/     # 批量导入球员
+├── scripts/                    # 脚本工具
+│   └── import-players.js       # 球员数据导入脚本
+├── tests/                      # 单元测试
+├── e2e/                        # E2E 测试
+├── docs/
+│   ├── design-match-record.md  # 比赛记录功能设计
+│   ├── automated-testing-guide.md  # 测试指南
+│   └── archive/                # 归档文档（历史计划、报告）
+├── package.json
+├── jest.config.js
+├── jest.e2e.config.js
+├── project.config.json         # 微信开发者工具配置
+├── DATABASE_SCHEMA.md          # 数据库设计
+└── DEPLOYMENT.md               # 部署指南
+```
 
 ## 快速开始
 
-### 1) 安装依赖
+### 前置条件
+
+- [微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)
+- 已开通 [CloudBase](https://tcb.cloud.tencent.com/) 环境
+
+### 1. 克隆 & 安装
 
 ```bash
 git clone https://github.com/julius19910613/basketball.git
@@ -30,92 +101,73 @@ cd basketball
 npm install
 ```
 
-### 2) 配置 CloudBase 环境
+### 2. 导入项目
 
-- 在 `miniprogram/app.js` 中设置你的云环境 ID（`wx.cloud.init({ env: "..." })`）
-- 在微信开发者工具导入仓库根目录（包含 `project.config.json`）
-- 部署云函数：`cloudfunctions/getOpenId`
+用微信开发者工具导入项目根目录（包含 `project.config.json`）。
 
-### 3) 创建数据库集合
+### 3. 配置云环境
 
-至少创建以下集合（名称需与代码一致）：
+在 `miniprogram/app.js` 中设置你的云环境 ID：
 
-- `players`
-- `matches`
+```javascript
+wx.cloud.init({
+  env: 'your-env-id',  // 替换为你的 CloudBase 环境 ID
+  traceUser: true,
+});
+```
 
-如果缺少集合，会出现 `-502005`（集合不存在）错误。
+### 4. 创建数据库集合
 
-## 数据模型（当前实现）
+在 CloudBase 控制台依次创建：
 
-### `players`
+| 集合 | 用途 |
+|------|------|
+| `users` | 用户信息 |
+| `teams` | 球队信息 |
+| `team_members` | 球队成员关系 |
+| `players` | 球员档案 |
+| `matches` | 比赛记录 |
 
+详细字段说明见 [DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md)。
 
-| 字段          | 类型         | 说明                              |
-| ----------- | ---------- | ------------------------------- |
-| `nickname`  | string     | 昵称                              |
-| `realName`  | string     | 真实姓名                            |
-| `position`  | string     | `PG` / `SG` / `SF` / `PF` / `C` |
-| `age`       | number     | 年龄                              |
-| `height`    | number     | 身高（cm）                          |
-| `weight`    | number     | 体重（kg）                          |
-| `createdAt` | serverDate | 创建时间                            |
-| `updatedAt` | serverDate | 更新时间                            |
+### 5. 部署云函数
 
+在微信开发者工具中右键 `cloudfunctions/getOpenId` → **上传并部署：云端安装依赖**。
 
-### `matches`
+## 测试
 
+```bash
+npm test              # E2E 测试
+npm run test:unit     # 单元测试
+npm run test:self     # 球员模块自测
+npm run test:e2e      # 完整 E2E 套件
+```
 
-| 字段                  | 类型         | 说明                    |
-| ------------------- | ---------- | --------------------- |
-| `title`             | string     | 比赛标题                  |
-| `date`              | string     | 比赛日期                  |
-| `location`          | string     | 比赛地点                  |
-| `teamNames`         | string[]   | 队伍名称数组（>=2）           |
-| `selectedPlayerIds` | string[]   | 参赛球员 ID（>=4）          |
-| `grouping`          | object     | 分组结构（各队球员 ID）         |
-| `status`            | string     | `draft` / `finalized` |
-| `createdAt`         | serverDate | 创建时间                  |
-| `updatedAt`         | serverDate | 更新时间                  |
+## UI 主题
 
-
-## 页面结构
-
-- `pages/index/index`：首页
-- `pages/players/list/list`：球员列表
-- `pages/players/create/create`：新增球员
-- `pages/players/detail/detail`：球员详情
-- `pages/match/list/list`：比赛列表（草稿/已完成）
-- `pages/match/create/create`：创建比赛
-- `pages/match/grouping/grouping`：分组编辑与发布
-- `pages/match/detail/detail`：比赛详情
-- `pages/profile/profile`：个人中心
-
-## 脚本命令
-
-- `npm test`：E2E 配置测试（`jest.e2e.config.js`）
-- `npm run test:unit`：单元测试（`jest.config.js`）
-- `npm run test:self`：球员模块自测（`tests/player-module.self-test.test.js`）
-- `npm run test:e2e`：完整 E2E 套件
+| Token | 色值 | 用途 |
+|-------|------|------|
+| `--primary-color` | `#1652F0` | 主色调 |
+| `--secondary-color` | `#3B82F6` | 辅助色 |
+| `--background` | `#F4F8FF` | 页面背景 |
+| `--text-color` | `#0F172A` | 主文字 |
+| `--light-text` | `#64748B` | 辅助文字 |
 
 ## 常见问题
 
-- **报错 `-502005` / `DATABASE_COLLECTION_NOT_EXIST`**
-  - 检查 `players`、`matches` 集合是否已创建
-- **无法获取 `openid`**
-  - 检查 `app.js` 云环境 ID 与 `getOpenId` 云函数是否在同一环境
-- **已发布比赛无法继续改分组**
-  - 这是预期行为：`finalized` 状态下分组不可变更
+| 问题 | 解决方案 |
+|------|----------|
+| 报错 `-502005` | 检查 `players`、`matches` 等集合是否已在 CloudBase 创建 |
+| 无法获取 `openid` | 确认云环境 ID 与 `getOpenId` 云函数在同一环境 |
+| 已发布比赛无法改分组 | 预期行为：`finalized` 状态下分组锁定 |
+| Vant 组件未生效 | 在微信开发者工具中执行「工具 → 构建 npm」 |
 
 ## 相关文档
 
 - [微信小程序云开发文档](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/basis/getting-started.html)
 - [CloudBase 官方文档](https://docs.cloudbase.net/)
-- [DEPLOYMENT.md](./DEPLOYMENT.md)
-
-## 文档维护规范
-
-- 进行功能开发或 bug 修复时，先通过 Context7 与 Brave Search 收集最新最佳实践，并参考高星 GitHub 项目
-- 提交代码前，必须检查实现与本 README 是否一致；如不一致，需在同一变更中更新 README
+- [Vant Weapp 文档](https://vant-ui.github.io/vant-weapp/)
+- [部署指南](./DEPLOYMENT.md) · [数据库设计](./DATABASE_SCHEMA.md)
 
 ## License
 

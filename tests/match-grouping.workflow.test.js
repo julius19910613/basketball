@@ -71,10 +71,51 @@ describe("match grouping workflow", () => {
       { playerId: "p3", overall: 77 },
       { playerId: "p4", overall: 66 }
     ];
-    const grouped = helper.buildSnakeGrouping(players, ["p1", "p2", "p3", "p4"]);
+    const grouped = helper.buildSnakeGrouping(players, ["p1", "p2", "p3", "p4"], 2);
     const overlap = grouped.groups[0].filter((id) => grouped.groups[1].includes(id));
     expect(overlap.length).toBe(0);
     expect(grouped.groups[0].length + grouped.groups[1].length).toBe(4);
+  });
+
+  test("buildBalancedTwoTeamGrouping balances PG counts and splits by height/score", () => {
+    const helper = require("../miniprogram/utils/match-helper");
+    const players = [
+      { playerId: "a1", position: "PG", height: 170, weight: 70, overall: 60 },
+      { playerId: "a2", position: "PG", height: 190, weight: 90, overall: 80 },
+      { playerId: "a3", position: "PG", height: 171, weight: 71, overall: 61 },
+      { playerId: "a4", position: "PG", height: 189, weight: 89, overall: 79 }
+    ];
+    const ids = ["a1", "a2", "a3", "a4"];
+    const grouped = helper.buildBalancedTwoTeamGrouping(players, ids);
+    const g0 = grouped.groups[0];
+    const g1 = grouped.groups[1];
+    expect(g0.length + g1.length).toBe(4);
+    expect(g0.filter((id) => g1.includes(id)).length).toBe(0);
+    expect(Math.abs(g0.length - g1.length)).toBe(0);
+    const pg0 = g0.length;
+    const pg1 = g1.length;
+    expect(pg0).toBe(2);
+    expect(pg1).toBe(2);
+  });
+
+  test("buildBalancedTwoTeamGrouping handles multiple positions independently", () => {
+    const helper = require("../miniprogram/utils/match-helper");
+    const players = [
+      { playerId: "p1", position: "PG", height: 180, weight: 75, overall: 70 },
+      { playerId: "p2", position: "PG", height: 182, weight: 76, overall: 72 },
+      { playerId: "s1", position: "SG", height: 185, weight: 78, overall: 75 },
+      { playerId: "s2", position: "SG", height: 186, weight: 79, overall: 76 }
+    ];
+    const grouped = helper.buildBalancedTwoTeamGrouping(players, ["p1", "p2", "s1", "s2"]);
+    const g0 = new Set(grouped.groups[0]);
+    const g1 = new Set(grouped.groups[1]);
+    expect(g0.size + g1.size).toBe(4);
+    const pgOn0 = ["p1", "p2"].filter((id) => g0.has(id)).length;
+    const pgOn1 = ["p1", "p2"].filter((id) => g1.has(id)).length;
+    expect(Math.abs(pgOn0 - pgOn1)).toBe(0);
+    const sgOn0 = ["s1", "s2"].filter((id) => g0.has(id)).length;
+    const sgOn1 = ["s1", "s2"].filter((id) => g1.has(id)).length;
+    expect(Math.abs(sgOn0 - sgOn1)).toBe(0);
   });
 
   test("create page blocks grouping when selected players < 4", async () => {

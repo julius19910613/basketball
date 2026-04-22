@@ -125,8 +125,10 @@ WeChat Mini Program for basketball team management, built on Tencent CloudBase.
 
 ## Documentation
 
-- Product spec: `产品功能设计.md`
 - Deployment guide: `DEPLOYMENT.md`
 - Database schema: `DATABASE_SCHEMA.md`
+- Match record design: `docs/design-match-record.md`
+- Testing guide: `docs/automated-testing-guide.md`
+- Archived docs: `docs/archive/` (historical plans, reports, and progress logs)
 - WeChat Cloud Dev: https://developers.weixin.qq.com/miniprogram/dev/wxcloud/basis/getting-started.html
 - CloudBase Docs: https://docs.cloudbase.net/
