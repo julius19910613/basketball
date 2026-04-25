@@ -1,0 +1,41 @@
+name: Upload
+
+# 打 tag 时自动上传小程序到微信管理后台
+# 推荐使用语义化 tag: v1.0.0
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  upload:
+    name: Upload to WeChat
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build miniprogram npm packages
+        run: |
+          cd miniprogram && npm ci
+        working-directory: ./miniprogram
+
+      - name: Upload to WeChat
+        uses: crazyurus/miniprogram-action@master
+        with:
+          action_type: upload
+          version: ${{ github.ref_name }}
+          desc: 'CI 自动上传 ${{ github.ref_name }} - ${{ github.sha }}'
+          project_path: miniprogram
+        env:
+          PRIVATE_KEY: ${{ secrets.MINIPROGRAM_PRIVATE_KEY }}
