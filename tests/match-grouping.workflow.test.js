@@ -118,6 +118,26 @@ describe("match grouping workflow", () => {
     expect(Math.abs(sgOn0 - sgOn1)).toBe(0);
   });
 
+  test("buildPlayerStatsForSelection keeps a single source of truth for played flags", () => {
+    const helper = require("../miniprogram/utils/match-helper");
+    const players = [
+      { playerId: "p1", nickname: "A", position: "PG" },
+      { playerId: "p2", nickname: "B", position: "SG" },
+      { playerId: "p3", nickname: "C", position: "SF" }
+    ];
+    const existing = [
+      { playerId: "p1", nickname: "A", position: "PG", played: true, points: 10 },
+      { playerId: "p2", nickname: "B", position: "SG", played: true, points: 4 }
+    ];
+
+    const synced = helper.buildPlayerStatsForSelection(players, existing, ["p2", "p3"]);
+    expect(synced).toEqual([
+      { playerId: "p1", nickname: "A", position: "PG", played: false, points: 10 },
+      { playerId: "p2", nickname: "B", position: "SG", played: true, points: 4 },
+      expect.objectContaining({ playerId: "p3", nickname: "C", position: "SF", played: true, points: 0 })
+    ]);
+  });
+
   test("create page blocks grouping when selected players < 4", async () => {
     const { page, wxMock } = loadPage("miniprogram/pages/match/create/create.js");
     page.setData({
@@ -129,9 +149,52 @@ describe("match grouping workflow", () => {
     expect(wxMock.navigateTo).not.toHaveBeenCalled();
   });
 
-  test("list page routes draft item to grouping page", () => {
+  test("grouping page payload syncs playerStats with selected players", () => {
+    const { page } = loadPage("miniprogram/pages/match/grouping/grouping.js");
+    page.setData({
+      players: [
+        { playerId: "p1", displayNickname: "A", displayPosition: "PG" },
+        { playerId: "p2", displayNickname: "B", displayPosition: "SG" },
+        { playerId: "p3", displayNickname: "C", displayPosition: "SF" }
+      ],
+      selectedPlayerIds: ["p2", "p3"],
+      teamGroups: [
+        { teamName: "A队", playerIds: ["p2"] },
+        { teamName: "B队", playerIds: ["p3"] }
+      ],
+      match: {
+        playerStats: [
+          { playerId: "p1", nickname: "A", position: "PG", played: true, points: 6 },
+          { playerId: "p2", nickname: "B", position: "SG", played: false, points: 0 }
+        ]
+      }
+    });
+
+    expect(page.buildGroupingPayload()).toEqual({
+      selectedPlayerIds: ["p2", "p3"],
+      playerStats: [
+        { playerId: "p1", nickname: "A", position: "PG", played: false, points: 6 },
+        { playerId: "p2", nickname: "B", position: "SG", played: true, points: 0 },
+        expect.objectContaining({ playerId: "p3", nickname: "C", position: "SF", played: true, points: 0 })
+      ],
+      grouping: {
+        teams: [
+          { teamName: "A队", playerIds: ["p2"] },
+          { teamName: "B队", playerIds: ["p3"] }
+        ]
+      }
+    });
+  });
+
+  test("list page routes unlocked item to grouping page", () => {
     const { page, wxMock } = loadPage("miniprogram/pages/match/list/list.js");
-    page.goDetail({ currentTarget: { dataset: { id: "m1", status: "draft" } } });
+    page.goDetail({ currentTarget: { dataset: { id: "m1", locked: false } } });
     expect(wxMock.navigateTo).toHaveBeenCalledWith({ url: "/pages/match/grouping/grouping?id=m1" });
+  });
+
+  test("list page routes locked item to detail page", () => {
+    const { page, wxMock } = loadPage("miniprogram/pages/match/list/list.js");
+    page.goDetail({ currentTarget: { dataset: { id: "m2", locked: true } } });
+    expect(wxMock.navigateTo).toHaveBeenCalledWith({ url: "/pages/match/detail/detail?id=m2" });
   });
 });

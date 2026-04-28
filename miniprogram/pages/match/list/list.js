@@ -70,6 +70,7 @@ Page({
   formatMatchCard(item) {
     const diff = Number(item.scoreUs || 0) - Number(item.scoreOpponent || 0);
     const status = item.status || "finalized";
+    const groupingLocked = helper.isGroupingLocked(item);
     return Object.assign({}, item, {
       teamsText: (item.teamNames || []).filter(Boolean).join(" vs ") || item.opponent || "未设置队伍",
       matchTypeText: helper.formatMatchType(item.matchType),
@@ -77,7 +78,7 @@ Page({
       scoreClass: diff >= 0 ? "score-win" : "score-loss",
       resultClass: item.result === "win" ? "result-win" : item.result === "loss" ? "result-loss" : "result-draw",
       status,
-      statusText: status === "draft" ? "草稿" : "已完成",
+      statusText: groupingLocked ? "已锁定" : status === "draft" ? "待分组" : "已完成",
       statusClass: status === "draft" ? "status-draft" : "status-finalized"
     });
   },
@@ -89,8 +90,8 @@ Page({
 
   goDetail(e) {
     const id = e.currentTarget.dataset.id;
-    const status = e.currentTarget.dataset.status;
-    if (status === "draft") {
+    const locked = e.currentTarget.dataset.locked;
+    if (!locked) {
       wx.navigateTo({ url: `/pages/match/grouping/grouping?id=${id}` });
       return;
     }

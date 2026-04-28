@@ -289,6 +289,26 @@ async function createPlayerMatchStats(match) {
   )
 }
 
+async function replacePlayerMatchStats(matchId, match) {
+  await db
+    .collection(COLLECTIONS.PLAYER_MATCH_STATS)
+    .where({ matchId: matchId })
+    .remove()
+  await createPlayerMatchStats(Object.assign({}, match, { _id: matchId }))
+}
+
+function getGroupingPayloadUpdateData(groupingPayload, lockedAt) {
+  var data = {
+    selectedPlayerIds: groupingPayload.selectedPlayerIds || [],
+    playerStats: groupingPayload.playerStats || [],
+    grouping: Object.assign({}, groupingPayload.grouping || {})
+  }
+  if (lockedAt) {
+    data.grouping = Object.assign({}, data.grouping, { lockedAt: lockedAt })
+  }
+  return data
+}
+
 /**
  * 创建比赛
  */
@@ -379,17 +399,13 @@ async function updateMatch(matchId, updateData) {
     var existing = await getMatchById(matchId)
     if (!existing) throw new Error("比赛不存在")
     var payload = matchHelper.prepareMatchForSave(updateData)
-    if (existing.status === "finalized" && (payload.grouping || payload.selectedPlayerIds)) {
+    if (matchHelper.isGroupingLocked(existing) && (payload.grouping || payload.selectedPlayerIds)) {
       throw new Error("已完成比赛不允许修改分组")
     }
     await db.collection(COLLECTIONS.MATCHES).doc(matchId).update({
       data: Object.assign({}, payload, { updatedAt: db.serverDate() })
     })
-    await db
-      .collection(COLLECTIONS.PLAYER_MATCH_STATS)
-      .where({ matchId: matchId })
-      .remove()
-    await createPlayerMatchStats(Object.assign({}, payload, { _id: matchId }))
+    await replacePlayerMatchStats(matchId, payload)
     return true
   } catch (err) {
     console.error("更新比赛失败:", err)
@@ -408,6 +424,7 @@ async function saveMatchDraft(payload) {
     await db.collection(COLLECTIONS.MATCHES).doc(id).update({
       data: Object.assign({}, data, { updatedAt: db.serverDate() })
     })
+    await replacePlayerMatchStats(id, data)
     return id
   }
   return createMatch(data)
@@ -416,30 +433,33 @@ async function saveMatchDraft(payload) {
 async function updateDraftGrouping(matchId, payload) {
   var existing = await getMatchById(matchId)
   if (!existing) throw new Error("草稿不存在")
-  if (existing.status === "finalized") throw new Error("已完成比赛不可修改分组")
+  if (matchHelper.isGroupingLocked(existing)) throw new Error("已完成比赛不可修改分组")
+  var updateData = getGroupingPayloadUpdateData(payload)
   await db.collection(COLLECTIONS.MATCHES).doc(matchId).update({
-    data: Object.assign({}, payload, {
+    data: Object.assign({}, updateData, {
       status: "draft",
       isGroupingLocked: false,
       updatedAt: db.serverDate()
     })
   })
+  await replacePlayerMatchStats(matchId, Object.assign({}, existing, updateData))
   return true
 }
 
 async function finalizeMatchGrouping(matchId, groupingPayload) {
   var existing = await getMatchById(matchId)
   if (!existing) throw new Error("比赛不存在")
-  if (existing.status === "finalized") throw new Error("比赛已完成")
+  if (matchHelper.isGroupingLocked(existing)) throw new Error("比赛已完成")
+  var lockedAt = db.serverDate()
+  var updateData = getGroupingPayloadUpdateData(groupingPayload, lockedAt)
   await db.collection(COLLECTIONS.MATCHES).doc(matchId).update({
-    data: {
-      selectedPlayerIds: groupingPayload.selectedPlayerIds || [],
-      grouping: Object.assign({}, groupingPayload.grouping, { lockedAt: db.serverDate() }),
+    data: Object.assign({}, updateData, {
       status: "finalized",
       isGroupingLocked: true,
       updatedAt: db.serverDate()
-    }
+    })
   })
+  await replacePlayerMatchStats(matchId, Object.assign({}, existing, updateData))
   return true
 }
 

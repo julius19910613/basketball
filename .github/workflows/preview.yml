@@ -25,9 +25,7 @@ jobs:
         run: npm ci
 
       - name: Build miniprogram npm packages
-        run: |
-          cd miniprogram && npm ci
-        working-directory: ./miniprogram
+        run: npm ci
 
       - name: Preview build
         uses: crazyurus/miniprogram-action@master

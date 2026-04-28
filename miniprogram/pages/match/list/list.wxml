@@ -15,7 +15,7 @@
 
   <view wx:else class="list">
     <view wx:for="{{matches}}" wx:key="_id" class="card {{item.resultClass}}">
-      <view class="card-main" data-id="{{item._id}}" data-status="{{item.status}}" bindtap="goDetail">
+      <view class="card-main" data-id="{{item._id}}" data-locked="{{item.isGroupingLocked}}" bindtap="goDetail">
         <view class="row">
           <text class="opponent">{{item.teamsText}}</text>
           <text class="type {{item.typeClass}}">{{item.matchTypeText}}</text>

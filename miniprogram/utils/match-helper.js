@@ -73,7 +73,7 @@ function formatDate(date) {
 
 function createEmptyPlayerStat(player) {
   return {
-    playerId: player._id,
+    playerId: player._id || player.playerId || player.id || "",
     nickname: player.nickname || player.displayNickname || "未命名球员",
     position: player.position || player.displayPosition || "-",
     played: false,
@@ -127,6 +127,37 @@ function createEmptyMatch(teamId) {
 
 function uniqIds(ids) {
   return Array.from(new Set((ids || []).filter(Boolean)));
+}
+
+function buildPlayerStatsForSelection(players, existingPlayerStats, selectedPlayerIds) {
+  var selected = new Set(uniqIds(selectedPlayerIds));
+  var statsById = {};
+  (existingPlayerStats || []).forEach(function (item) {
+    if (item && item.playerId) statsById[item.playerId] = item;
+  });
+  return (players || [])
+    .map(function (player) {
+      var playerId = player.playerId || player._id || player.id || "";
+      if (!playerId) return null;
+      var existing = statsById[playerId];
+      if (existing) {
+        return Object.assign({}, existing, {
+          playerId: playerId,
+          nickname: existing.nickname || player.nickname || player.displayNickname || "未命名球员",
+          position: existing.position || player.position || player.displayPosition || "-",
+          played: selected.has(playerId)
+        });
+      }
+      var next = createEmptyPlayerStat(player);
+      next.playerId = playerId;
+      next.played = selected.has(playerId);
+      return next;
+    })
+    .filter(Boolean);
+}
+
+function isGroupingLocked(match) {
+  return !!(match && match.isGroupingLocked);
 }
 
 function validateGrouping(selectedPlayerIds, grouping) {
@@ -459,6 +490,8 @@ module.exports = {
   getMatchTypeTagClass: getMatchTypeTagClass,
   createEmptyPlayerStat: createEmptyPlayerStat,
   createEmptyMatch: createEmptyMatch,
+  buildPlayerStatsForSelection: buildPlayerStatsForSelection,
+  isGroupingLocked: isGroupingLocked,
   prepareMatchForSave: prepareMatchForSave,
   extractPlayerMatchStats: extractPlayerMatchStats,
   validateGrouping: validateGrouping,
