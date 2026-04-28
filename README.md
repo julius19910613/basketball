@@ -40,7 +40,7 @@
 | 后端 | 腾讯云 CloudBase（`wx.cloud`） |
 | 数据库 | CloudBase NoSQL 文档数据库 |
 | 云函数 | Node.js（`getOpenId`、`batchImportPlayers`） |
-| 测试 | Jest（单元测试 + E2E） |
+| 测试 | Jest（unit / page / component / E2E） |
 
 ## 项目结构
 
@@ -72,7 +72,7 @@ basketball/
 │   └── batchImportPlayers/     # 批量导入球员
 ├── scripts/                    # 脚本工具
 │   └── import-players.js       # 球员数据导入脚本
-├── tests/                      # 单元测试
+├── tests/                      # Jest 分层测试（unit / page / component）
 ├── e2e/                        # E2E 测试
 ├── docs/
 │   ├── design-match-record.md  # 比赛记录功能设计
@@ -141,10 +141,13 @@ wx.cloud.init({
 ## 测试
 
 ```bash
-npm test              # E2E 测试
-npm run test:unit     # 单元测试
-npm run test:self     # 球员模块自测
-npm run test:e2e      # 完整 E2E 套件
+npm test               # 运行 unit + page + component
+npm run test:unit      # 纯逻辑测试
+npm run test:page      # 页面逻辑测试
+npm run test:component # 组件渲染/交互测试
+npm run test:self      # 球员模块自测
+npm run test:e2e       # miniprogram-automator E2E
+npm run test:ci        # 本地模拟 CI（非 E2E + E2E）
 ```
 
 ## UI 主题

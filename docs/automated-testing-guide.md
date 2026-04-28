@@ -18,20 +18,42 @@ npm install --save-dev miniprogram-automator
 
 ## 运行测试
 
-### 方式1：运行所有测试
+### 方式1：运行默认 Jest 分层测试
 ```bash
+npm test
+```
+
+### 方式2：按测试层运行
+```bash
+npm run test:unit
+npm run test:page
+npm run test:component
 npm run test:e2e
 ```
 
-### 方式2：运行特定测试文件
+### 方式3：运行特定测试文件
 ```bash
-npx jest e2e/phase01.test.js
+npx jest --config jest.page.config.js tests/match-grouping.workflow.test.js
 ```
 
-### 方式3：运行单个测试用例
+### 方式4：运行单个测试用例
 ```bash
 npx jest e2e/phase01.test.js -t "Overall V2 算法应该正确计算"
 ```
+
+## 测试分层
+
+1. `unit`
+   适合 `miniprogram/utils` 下的纯逻辑、算法和数据转换。
+
+2. `page`
+   适合页面方法、`setData` 流程、导航和错误处理，依赖 `wx` mock 与 `Page()` 装载。
+
+3. `component`
+   适合使用 `miniprogram-simulate` 验证自定义组件的渲染和交互。
+
+4. `e2e`
+   适合使用 `miniprogram-automator` 验证关键业务链路，不建议承担大部分回归覆盖。
 
 ## 测试内容（Phase 0+1）
 
@@ -90,7 +112,7 @@ npx jest e2e/phase01.test.js -t "Overall V2 算法应该正确计算"
 ## 下一步
 
 - [ ] 添加更多测试用例（Phase 2-3）
-- [ ] 集成到 CI/CD 流程
+- [ ] 将 `test:e2e` 接入可控的手动或定时流水线
 - [ ] 生成测试覆盖率报告
 - [ ] 添加截图对比测试
 

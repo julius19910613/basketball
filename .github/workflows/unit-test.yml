@@ -8,7 +8,7 @@ on:
 
 jobs:
   unit-test:
-    name: Component Unit Tests
+    name: Layered Jest Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -24,8 +24,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run unit tests
-        run: npm run test:unit
+      - name: Run non-E2E tests
+        run: npm test
 
       - name: Upload test results
         if: always()

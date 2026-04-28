@@ -4,11 +4,14 @@
   "description": "篮球管理小程序",
   "main": "miniprogram/app.js",
   "scripts": {
-    "test": "jest --config jest.e2e.config.js",
-    "test:unit": "jest --config jest.config.js",
-    "test:self": "jest --config jest.config.js tests/player-module.self-test.test.js --runInBand",
+    "test": "jest --config jest.config.js --runInBand",
+    "test:unit": "jest --config jest.unit.config.js --runInBand",
+    "test:page": "jest --config jest.page.config.js --runInBand",
+    "test:component": "jest --config jest.component.config.js --runInBand",
+    "test:self": "jest --config jest.page.config.js tests/player-module.self-test.test.js --runInBand",
     "test:e2e": "jest --config jest.e2e.config.js",
-    "test:e2e:watch": "jest --config jest.e2e.config.js --watch"
+    "test:e2e:watch": "jest --config jest.e2e.config.js --watch",
+    "test:ci": "npm run test && npm run test:e2e"
   },
   "keywords": [],
   "author": "fanchen",
