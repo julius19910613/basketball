@@ -26,9 +26,7 @@ jobs:
         run: npm ci
 
       - name: Build miniprogram npm packages
-        run: |
-          cd miniprogram && npm ci
-        working-directory: ./miniprogram
+        run: npm ci
 
       - name: Upload to WeChat
         uses: crazyurus/miniprogram-action@master

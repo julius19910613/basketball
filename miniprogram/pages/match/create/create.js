@@ -1,8 +1,8 @@
 const db = require("../../../utils/db");
 const helper = require("../../../utils/match-helper");
 
-const matchTypeOptions = ["friendly", "league", "cup"];
-const matchTypeDisplay = ["友谊赛", "联赛", "杯赛"];
+const matchTypeOptions = ["friendly", "league", "cup", "fiba", "ncaa"];
+const matchTypeDisplay = ["友谊赛", "联赛", "杯赛", "全场球赛 (FIBA)", "全场球赛 (NCAA)"];
 
 Page({
   data: {
@@ -91,24 +91,7 @@ Page({
 
   onConfirmPlayers() {
     const { tempSelectedPlayerIds, players, form } = this.data;
-    const currentStatsMap = {};
-    (form.playerStats || []).forEach((s) => {
-      currentStatsMap[s.playerId] = s;
-    });
-
-    const newPlayerStats = players.map((p) => {
-      const existing = currentStatsMap[p.playerId];
-      const isSelected = tempSelectedPlayerIds.includes(p.playerId);
-      if (existing) {
-        return { ...existing, played: isSelected };
-      } else {
-        const stat = helper.createEmptyPlayerStat(p);
-        stat.playerId = p.playerId;
-        stat.played = isSelected;
-        return stat;
-      }
-    });
-
+    const newPlayerStats = helper.buildPlayerStatsForSelection(players, form.playerStats || [], tempSelectedPlayerIds);
     this.setData({
       "form.playerStats": newPlayerStats,
       selectedPlayerIds: [...tempSelectedPlayerIds],

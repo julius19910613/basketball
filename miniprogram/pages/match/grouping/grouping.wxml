@@ -9,8 +9,8 @@
     </view>
 
     <view class="action-row">
-      <button class="btn btn-secondary" bindtap="onShowPlayerPicker" disabled="{{match.status==='finalized'}}">添加球员</button>
-      <button class="btn btn-secondary" bindtap="onAutoBalance" disabled="{{match.status==='finalized'}}">一键均衡分组</button>
+      <button class="btn btn-secondary" bindtap="onShowPlayerPicker" disabled="{{match.isGroupingLocked}}">添加球员</button>
+      <button class="btn btn-secondary" bindtap="onAutoBalance" disabled="{{match.isGroupingLocked}}">一键均衡分组</button>
     </view>
 
     <view class="card">
@@ -22,7 +22,7 @@
           <text class="pos">{{unassigned.displayPosition}}</text>
         </view>
         <view class="ops">
-          <button wx:for="{{groupedPlayers}}" wx:key="teamName" wx:for-item="team" class="mini" data-id="{{unassigned.playerId}}" data-target-index="{{index}}" bindtap="onMovePlayer" disabled="{{match.status==='finalized'}}">{{team.teamName}}</button>
+          <button wx:for="{{groupedPlayers}}" wx:key="teamName" wx:for-item="team" class="mini" data-id="{{unassigned.playerId}}" data-target-index="{{index}}" bindtap="onMovePlayer" disabled="{{match.isGroupingLocked}}">{{team.teamName}}</button>
         </view>
       </view>
     </view>
@@ -46,7 +46,7 @@
               data-id="{{member.playerId}}"
               data-target-index="{{index}}"
               bindtap="onMovePlayer"
-              disabled="{{match.status==='finalized'}}"
+              disabled="{{match.isGroupingLocked}}"
             >
               到{{targetTeam.teamName}}
             </button>
@@ -56,8 +56,8 @@
     </view>
 
     <view class="footer">
-      <button class="btn btn-secondary" bindtap="onSaveDraft" loading="{{saving}}" disabled="{{saving || match.status==='finalized'}}">保存草稿</button>
-      <button class="btn btn-primary" bindtap="onFinalize" loading="{{saving}}" disabled="{{saving || match.status==='finalized'}}">完成并锁定</button>
+      <button class="btn btn-secondary" bindtap="onSaveDraft" loading="{{saving}}" disabled="{{saving || match.isGroupingLocked}}">保存草稿</button>
+      <button class="btn btn-primary" bindtap="onFinalize" loading="{{saving}}" disabled="{{saving || match.isGroupingLocked}}">完成并锁定</button>
     </view>
   </view>
 

@@ -9,7 +9,7 @@
       </view>
       <view class="score">{{match.scoreUs}} : {{match.scoreOpponent}}</view>
       <text class="diff">分差 {{match.diff > 0 ? '+' : ''}}{{match.diff}}</text>
-      <text class="meta">状态：{{match.status === 'draft' ? '草稿' : '已完成'}}</text>
+      <text class="meta">状态：{{match.isGroupingLocked ? '分组已锁定' : '草稿'}}</text>
       <text class="meta">📍 {{match.location || '未填写地点'}}</text>
       <text class="meta">📅 {{match.matchDate}} {{match.startTime}}-{{match.endTime}}</text>
     </view>

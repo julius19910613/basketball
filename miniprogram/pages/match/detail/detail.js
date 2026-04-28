@@ -59,7 +59,7 @@ Page({
         teamAPlayers,
         teamBPlayers,
         groupedPlayers: groups,
-        canEditGrouping: match.status === "draft" && !match.isGroupingLocked
+        canEditGrouping: !helper.isGroupingLocked(match)
       });
     } catch (err) {
       console.error("load match detail failed", err);

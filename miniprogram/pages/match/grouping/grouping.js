@@ -13,8 +13,7 @@ Page({
     showPlayerPicker: false,
     tempSelectedPlayerIds: [],
     groupedPlayers: [],
-    unassignedPlayers: []
-    ,
+    unassignedPlayers: [],
     matchTeamsText: "",
     statusText: ""
   },
@@ -71,7 +70,7 @@ Page({
         loading: false,
         match,
         matchTeamsText: ((match.teamNames || []).filter(Boolean).join(" vs ")) || "未设置队伍",
-        statusText: match.status === "finalized" ? "已完成（不可修改）" : "草稿",
+        statusText: helper.isGroupingLocked(match) ? "分组已锁定" : "草稿",
         players,
         selectedPlayerIds: uniqSelected,
         teamGroups,
@@ -116,8 +115,12 @@ Page({
     });
   },
 
+  isGroupingLocked() {
+    return helper.isGroupingLocked(this.data.match);
+  },
+
   onShowPlayerPicker() {
-    if (this.data.match && this.data.match.status === "finalized") return;
+    if (this.isGroupingLocked()) return;
     this.setData({
       showPlayerPicker: true,
       tempSelectedPlayerIds: [...this.data.selectedPlayerIds]
@@ -148,7 +151,7 @@ Page({
   },
 
   onMovePlayer(e) {
-    if (this.data.match && this.data.match.status === "finalized") return;
+    if (this.isGroupingLocked()) return;
     const { id, targetIndex } = e.currentTarget.dataset;
     const index = Number(targetIndex);
     if (!id || Number.isNaN(index)) return;
@@ -163,7 +166,7 @@ Page({
   },
 
   onAutoBalance() {
-    if (this.data.match && this.data.match.status === "finalized") return;
+    if (this.isGroupingLocked()) return;
     if (this.data.selectedPlayerIds.length < 2) {
       wx.showToast({ title: "至少选择2名球员", icon: "none" });
       return;
@@ -183,6 +186,11 @@ Page({
   buildGroupingPayload() {
     return {
       selectedPlayerIds: this.data.selectedPlayerIds,
+      playerStats: helper.buildPlayerStatsForSelection(
+        this.data.players,
+        (this.data.match && this.data.match.playerStats) || [],
+        this.data.selectedPlayerIds
+      ),
       grouping: {
         teams: (this.data.teamGroups || []).map((group) => ({
           teamName: group.teamName,
@@ -193,7 +201,7 @@ Page({
   },
 
   async onSaveDraft() {
-    if (this.data.match && this.data.match.status === "finalized") return;
+    if (this.isGroupingLocked()) return;
     this.setData({ saving: true });
     wx.showLoading({ title: "保存草稿..." });
     try {
@@ -201,7 +209,10 @@ Page({
       wx.hideLoading();
       wx.showToast({ title: "草稿已保存", icon: "success" });
       const latest = await db.getMatchDetail(this.data.matchId);
-      this.setData({ match: latest });
+      this.setData({
+        match: latest,
+        statusText: helper.isGroupingLocked(latest) ? "分组已锁定" : "草稿"
+      });
     } catch (err) {
       console.error("save draft failed", err);
       wx.hideLoading();
@@ -212,7 +223,7 @@ Page({
   },
 
   async onFinalize() {
-    if (this.data.match && this.data.match.status === "finalized") return;
+    if (this.isGroupingLocked()) return;
     const check = helper.validateGrouping(this.data.selectedPlayerIds, {
       teams: (this.data.teamGroups || []).map((group) => ({
         teamName: group.teamName,

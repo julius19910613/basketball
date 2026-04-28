@@ -16,7 +16,7 @@
       <view class="field"><text>开始时间</text><input value="{{form.startTime}}" data-field="startTime" bindinput="onInput" placeholder="如 19:00" /></view>
       <view class="field"><text>结束时间</text><input value="{{form.endTime}}" data-field="endTime" bindinput="onInput" placeholder="如 21:00" /></view>
       <view class="field"><text>比赛地点</text><input value="{{form.location}}" data-field="location" bindinput="onInput" placeholder="输入地点" /></view>
-      <view class="field"><text>比赛类型</text><picker mode="selector" range="{{['友谊赛','联赛','杯赛']}}" bindchange="onTypeChange"><view>{{form.matchType === 'league' ? '联赛' : form.matchType === 'cup' ? '杯赛' : '友谊赛'}}</view></picker></view>
+      <view class="field"><text>比赛类型</text><picker mode="selector" range="{{['友谊赛','联赛','杯赛','全场球赛 (FIBA)','全场球赛 (NCAA)']}}" bindchange="onTypeChange"><view>{{form.matchType === 'league' ? '联赛' : form.matchType === 'cup' ? '杯赛' : form.matchType === 'fiba' ? '全场球赛 (FIBA)' : form.matchType === 'ncaa' ? '全场球赛 (NCAA)' : '友谊赛'}}</view></picker></view>
       <view class="field" bindtap="onShowPlayerPicker">
         <text>参赛球员 *</text>
         <view class="picker-value">
