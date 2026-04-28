@@ -108,6 +108,32 @@ function loadPage(relativePath, options = {}) {
   return { page, wxMock };
 }
 
+function createPlayerDetailDbMock(playerDoc) {
+  const playerGetMock = jest.fn().mockResolvedValue({ data: playerDoc });
+  const playerMatchStatsGetMock = jest.fn().mockResolvedValue({ data: [] });
+  return {
+    collection(name) {
+      if (name === "players") {
+        return {
+          doc: () => ({ get: playerGetMock })
+        };
+      }
+      if (name === "player_match_stats") {
+        return {
+          where: () => ({
+            orderBy: () => ({
+              limit: () => ({
+                get: playerMatchStatsGetMock
+              })
+            })
+          })
+        };
+      }
+      return {};
+    }
+  };
+}
+
 describe("player module self-check", () => {
   test("H1: create page仅允许5个标准位置", () => {
     const addMock = jest.fn().mockResolvedValue({ _id: "p1" });
@@ -169,7 +195,7 @@ describe("player module self-check", () => {
   });
 
   test("H4: detail page缺少id时返回可见错误信息", () => {
-    const dbMock = { collection: () => ({ doc: () => ({ get: jest.fn() }) }) };
+    const dbMock = createPlayerDetailDbMock(null);
     const { page } = loadPage("miniprogram/pages/players/detail/detail.js", { dbMock });
     page.onLoad({});
     debugLog("H4", "player-module.self-test.test.js:detail", "detail missing id state", {
@@ -179,19 +205,16 @@ describe("player module self-check", () => {
   });
 
   test("H5: detail page可加载并格式化详情字段", async () => {
-    const getMock = jest.fn().mockResolvedValue({
-      data: {
-        _id: "p1",
-        nickname: "Ace",
-        realName: "王强",
-        position: "PF",
-        age: 26,
-        height: 196,
-        weight: 92,
-        createdAt: "2026-04-10T12:00:00.000Z"
-      }
+    const dbMock = createPlayerDetailDbMock({
+      _id: "p1",
+      nickname: "Ace",
+      realName: "王强",
+      position: "PF",
+      age: 26,
+      height: 196,
+      weight: 92,
+      createdAt: "2026-04-10T12:00:00.000Z"
     });
-    const dbMock = { collection: () => ({ doc: () => ({ get: getMock }) }) };
     const { page } = loadPage("miniprogram/pages/players/detail/detail.js", { dbMock });
     page.onLoad({ id: "p1" });
     await new Promise((resolve) => setImmediate(resolve));
