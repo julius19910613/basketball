@@ -114,9 +114,10 @@
 ```json
 {
   "read": true,
-  "write": true
+  "write": "doc._openid == auth.openid"
 }
 ```
+> 注：以上为示例规则，建议根据业务场景限制写权限。特权操作（如管理员修改任意球员、设置 MVP 标记）建议通过云函数执行，避免前端直接操作。
 
 ---
 
@@ -148,9 +149,10 @@
 ```json
 {
   "read": true,
-  "write": true
+  "write": "doc._openid == auth.openid"
 }
 ```
+> 注：比赛数据建议仅允许创建者或管理员写入，可通过云函数验证权限。
 
 ---
 

@@ -58,15 +58,32 @@
 
 .detail-avatar-wrap.mvp .player-avatar {
   border: 4rpx solid #fbbf24;
-  animation: mvp-glow 2.5s ease-in-out infinite;
 }
 
-@keyframes mvp-glow {
+/* MVP 光晕效果 - 独立层动画，避免box-shadow重绘 */
+.detail-avatar-wrap.mvp::after {
+  content: "";
+  position: absolute;
+  top: -8rpx;
+  left: -8rpx;
+  right: -8rpx;
+  bottom: -8rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.35) 0%, rgba(251, 191, 36, 0.08) 60%, transparent 70%);
+  opacity: 0.6;
+  animation: mvp-halo 2.5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes mvp-halo {
   0%, 100% {
-    box-shadow: 0 0 8rpx rgba(251, 191, 36, 0.4), 0 0 20rpx rgba(251, 191, 36, 0.2);
+    opacity: 0.4;
+    transform: scale(0.95);
   }
   50% {
-    box-shadow: 0 0 16rpx rgba(251, 191, 36, 0.7), 0 0 40rpx rgba(251, 191, 36, 0.35);
+    opacity: 0.85;
+    transform: scale(1.05);
   }
 }
 

@@ -236,20 +236,31 @@ Page({
     }
 
     var form = that.data.editForm;
-      var updateData = {
-        nickname: form.nickname.trim(),
-        realName: form.realName.trim(),
-        position: positions[form.positionIndex],
-        height: Number(form.height),
-        weight: Number(form.weight),
-        avatar: form.avatar || "",
-        isMvp: Boolean(form.isMvp),
-        updatedAt: cloudDb.serverDate()
-      };
+    var updateData = {
+      nickname: form.nickname.trim(),
+      realName: form.realName.trim(),
+      position: positions[form.positionIndex],
+      avatar: form.avatar || "",
+      isMvp: Boolean(form.isMvp),
+      updatedAt: cloudDb.serverDate()
+    };
 
+    if (form.height) {
+      updateData.height = Number(form.height);
+    } else {
+      updateData.height = cloudDb.command.remove();
+    }
+    if (form.weight) {
+      updateData.weight = Number(form.weight);
+    } else {
+      updateData.weight = cloudDb.command.remove();
+    }
     if (form.birthday) {
       updateData.birthday = new Date(form.birthday);
       updateData.age = calcAge(form.birthday);
+    } else {
+      updateData.birthday = cloudDb.command.remove();
+      updateData.age = cloudDb.command.remove();
     }
 
     that.setData({ saving: true });

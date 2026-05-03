@@ -127,10 +127,13 @@ Component({
 
     onAvatarTap: function (e) {
       var id = e.currentTarget.dataset.id;
-      var url = e.currentTarget.dataset.url;
       var name = e.currentTarget.dataset.name;
 
-      if (!url) {
+      // 通过 id 查找原始配置中的 URL（避免保存临时 URL）
+      var preset = avatarPresets.getAvatarById(id);
+      var originalUrl = preset ? preset.url : "";
+
+      if (!originalUrl) {
         wx.showToast({ title: "该头像暂未上传", icon: "none" });
         return;
       }
@@ -138,10 +141,15 @@ Component({
       this.setData({ selectedId: id });
       this.triggerEvent("select", {
         id: id,
-        url: url,
+        url: originalUrl,
         name: name
       });
       this.closePicker();
+    },
+
+    preventScroll: function () {
+      // 阻止遮罩层触摸滚动冒泡到底层页面
+      return;
     },
 
     onMaskTap: function () {
