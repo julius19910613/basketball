@@ -65,10 +65,13 @@ Page({
       positionIndex: 0,
       birthday: "",
       height: "",
-      weight: ""
+      weight: "",
+      avatar: ""
     },
     positionDisplayNames: positionDisplayNames,
-    matchStats: null
+    matchStats: null,
+    avatarPickerVisible: false,
+    selectedAvatarId: ""
   },
 
   onLoad: function (options) {
@@ -104,6 +107,7 @@ Page({
           nickname: player.nickname || player.name || "未命名球员",
           realName: player.realName || "-",
           position: player.position || "-",
+          avatar: player.avatar || "",
           age: age !== null ? age : (player.age || "-"),
           birthdayText: formatBirthday(player.birthday),
           height: player.height || "-",
@@ -139,13 +143,33 @@ Page({
         positionIndex: getPositionIndex(player.position),
         birthday: birthdayStr,
         height: player.height === "-" ? "" : String(player.height),
-        weight: player.weight === "-" ? "" : String(player.weight)
+        weight: player.weight === "-" ? "" : String(player.weight),
+        avatar: player.avatar || ""
       }
     });
   },
 
   onCancel: function () {
-    this.setData({ editing: false });
+    this.setData({
+      editing: false,
+      avatarPickerVisible: false
+    });
+  },
+
+  onChooseAvatar() {
+    this.setData({ avatarPickerVisible: true });
+  },
+
+  onAvatarSelected(e) {
+    var avatar = e.detail;
+    this.setData({
+      "editForm.avatar": avatar.url,
+      selectedAvatarId: avatar.id
+    });
+  },
+
+  onAvatarPickerClose() {
+    this.setData({ avatarPickerVisible: false });
   },
 
   onEditInput: function (e) {
@@ -205,14 +229,15 @@ Page({
     }
 
     var form = that.data.editForm;
-    var updateData = {
-      nickname: form.nickname.trim(),
-      realName: form.realName.trim(),
-      position: positions[form.positionIndex],
-      height: form.height ? Number(form.height) : null,
-      weight: form.weight ? Number(form.weight) : null,
-      updatedAt: cloudDb.serverDate()
-    };
+      var updateData = {
+        nickname: form.nickname.trim(),
+        realName: form.realName.trim(),
+        position: positions[form.positionIndex],
+        height: Number(form.height),
+        weight: Number(form.weight),
+        avatar: form.avatar || "",
+        updatedAt: cloudDb.serverDate()
+      };
 
     if (form.birthday) {
       updateData.birthday = new Date(form.birthday);

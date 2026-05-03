@@ -23,8 +23,11 @@
       bindtap="goToDetail"
     >
       <view class="card-main">
-        <text class="nickname">{{item.displayNickname}}</text>
-        <text class="real-name">{{item.displayRealName}}</text>
+        <image class="player-avatar" src="{{item.avatar || '/images/default_avatar.svg'}}" mode="aspectFill" />
+        <view class="card-info">
+          <text class="nickname">{{item.displayNickname}}</text>
+          <text class="real-name">{{item.displayRealName}}</text>
+        </view>
       </view>
       <view class="meta">
         <text class="tag">{{item.displayPosition}}</text>

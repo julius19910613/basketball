@@ -1,3 +1,5 @@
 {
-  "navigationBarTitleText": "新增球员"
+  "usingComponents": {
+    "avatar-picker": "/components/avatar-picker/avatar-picker"
+  }
 }

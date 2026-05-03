@@ -91,6 +91,68 @@
 
 ---
 
+## 4. players 球员集合
+
+**用途**: 存储球员信息
+
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| `_id` | String | 文档ID (自动生成) |
+| `nickname` | String | 昵称（显示名称）|
+| `realName` | String | 真实姓名 |
+| `position` | String | 场上位置 (PG/SG/SF/PF/C) |
+| `age` | Number | 年龄 |
+| `birthday` | Date | 生日 |
+| `height` | Number | 身高 (cm) |
+| `weight` | Number | 体重 (kg) |
+| `avatar` | String | 头像 URL（支持 GIF，可为空）|
+| `createdAt` | Date | 创建时间 |
+| `updatedAt` | Date | 更新时间 |
+
+**安全规则**:
+```json
+{
+  "read": true,
+  "write": true
+}
+```
+
+---
+
+## 5. match_records 比赛记录集合
+
+**用途**: 存储球员单场比赛数据
+
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| `_id` | String | 文档ID (自动生成) |
+| `playerId` | String | 球员 ID |
+| `matchId` | String | 比赛 ID |
+| `year` | String | 赛季年份 |
+| `pts` | Number | 得分 |
+| `reb` | Number | 篮板 |
+| `ast` | Number | 助攻 |
+| `stl` | Number | 抢断 |
+| `blk` | Number | 盖帽 |
+| `tov` | Number | 失误 |
+| `fgm` | Number | 投篮命中数 |
+| `fga` | Number | 投篮出手数 |
+| `threePm` | Number | 三分命中数 |
+| `threePa` | Number | 三分出手数 |
+| `ftm` | Number | 罚球命中数 |
+| `fta` | Number | 罚球出手数 |
+| `createdAt` | Date | 创建时间 |
+
+**安全规则**:
+```json
+{
+  "read": true,
+  "write": true
+}
+```
+
+---
+
 ## 创建步骤
 
 1. 登录 [CloudBase 控制台](https://tcb.cloud.tencent.com)
@@ -100,4 +162,30 @@
    - `users`
    - `teams`
    - `matches`
+   - `players`
+   - `match_records`
 5. 为每个集合配置相应的安全规则
+
+## 头像功能说明
+
+### 预设头像配置
+
+预设头像配置位于 `miniprogram/config/avatar-presets.js`，支持以下分类：
+- **篮球经典**: 经典篮球动作 GIF
+- **动漫卡通**: 篮球动漫角色
+- **趣味表情**: 搞笑表情包
+
+### 使用步骤
+
+1. 准备 GIF 头像文件（建议尺寸 200x200，大小 < 500KB）
+2. 上传到 CloudBase 云存储
+3. 在云存储控制台获取文件的 HTTPS 链接
+4. 将链接填入 `miniprogram/config/avatar-presets.js` 对应头像的 `url` 字段
+5. 重新编译小程序
+
+### 技术限制
+
+- 微信小程序 `<image>` 组件**支持播放 GIF**
+- 支持格式：GIF、PNG、JPG
+- 建议 GIF 大小控制在 **2MB 以内**，避免性能问题
+- 不支持 APNG 格式

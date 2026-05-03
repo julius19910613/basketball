@@ -78,3 +78,24 @@
 .submit-btn[disabled] {
   background: #cbd5e1;
 }
+
+/* 头像选择行 */
+.avatar-select-row {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 8rpx 0;
+}
+
+.avatar-preview {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 2rpx solid #d9e4fb;
+  background: #f8fbff;
+}
+
+.avatar-hint {
+  font-size: 26rpx;
+  color: #1652f0;
+}

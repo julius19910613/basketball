@@ -1,0 +1,57 @@
+<view class="avatar-picker {{visible ? 'visible' : ''}}" catchtouchmove="preventScroll">
+  <view class="mask" bindtap="onMaskTap"></view>
+  <view class="picker-panel">
+    <!-- 顶部标题栏 -->
+    <view class="picker-header">
+      <text class="picker-title">选择头像</text>
+      <view class="close-btn" bindtap="onCloseTap">
+        <text class="close-icon">×</text>
+      </view>
+    </view>
+
+    <!-- 分类 Tab -->
+    <scroll-view class="category-bar" scroll-x="true" show-scrollbar="false" enhanced="true">
+      <view
+        class="category-item {{activeCategory === item.key ? 'active' : ''}}"
+        wx:for="{{categories}}"
+        wx:key="key"
+        data-key="{{item.key}}"
+        bindtap="onCategoryTap"
+      >
+        <text class="category-text">{{item.name}}</text>
+      </view>
+    </scroll-view>
+
+    <!-- 头像网格 -->
+    <view class="avatar-grid-wrapper">
+      <view wx:if="{{loading}}" class="grid-loading">加载中...</view>
+      <view wx:elif="{{avatars.length === 0}}" class="grid-empty">暂无头像</view>
+      <view wx:else class="avatar-grid">
+        <view
+          class="avatar-item {{selectedId === item.id ? 'selected' : ''}} {{!item.url ? 'disabled' : ''}}"
+          wx:for="{{avatars}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          data-url="{{item.url}}"
+          data-name="{{item.name}}"
+          bindtap="onAvatarTap"
+        >
+          <view class="avatar-image-wrap">
+            <image
+              wx:if="{{item.url}}"
+              class="avatar-image"
+              src="{{item.url}}"
+              mode="aspectFill"
+              lazy-load="true"
+            />
+            <view wx:else class="avatar-placeholder">
+              <text class="placeholder-text">{{item.name}}</text>
+            </view>
+          </view>
+          <text class="avatar-name">{{item.name}}</text>
+          <view wx:if="{{selectedId === item.id}}" class="selected-badge">✓</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

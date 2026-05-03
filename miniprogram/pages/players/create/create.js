@@ -31,10 +31,13 @@ Page({
       age: "",
       birthday: "",
       height: "",
-      weight: ""
+      weight: "",
+      avatar: ""
     },
     fromProfile: false,
-    linkedOpenid: ""
+    linkedOpenid: "",
+    avatarPickerVisible: false,
+    selectedAvatarId: ""
   },
 
   onLoad: function (options) {
@@ -63,6 +66,22 @@ Page({
     this.setData({
       positionIndex: Number(e.detail.value)
     });
+  },
+
+  onChooseAvatar() {
+    this.setData({ avatarPickerVisible: true });
+  },
+
+  onAvatarSelected(e) {
+    var avatar = e.detail;
+    this.setData({
+      "form.avatar": avatar.url,
+      selectedAvatarId: avatar.id
+    });
+  },
+
+  onAvatarPickerClose() {
+    this.setData({ avatarPickerVisible: false });
   },
 
   validateForm() {
@@ -119,6 +138,7 @@ Page({
         age: ageValue,
         height: Number(height),
         weight: Number(weight),
+        avatar: this.data.form.avatar || "",
         createdAt: db.serverDate(),
         updatedAt: db.serverDate()
       };

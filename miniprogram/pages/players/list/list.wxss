@@ -71,9 +71,23 @@
 
 .card-main {
   display: flex;
-  align-items: baseline;
-  gap: 12rpx;
+  align-items: center;
+  gap: 20rpx;
   margin-bottom: 12rpx;
+}
+
+.player-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  border: 2rpx solid #d9e4fb;
+  background: #f8fbff;
+  flex-shrink: 0;
+}
+
+.card-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .nickname {

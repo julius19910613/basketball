@@ -2,6 +2,15 @@
   <view class="card">
     <view class="title">新增球员</view>
 
+    <!-- 头像选择 -->
+    <view class="form-item">
+      <text class="label">头像</text>
+      <view class="avatar-select-row" bindtap="onChooseAvatar">
+        <image class="avatar-preview" src="{{form.avatar || '/images/default_avatar.svg'}}" mode="aspectFill" />
+        <text class="avatar-hint">点击选择</text>
+      </view>
+    </view>
+
     <view class="form-item">
       <text class="label">昵称</text>
       <input class="input" placeholder="请输入昵称" value="{{form.nickname}}" data-field="nickname" bindinput="onFieldInput" maxlength="20" />
@@ -43,4 +52,12 @@
   <view class="footer">
     <button class="submit-btn" loading="{{submitting}}" disabled="{{submitting}}" bindtap="onSubmit">保存球员</button>
   </view>
+
+  <!-- 头像选择器 -->
+  <avatar-picker
+    visible="{{avatarPickerVisible}}"
+    selectedId="{{selectedAvatarId}}"
+    bind:select="onAvatarSelected"
+    bind:close="onAvatarPickerClose"
+  />
 </view>

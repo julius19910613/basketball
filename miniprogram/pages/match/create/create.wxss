@@ -144,7 +144,6 @@
   min-width: 44rpx;
 }
 .action-bar {
-...
   position: fixed;
   left: 0;
   right: 0;

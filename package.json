@@ -17,7 +17,8 @@
   "author": "fanchen",
   "license": "MIT",
   "dependencies": {
-    "@vant/weapp": "^1.11.7"
+    "@vant/weapp": "^1.11.7",
+    "pptxgenjs": "^4.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",

@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "球员详情"
+  "navigationBarTitleText": "球员详情",
+  "usingComponents": {
+    "avatar-picker": "/components/avatar-picker/avatar-picker"
+  }
 }

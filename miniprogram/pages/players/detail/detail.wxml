@@ -9,8 +9,11 @@
     <!-- 查看模式 -->
     <block wx:if="{{!editing}}">
       <view class="head">
-        <text class="nickname">{{player.nickname}}</text>
-        <text class="position">{{player.position}}</text>
+        <image class="player-avatar" src="{{player.avatar || '/images/default_avatar.svg'}}" mode="aspectFill" />
+        <view class="head-info">
+          <text class="nickname">{{player.nickname}}</text>
+          <text class="position">{{player.position}}</text>
+        </view>
       </view>
 
       <view class="row">
@@ -41,6 +44,15 @@
 
     <!-- 编辑模式 -->
     <block wx:else>
+      <!-- 头像选择 -->
+      <view class="form-item edit-avatar-item">
+        <text class="label">头像</text>
+        <view class="edit-avatar-row" bindtap="onChooseAvatar">
+          <image class="edit-avatar-preview" src="{{editForm.avatar || '/images/default_avatar.svg'}}" mode="aspectFill" />
+          <text class="edit-avatar-hint">点击更换</text>
+        </view>
+      </view>
+
       <view class="form-item">
         <text class="label">昵称</text>
         <input class="edit-input" placeholder="请输入昵称" value="{{editForm.nickname}}" data-field="nickname" bindinput="onEditInput" maxlength="20" />
@@ -101,4 +113,12 @@
       <button class="btn btn-primary" loading="{{saving}}" disabled="{{saving}}" bindtap="onSave">保存修改</button>
     </block>
   </view>
+
+  <!-- 头像选择器 -->
+  <avatar-picker
+    visible="{{avatarPickerVisible}}"
+    selectedId="{{selectedAvatarId}}"
+    bind:select="onAvatarSelected"
+    bind:close="onAvatarPickerClose"
+  />
 </view>
