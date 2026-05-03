@@ -66,7 +66,8 @@ Page({
       birthday: "",
       height: "",
       weight: "",
-      avatar: ""
+      avatar: "",
+      isMvp: false
     },
     positionDisplayNames: positionDisplayNames,
     matchStats: null,
@@ -108,6 +109,7 @@ Page({
           realName: player.realName || "-",
           position: player.position || "-",
           avatar: player.avatar || "",
+          isMvp: player.isMvp || false,
           age: age !== null ? age : (player.age || "-"),
           birthdayText: formatBirthday(player.birthday),
           height: player.height || "-",
@@ -144,7 +146,8 @@ Page({
         birthday: birthdayStr,
         height: player.height === "-" ? "" : String(player.height),
         weight: player.weight === "-" ? "" : String(player.weight),
-        avatar: player.avatar || ""
+        avatar: player.avatar || "",
+        isMvp: player.isMvp || false
       }
     });
   },
@@ -189,6 +192,10 @@ Page({
     this.setData({
       "editForm.birthday": e.detail.value
     });
+  },
+
+  onToggleMvpEdit(e) {
+    this.setData({ "editForm.isMvp": e.detail.value });
   },
 
   validateEditForm: function () {
@@ -236,6 +243,7 @@ Page({
         height: Number(form.height),
         weight: Number(form.weight),
         avatar: form.avatar || "",
+        isMvp: Boolean(form.isMvp),
         updatedAt: cloudDb.serverDate()
       };
 

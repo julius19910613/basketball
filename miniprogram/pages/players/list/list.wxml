@@ -23,9 +23,15 @@
       bindtap="goToDetail"
     >
       <view class="card-main">
-        <image class="player-avatar" src="{{item.avatar || '/images/default_avatar.svg'}}" mode="aspectFill" />
+        <view class="avatar-wrap {{item.isMvp ? 'mvp' : ''}}">
+          <image class="player-avatar" src="{{item.avatar || '/images/default_avatar.svg'}}" mode="aspectFill" />
+          <text wx:if="{{item.isMvp}}" class="crown-badge">👑</text>
+        </view>
         <view class="card-info">
-          <text class="nickname">{{item.displayNickname}}</text>
+          <view class="name-row">
+            <text class="nickname">{{item.displayNickname}}</text>
+            <text wx:if="{{item.isMvp}}" class="mvp-tag">MVP</text>
+          </view>
           <text class="real-name">{{item.displayRealName}}</text>
         </view>
       </view>

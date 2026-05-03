@@ -99,3 +99,15 @@
   font-size: 26rpx;
   color: #1652f0;
 }
+
+/* MVP 开关行 */
+.mvp-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mvp-item .label {
+  color: #b45309;
+  font-weight: 600;
+}

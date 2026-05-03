@@ -33,7 +33,8 @@ Page({
         displayNickname: item.nickname || item.name || "未命名球员",
         displayRealName: item.realName || "-",
         displayPosition: item.position || "-",
-        avatar: item.avatar || ""
+        avatar: item.avatar || "",
+        isMvp: item.isMvp || false
       }));
       this.setData({ players, loading: false });
     } catch (error) {

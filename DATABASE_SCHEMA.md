@@ -106,6 +106,7 @@
 | `height` | Number | 身高 (cm) |
 | `weight` | Number | 体重 (kg) |
 | `avatar` | String | 头像 URL（支持 GIF，可为空）|
+| `isMvp` | Boolean | 是否为 MVP 球员（默认 false，影响头像特效展示）|
 | `createdAt` | Date | 创建时间 |
 | `updatedAt` | Date | 更新时间 |
 

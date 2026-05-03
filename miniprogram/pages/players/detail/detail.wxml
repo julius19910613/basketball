@@ -9,9 +9,14 @@
     <!-- 查看模式 -->
     <block wx:if="{{!editing}}">
       <view class="head">
-        <image class="player-avatar" src="{{player.avatar || '/images/default_avatar.svg'}}" mode="aspectFill" />
+        <view class="detail-avatar-wrap {{player.isMvp ? 'mvp' : ''}}">
+          <image class="player-avatar" src="{{player.avatar || '/images/default_avatar.svg'}}" mode="aspectFill" />
+        </view>
         <view class="head-info">
-          <text class="nickname">{{player.nickname}}</text>
+          <view class="nickname-row">
+            <text class="nickname">{{player.nickname}}</text>
+            <text wx:if="{{player.isMvp}}" class="mvp-badge">MVP</text>
+          </view>
           <text class="position">{{player.position}}</text>
         </view>
       </view>
@@ -87,6 +92,12 @@
       <view class="form-item">
         <text class="label">体重(kg)</text>
         <input class="edit-input" type="digit" placeholder="30-200" value="{{editForm.weight}}" data-field="weight" bindinput="onEditInput" />
+      </view>
+
+      <!-- MVP 开关 -->
+      <view class="form-item mvp-edit-item">
+        <text class="label">⭐ MVP 球员</text>
+        <switch color="#f59e0b" checked="{{editForm.isMvp}}" bindchange="onToggleMvpEdit" />
       </view>
     </block>
   </view>

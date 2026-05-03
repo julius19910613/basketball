@@ -32,7 +32,8 @@ Page({
       birthday: "",
       height: "",
       weight: "",
-      avatar: ""
+      avatar: "",
+      isMvp: false
     },
     fromProfile: false,
     linkedOpenid: "",
@@ -70,6 +71,10 @@ Page({
 
   onChooseAvatar() {
     this.setData({ avatarPickerVisible: true });
+  },
+
+  onToggleMvp(e) {
+    this.setData({ "form.isMvp": e.detail.value });
   },
 
   onAvatarSelected(e) {
@@ -139,6 +144,7 @@ Page({
         height: Number(height),
         weight: Number(weight),
         avatar: this.data.form.avatar || "",
+        isMvp: this.data.form.isMvp || false,
         createdAt: db.serverDate(),
         updatedAt: db.serverDate()
       };

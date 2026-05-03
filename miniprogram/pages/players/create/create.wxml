@@ -47,6 +47,12 @@
       <text class="label">体重(kg)</text>
       <input class="input" type="digit" placeholder="30-200" value="{{form.weight}}" data-field="weight" bindinput="onFieldInput" />
     </view>
+
+    <!-- MVP 开关 -->
+    <view class="form-item mvp-item">
+      <text class="label">⭐ MVP 球员</text>
+      <switch color="#f59e0b" checked="{{form.isMvp}}" bindchange="onToggleMvp" />
+    </view>
   </view>
 
   <view class="footer">
