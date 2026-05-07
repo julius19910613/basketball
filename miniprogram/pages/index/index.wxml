@@ -45,19 +45,6 @@
   <!-- Secondary Actions -->
   <view class="section-title">更多发现</view>
   <view class="secondary-actions">
-    <view class="action-item" bindtap="navToDiscovery">
-      <view class="action-left">
-        <view class="icon-wrapper blue">
-          <van-icon name="search" color="#fff" size="20px" />
-        </view>
-        <view class="action-info">
-          <text class="name">发现球队</text>
-          <text class="desc">加入附近的篮球圈子</text>
-        </view>
-      </view>
-      <van-icon name="arrow" color="#cbd5e1" />
-    </view>
-    
     <view class="action-item" bindtap="navToProfile">
       <view class="action-left">
         <view class="icon-wrapper sky">

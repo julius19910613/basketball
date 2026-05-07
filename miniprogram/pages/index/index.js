@@ -31,7 +31,7 @@ Page({
     try {
       // 获取球队数量
       const teamRes = await db.collection('teams').where({
-        _openid: '{openid}'
+        _openid: app.globalData.openid
       }).count();
       
       // 获取比赛数量
@@ -52,10 +52,6 @@ Page({
 
   navToMatches: function() {
     wx.switchTab({ url: '/pages/match/list/list' });
-  },
-
-  navToDiscovery: function() {
-    wx.switchTab({ url: '/pages/discovery/discovery' });
   },
 
   navToProfile: function() {
