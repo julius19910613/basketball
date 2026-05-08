@@ -34,6 +34,6 @@ jobs:
           action_type: upload
           version: ${{ github.ref_name }}
           desc: 'CI 自动上传 ${{ github.ref_name }} - ${{ github.sha }}'
-          project_path: miniprogram
+          project_path: .
         env:
           PRIVATE_KEY: ${{ secrets.MINIPROGRAM_PRIVATE_KEY }}

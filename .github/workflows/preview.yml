@@ -32,7 +32,7 @@ jobs:
         id: preview
         with:
           action_type: preview
-          project_path: miniprogram
+          project_path: .
         env:
           PRIVATE_KEY: ${{ secrets.MINIPROGRAM_PRIVATE_KEY }}
 
