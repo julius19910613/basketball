@@ -27,7 +27,18 @@ jobs:
       - name: Build miniprogram npm packages
         run: npm ci
 
+      - name: Check WeChat private key
+        id: check_key
+        run: |
+          if [ -n "${{ secrets.MINIPROGRAM_PRIVATE_KEY }}" ]; then
+            echo "has_key=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_key=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::MINIPROGRAM_PRIVATE_KEY not configured, skipping preview"
+          fi
+
       - name: Preview build
+        if: steps.check_key.outputs.has_key == 'true'
         uses: crazyurus/miniprogram-action@1.0.0
         id: preview
         with:
@@ -37,6 +48,7 @@ jobs:
           PRIVATE_KEY: ${{ secrets.MINIPROGRAM_PRIVATE_KEY }}
 
       - name: Comment QR code to PR
+        if: steps.check_key.outputs.has_key == 'true' && steps.preview.outputs.preview_qrcode_link
         uses: actions/github-script@v7
         with:
           script: |
