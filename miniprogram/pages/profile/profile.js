@@ -1,5 +1,6 @@
 var app = getApp();
 var db = wx.cloud.database();
+var { getCollection } = require('../../config/env');
 
 function formatDate(value) {
   if (!value) return "-";
@@ -43,7 +44,7 @@ Page({
   // 加载已关联的球员信息
   loadLinkedPlayer: function (openid) {
     var that = this;
-    db.collection("users").where({ _openid: openid }).get().then(function (res) {
+    db.collection(getCollection("users")).where({ _openid: openid }).get().then(function (res) {
       if (res.data && res.data.length > 0) {
         var userRecord = res.data[0];
         var userInfo = {
@@ -60,7 +61,7 @@ Page({
 
         if (userRecord.linkedPlayerId) {
           // 加载关联的球员
-          db.collection("players").doc(userRecord.linkedPlayerId).get().then(function (pRes) {
+          db.collection(getCollection("players")).doc(userRecord.linkedPlayerId).get().then(function (pRes) {
             that.setData({
               linkedPlayer: pRes.data,
               linkedAtText: formatDate(userRecord.linkedAt)
@@ -81,7 +82,7 @@ Page({
   // 加载未绑定 openid 的球员
   loadUnlinkedPlayers: function () {
     var that = this;
-    db.collection("players").orderBy("createdAt", "desc").get().then(function (res) {
+    db.collection(getCollection("players")).orderBy("createdAt", "desc").get().then(function (res) {
       // 过滤：只显示没有 linkedOpenid 的球员
       var unlinked = (res.data || []).filter(function (p) {
         return !p.linkedOpenid;
@@ -112,18 +113,18 @@ Page({
     wx.showLoading({ title: "关联中...", mask: true });
 
     // 1. 先检查该球员是否已被其他人绑定
-    db.collection("players").doc(playerId).get().then(function (pRes) {
+    db.collection(getCollection("players")).doc(playerId).get().then(function (pRes) {
       var player = pRes.data;
 
       // 2. 如果球员已绑定了其他 openid，先解绑
       var unlinkPromise;
       if (player.linkedOpenid && player.linkedOpenid !== openid) {
         // 解绑旧用户：清除旧用户的 linkedPlayerId
-        unlinkPromise = db.collection("users").where({
+        unlinkPromise = db.collection(getCollection("users")).where({
           _openid: player.linkedOpenid
         }).get().then(function (uRes) {
           if (uRes.data && uRes.data.length > 0) {
-            return db.collection("users").doc(uRes.data[0]._id).update({
+            return db.collection(getCollection("users")).doc(uRes.data[0]._id).update({
               data: { linkedPlayerId: null, linkedAt: null, updatedAt: db.serverDate() }
             });
           }
@@ -135,14 +136,14 @@ Page({
       // 3. 绑定新用户
       unlinkPromise.then(function () {
         // 更新 players 表：设置 linkedOpenid
-        var updatePlayer = db.collection("players").doc(playerId).update({
+        var updatePlayer = db.collection(getCollection("players")).doc(playerId).update({
           data: { linkedOpenid: openid, updatedAt: db.serverDate() }
         });
 
         // 更新 users 表：设置 linkedPlayerId
-        var updateUser = db.collection("users").where({ _openid: openid }).get().then(function (uRes) {
+        var updateUser = db.collection(getCollection("users")).where({ _openid: openid }).get().then(function (uRes) {
           if (uRes.data && uRes.data.length > 0) {
-            return db.collection("users").doc(uRes.data[0]._id).update({
+            return db.collection(getCollection("users")).doc(uRes.data[0]._id).update({
               data: {
                 linkedPlayerId: playerId,
                 linkedAt: db.serverDate(),
@@ -189,14 +190,14 @@ Page({
     wx.showLoading({ title: "解绑中...", mask: true });
 
     // 清除 players 表的 linkedOpenid
-    var clearPlayer = db.collection("players").doc(player._id).update({
+    var clearPlayer = db.collection(getCollection("players")).doc(player._id).update({
       data: { linkedOpenid: null, updatedAt: db.serverDate() }
     });
 
     // 清除 users 表的 linkedPlayerId
-    var clearUser = db.collection("users").where({ _openid: openid }).get().then(function (uRes) {
+    var clearUser = db.collection(getCollection("users")).where({ _openid: openid }).get().then(function (uRes) {
       if (uRes.data && uRes.data.length > 0) {
-        return db.collection("users").doc(uRes.data[0]._id).update({
+        return db.collection(getCollection("users")).doc(uRes.data[0]._id).update({
           data: { linkedPlayerId: null, linkedAt: null, updatedAt: db.serverDate() }
         });
       }
@@ -267,10 +268,10 @@ Page({
     }
 
     Promise.all(saveOps).then(function () {
-      return db.collection("users").where({ _openid: openid }).get();
+      return db.collection(getCollection("users")).where({ _openid: openid }).get();
     }).then(function (uRes) {
       if (uRes.data && uRes.data.length > 0) {
-        return db.collection("users").doc(uRes.data[0]._id).update({
+        return db.collection(getCollection("users")).doc(uRes.data[0]._id).update({
           data: {
             nickName: nickName,
             avatarUrl: avatarUrl,
@@ -294,7 +295,7 @@ Page({
   },
 
   clearLink: function (userId) {
-    db.collection("users").doc(userId).update({
+    db.collection(getCollection("users")).doc(userId).update({
       data: { linkedPlayerId: null, linkedAt: null, updatedAt: db.serverDate() }
     });
     this.setData({ linkedPlayer: null });

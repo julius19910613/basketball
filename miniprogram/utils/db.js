@@ -6,9 +6,16 @@
 const db = wx.cloud.database()
 const _ = db.command
 const matchHelper = require("./match-helper")
+const { getCollection } = require('../config/env')
 
 /**
- * 数据库集合常量
+ * 路由集合辅助函数
+ * @param {string} name 业务集合名
+ */
+const col = (name) => db.collection(getCollection(name))
+
+/**
+ * 数据库集合常量（业务名，非实际集合名）
  */
 const COLLECTIONS = {
   PLAYERS: 'players',
@@ -28,7 +35,7 @@ const COLLECTIONS = {
  */
 async function addPlayer(playerData) {
   try {
-    const res = await db.collection(COLLECTIONS.PLAYERS).add({
+    const res = await col('players').add({
       data: {
         ...playerData,
         createdAt: db.serverDate(),
@@ -53,7 +60,7 @@ async function addPlayer(playerData) {
  */
 async function getTeamMembersWithSkillLevel(teamId) {
   try {
-    const res = await db.collection('teams').doc(teamId).get()
+    const res = await col('teams').doc(teamId).get()
     const members = res.data.members || []
     
     // 为每个成员添加档位描述和颜色
@@ -78,7 +85,7 @@ async function getTeamMembersWithSkillLevel(teamId) {
 async function updateMemberSkillLevel(teamId, userId, skillLevel) {
   try {
     // 1. 获取当前team数据
-    const teamRes = await db.collection('teams').doc(teamId).get()
+    const teamRes = await col('teams').doc(teamId).get()
     const members = teamRes.data.members || []
     
     // 2. 找到并更新对应成员
@@ -90,14 +97,14 @@ async function updateMemberSkillLevel(teamId, userId, skillLevel) {
     members[memberIndex].skillLevel = skillLevel
     
     // 3. 更新teams集合
-    await db.collection('teams').doc(teamId).update({
+    await col('teams').doc(teamId).update({
       data: {
         members: members
       }
     })
     
     // 4. 同步更新users集合
-    await db.collection('users').where({
+    await col('users').where({
       _openid: userId
     }).update({
       data: {
@@ -122,7 +129,7 @@ async function updateMemberSkillLevel(teamId, userId, skillLevel) {
 async function batchUpdateSkillLevel(teamId, updates) {
   try {
     // 1. 获取当前team数据
-    const teamRes = await db.collection('teams').doc(teamId).get()
+    const teamRes = await col('teams').doc(teamId).get()
     const members = teamRes.data.members || []
     
     // 2. 批量更新
@@ -134,7 +141,7 @@ async function batchUpdateSkillLevel(teamId, updates) {
     })
     
     // 3. 更新teams集合
-    await db.collection('teams').doc(teamId).update({
+    await col('teams').doc(teamId).update({
       data: {
         members: members
       }
@@ -197,7 +204,7 @@ async function getSkillLevelStats(teamId) {
  */
 async function saveGroupResult(groupData) {
   try {
-    const res = await db.collection('random_groups').add({
+    const res = await col('random_groups').add({
       data: {
         ...groupData,
         createdAt: db.serverDate()
@@ -219,7 +226,7 @@ async function saveGroupResult(groupData) {
  */
 async function getGroupHistory(teamId, limit = 20) {
   try {
-    const res = await db.collection('random_groups')
+    const res = await col('random_groups')
       .where({
         teamId: teamId
       })
@@ -241,7 +248,7 @@ async function getGroupHistory(teamId, limit = 20) {
  */
 async function getGroupDetail(groupId) {
   try {
-    const res = await db.collection('random_groups').doc(groupId).get()
+    const res = await col('random_groups').doc(groupId).get()
     return res.data
   } catch (err) {
     console.error('获取分组详情失败:', err)
@@ -256,7 +263,7 @@ async function getGroupDetail(groupId) {
  */
 async function deleteGroupResult(groupId) {
   try {
-    await db.collection('random_groups').doc(groupId).remove()
+    await col('random_groups').doc(groupId).remove()
     return true
   } catch (err) {
     console.error('删除分组记录失败:', err)
@@ -282,7 +289,7 @@ async function createPlayerMatchStats(match) {
   if (!stats.length) return
   await Promise.all(
     stats.map(function (item) {
-      return db.collection(COLLECTIONS.PLAYER_MATCH_STATS).add({
+      return col('player_match_stats').add({
         data: Object.assign({}, item, { createdAt: db.serverDate() })
       })
     })
@@ -324,7 +331,7 @@ async function createMatch(matchData) {
       createdAt: db.serverDate(),
       updatedAt: db.serverDate()
     })
-    var res = await db.collection(COLLECTIONS.MATCHES).add({ data: nowData })
+    var res = await col('matches').add({ data: nowData })
     await createPlayerMatchStats(Object.assign({}, payload, { _id: res._id }))
     return res._id
   } catch (err) {
@@ -378,7 +385,7 @@ async function getMatchList(teamId, filter = {}, page = 0, pageSize = 20) {
  */
 async function getMatchDetail(matchId) {
   try {
-    var res = await db.collection(COLLECTIONS.MATCHES).doc(matchId).get()
+    var res = await col('matches').doc(matchId).get()
     return res.data || null
   } catch (err) {
     console.error("获取比赛详情失败:", err)
@@ -387,7 +394,7 @@ async function getMatchDetail(matchId) {
 }
 
 async function getMatchById(matchId) {
-  var res = await db.collection(COLLECTIONS.MATCHES).doc(matchId).get()
+  var res = await col('matches').doc(matchId).get()
   return res.data || null
 }
 
@@ -402,7 +409,7 @@ async function updateMatch(matchId, updateData) {
     if (matchHelper.isGroupingLocked(existing) && (payload.grouping || payload.selectedPlayerIds)) {
       throw new Error("已完成比赛不允许修改分组")
     }
-    await db.collection(COLLECTIONS.MATCHES).doc(matchId).update({
+    await col('matches').doc(matchId).update({
       data: Object.assign({}, payload, { updatedAt: db.serverDate() })
     })
     await replacePlayerMatchStats(matchId, payload)
@@ -421,7 +428,7 @@ async function saveMatchDraft(payload) {
   if (data._id) {
     var id = data._id
     delete data._id
-    await db.collection(COLLECTIONS.MATCHES).doc(id).update({
+    await col('matches').doc(id).update({
       data: Object.assign({}, data, { updatedAt: db.serverDate() })
     })
     await replacePlayerMatchStats(id, data)
@@ -435,7 +442,7 @@ async function updateDraftGrouping(matchId, payload) {
   if (!existing) throw new Error("草稿不存在")
   if (matchHelper.isGroupingLocked(existing)) throw new Error("已完成比赛不可修改分组")
   var updateData = getGroupingPayloadUpdateData(payload)
-  await db.collection(COLLECTIONS.MATCHES).doc(matchId).update({
+  await col('matches').doc(matchId).update({
     data: Object.assign({}, updateData, {
       status: "draft",
       isGroupingLocked: false,
@@ -452,7 +459,7 @@ async function finalizeMatchGrouping(matchId, groupingPayload) {
   if (matchHelper.isGroupingLocked(existing)) throw new Error("比赛已完成")
   var lockedAt = db.serverDate()
   var updateData = getGroupingPayloadUpdateData(groupingPayload, lockedAt)
-  await db.collection(COLLECTIONS.MATCHES).doc(matchId).update({
+  await col('matches').doc(matchId).update({
     data: Object.assign({}, updateData, {
       status: "finalized",
       isGroupingLocked: true,
@@ -468,7 +475,7 @@ async function finalizeMatchGrouping(matchId, groupingPayload) {
  */
 async function deleteMatch(matchId) {
   try {
-    await db.collection(COLLECTIONS.MATCHES).doc(matchId).remove()
+    await col('matches').doc(matchId).remove()
     await db
       .collection(COLLECTIONS.PLAYER_MATCH_STATS)
       .where({ matchId: matchId })
@@ -662,7 +669,7 @@ function getTeamColor(index) {
  */
 async function getUserInfo(openid) {
   try {
-    const res = await db.collection('users').where({
+    const res = await col('users').where({
       _openid: openid
     }).get()
     
@@ -681,7 +688,7 @@ async function getUserInfo(openid) {
  */
 async function updateUserInfo(openid, data) {
   try {
-    await db.collection('users').where({
+    await col('users').where({
       _openid: openid
     }).update({
       data: {
@@ -709,14 +716,14 @@ async function updateUserInfo(openid, data) {
 async function getTeamMembersDetail(teamId) {
   try {
     // 1. 获取团队成员列表
-    const teamRes = await db.collection('teams').doc(teamId).get()
+    const teamRes = await col('teams').doc(teamId).get()
     const members = teamRes.data.members || []
     
     // 2. 获取所有成员的用户信息
     const userOpenids = members.map(m => m.userId)
     
     // 注意：云数据库一次最多查询 100 条
-    const usersRes = await db.collection('users')
+    const usersRes = await col('users')
       .where({
         _openid: _.in(userOpenids)
       })

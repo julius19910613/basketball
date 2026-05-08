@@ -1,4 +1,5 @@
 const db = wx.cloud.database();
+const { getCollection } = require('../../../config/env');
 const COLLECTION_MISSING_CODE = -502005;
 
 function isCollectionMissing(error) {
@@ -158,13 +159,13 @@ Page({
         newPlayerData.linkedOpenid = this.data.linkedOpenid;
       }
 
-      var addResult = await db.collection("players").add({ data: newPlayerData });
+      var addResult = await db.collection(getCollection("players")).add({ data: newPlayerData });
 
       // 如果从 profile 跳转，还需要更新 users 表
       if (this.data.linkedOpenid && addResult._id) {
-        var uRes = await db.collection("users").where({ _openid: this.data.linkedOpenid }).get();
+        var uRes = await db.collection(getCollection("users")).where({ _openid: this.data.linkedOpenid }).get();
         if (uRes.data && uRes.data.length > 0) {
-          await db.collection("users").doc(uRes.data[0]._id).update({
+          await db.collection(getCollection("users")).doc(uRes.data[0]._id).update({
             data: {
               linkedPlayerId: addResult._id,
               linkedAt: db.serverDate(),

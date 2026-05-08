@@ -1,4 +1,5 @@
 const db = wx.cloud.database();
+const { getCollection } = require('../../../config/env');
 const COLLECTION_MISSING_CODE = -502005;
 
 function isCollectionMissing(error) {
@@ -27,7 +28,7 @@ Page({
   async loadPlayers(fromPullDown = false) {
     this.setData({ loading: true });
     try {
-      const res = await db.collection("players").orderBy("createdAt", "desc").get();
+      const res = await db.collection(getCollection("players")).orderBy("createdAt", "desc").get();
       const players = (res.data || []).map((item) => ({
         ...item,
         displayNickname: item.nickname || item.name || "未命名球员",
