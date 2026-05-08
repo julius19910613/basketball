@@ -28,7 +28,7 @@ jobs:
         run: npm ci
 
       - name: Preview build
-        uses: crazyurus/miniprogram-action@2.0.0
+        uses: crazyurus/miniprogram-action@1.0.0
         id: preview
         with:
           action_type: preview
