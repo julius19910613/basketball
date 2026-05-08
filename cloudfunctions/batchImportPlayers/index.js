@@ -1,4 +1,5 @@
 const cloud = require('wx-server-sdk')
+const { getCollection } = require('../common/env-router')
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 
@@ -39,6 +40,7 @@ function calcAge(birthday) {
 
 // 云函数入口
 exports.main = async (event) => {
+  var envVersion = event._envVersion || 'release'
   var players = event.players
   if (!players || !Array.isArray(players) || players.length === 0) {
     return { success: false, message: 'players 数组为空' }
@@ -74,18 +76,18 @@ exports.main = async (event) => {
 
     try {
       // 检查是否已存在（按昵称去重）
-      var existRes = await db.collection('players').where({
+      var existRes = await db.collection(getCollection('players', envVersion)).where({
         nickname: record.nickname
       }).count()
 
       if (existRes.total > 0) {
         // 已存在则更新
-        var existData = await db.collection('players').where({
+        var existData = await db.collection(getCollection('players', envVersion)).where({
           nickname: record.nickname
         }).get()
 
         if (existData.data && existData.data.length > 0) {
-          await db.collection('players').doc(existData.data[0]._id).update({
+          await db.collection(getCollection('players', envVersion)).doc(existData.data[0]._id).update({
             data: {
               position: record.position,
               height: record.height,
@@ -101,7 +103,7 @@ exports.main = async (event) => {
         }
       } else {
         // 新增
-        var addRes = await db.collection('players').add({ data: record })
+        var addRes = await db.collection(getCollection('players', envVersion)).add({ data: record })
         results.push({ index: i, nickname: record.nickname, status: 'added', _id: addRes._id })
         successCount++
       }

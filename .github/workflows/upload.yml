@@ -29,11 +29,11 @@ jobs:
         run: npm ci
 
       - name: Upload to WeChat
-        uses: crazyurus/miniprogram-action@master
+        uses: crazyurus/miniprogram-action@1.0.0
         with:
           action_type: upload
           version: ${{ github.ref_name }}
           desc: 'CI 自动上传 ${{ github.ref_name }} - ${{ github.sha }}'
-          project_path: miniprogram
+          project_path: .
         env:
           PRIVATE_KEY: ${{ secrets.MINIPROGRAM_PRIVATE_KEY }}

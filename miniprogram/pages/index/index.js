@@ -1,5 +1,6 @@
 // pages/index/index.js
 const app = getApp();
+const { getCollection } = require('../../config/env');
 
 Page({
   data: {
@@ -30,12 +31,12 @@ Page({
     const db = wx.cloud.database();
     try {
       // 获取球队数量
-      const teamRes = await db.collection('teams').where({
-        _openid: '{openid}'
+      const teamRes = await db.collection(getCollection('teams')).where({
+        _openid: app.globalData.openid
       }).count();
       
       // 获取比赛数量
-      const matchRes = await db.collection('matches').count();
+      const matchRes = await db.collection(getCollection('matches')).count();
 
       this.setData({
         teamCount: teamRes.total,
@@ -52,10 +53,6 @@ Page({
 
   navToMatches: function() {
     wx.switchTab({ url: '/pages/match/list/list' });
-  },
-
-  navToDiscovery: function() {
-    wx.switchTab({ url: '/pages/discovery/discovery' });
   },
 
   navToProfile: function() {

@@ -18,6 +18,10 @@ App({
       });
     }
 
+    // 打印当前环境
+    const envVersion = (typeof __wxConfig !== 'undefined' && __wxConfig.envVersion) || 'develop';
+    console.log(`[ENV] 当前运行版本: ${envVersion}`);
+
     // 异步执行静默登录
     this.checkLogin();
   },
@@ -84,9 +88,10 @@ App({
   loadUserProfile: async function (openid) {
     if (!openid) return;
 
+    const { getCollection } = require('./config/env');
+    const db = wx.cloud.database();
     try {
-      const db = wx.cloud.database();
-      var res = await db.collection('users').where({
+      var res = await db.collection(getCollection('users')).where({
         _openid: openid
       }).get();
 
@@ -101,7 +106,7 @@ App({
         }
       } else {
         // 自动创建空记录
-        await db.collection('users').add({
+        await db.collection(getCollection('users')).add({
           data: {
             _openid: openid,
             createdAt: db.serverDate(),
