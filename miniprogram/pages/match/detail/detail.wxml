@@ -2,53 +2,173 @@
   <view wx:if="{{loading}}" class="status">加载中...</view>
   <view wx:elif="{{!match}}" class="status">比赛不存在</view>
   <view wx:else>
-    <view class="card">
-      <view class="head">
-        <text class="title">{{match.teamsText}}</text>
-        <text class="type">{{match.matchTypeText}}</text>
+    <!-- Hero Scoreboard -->
+    <view class="hero-card">
+      <view class="hero-topline">
+        <text class="hero-badge">{{match.matchTypeText}}</text>
+        <text class="hero-status">{{match.isGroupingLocked ? '已完成' : '草稿'}}</text>
       </view>
-      <view class="score">{{match.scoreUs}} : {{match.scoreOpponent}}</view>
-      <text class="diff">分差 {{match.diff > 0 ? '+' : ''}}{{match.diff}}</text>
-      <text class="meta">状态：{{match.isGroupingLocked ? '分组已锁定' : '草稿'}}</text>
-      <text class="meta">📍 {{match.location || '未填写地点'}}</text>
-      <text class="meta">📅 {{match.matchDate}} {{match.startTime}}-{{match.endTime}}</text>
-    </view>
-
-    <view class="tabs">
-      <view class="tab {{tab===0?'active':''}}" data-tab="0" bindtap="onTabChange">每节比分</view>
-      <view class="tab {{tab===1?'active':''}}" data-tab="1" bindtap="onTabChange">球员数据</view>
-      <view class="tab {{tab===2?'active':''}}" data-tab="2" bindtap="onTabChange">备注</view>
-    </view>
-
-    <view wx:if="{{tab===0}}" class="panel">
-      <view wx:for="{{match.quarters}}" wx:key="quarter" class="row">
-        <text>第{{item.quarter}}节</text><text>{{item.scoreUs}} : {{item.scoreOpponent}}</text>
-      </view>
-    </view>
-
-    <view wx:if="{{tab===1}}" class="panel">
-      <view wx:for="{{playedPlayers}}" wx:key="playerId" class="player">
-        <text class="name">{{item.nickname}} {{item.position}}</text>
-        <text class="line">{{item.points}}分 {{item.rebounds}}板 {{item.assists}}助 {{item.steals}}抢</text>
-        <text class="line">投篮 {{item.shotsMade}}/{{item.shotsAttempted}} ({{item.fgPct}}%)</text>
-      </view>
-      <view wx:if="{{benchedPlayers.length}}" class="bench">
-        未出场：
-        <text wx:for="{{benchedPlayers}}" wx:key="playerId">{{item.nickname}} </text>
-      </view>
-    </view>
-
-    <view wx:if="{{tab===2}}" class="panel">
-      <view wx:for="{{groupedPlayers}}" wx:key="teamName" wx:for-item="group">
-        <view class="group-title">{{group.teamName}}</view>
-        <view wx:if="{{!group.players.length}}" class="bench">暂无分组</view>
-        <view wx:for="{{group.players}}" wx:key="playerId" wx:for-item="member" class="player">
-          <text class="name">{{member.nickname}} {{member.position}}</text>
+      <view class="hero-scoreboard">
+        <view class="hero-side">
+          <text class="hero-team">{{match.teamNames[0] || 'A队'}}</text>
+          <text class="hero-score">{{match.scoreUs}}</text>
+        </view>
+        <view class="hero-center">
+          <text class="hero-versus">VS</text>
+          <text class="hero-diff">分差 {{match.diff > 0 ? '+' : ''}}{{match.diff}}</text>
+        </view>
+        <view class="hero-side hero-side-right">
+          <text class="hero-team">{{match.teamNames[1] || 'B队'}}</text>
+          <text class="hero-score">{{match.scoreOpponent}}</text>
         </view>
       </view>
-      <text>{{match.highlights || '暂无备注'}}</text>
+      <view class="hero-meta-row">
+        <text class="hero-meta">{{match.location || '未填写地点'}}</text>
+        <text class="hero-meta">{{match.matchDate}}</text>
+        <text class="hero-meta">{{match.startTime && match.endTime ? match.startTime + '-' + match.endTime : '时间未填写'}}</text>
+      </view>
     </view>
 
+    <!-- Tabs -->
+    <view class="tabs">
+      <view class="tab {{tab===0?'active':''}}" data-tab="0" bindtap="onTabChange">每节比分</view>
+      <view class="tab {{tab===1?'active':''}}" data-tab="1" bindtap="onTabChange">统计</view>
+      <view class="tab {{tab===2?'active':''}}" data-tab="2" bindtap="onTabChange">分组备注</view>
+    </view>
+
+    <!-- 每节比分 -->
+    <view wx:if="{{tab===0}}" class="panel">
+      <view class="quarter-header">
+        <text class="quarter-title">节次走势</text>
+        <text class="quarter-subtitle">按每节比分回看比赛节奏</text>
+      </view>
+      <view wx:for="{{match.quarters}}" wx:key="quarter" class="quarter-row">
+        <view class="quarter-label">
+          <text class="quarter-name">第{{item.quarter}}节</text>
+        </view>
+        <view class="quarter-scorebox">
+          <text class="quarter-score">{{item.scoreUs}}</text>
+          <text class="quarter-divider">:</text>
+          <text class="quarter-score">{{item.scoreOpponent}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 统计 -->
+    <view wx:if="{{tab===1}}" class="panel">
+      <!-- 子Tab -->
+      <view class="sub-tabs">
+        <view class="sub-tab {{quarterTab===0?'active':''}}" data-idx="0" bindtap="onQuarterTabChange">全场</view>
+        <view class="sub-tab {{quarterTab===1?'active':''}}" data-idx="1" bindtap="onQuarterTabChange">第1节</view>
+        <view class="sub-tab {{quarterTab===2?'active':''}}" data-idx="2" bindtap="onQuarterTabChange">第2节</view>
+        <view class="sub-tab {{quarterTab===3?'active':''}}" data-idx="3" bindtap="onQuarterTabChange">第3节</view>
+        <view class="sub-tab {{quarterTab===4?'active':''}}" data-idx="4" bindtap="onQuarterTabChange">第4节</view>
+      </view>
+
+      <!-- 全场数据 -->
+      <view wx:if="{{quarterTab===0}}">
+        <view wx:for="{{teamStatPanels}}" wx:key="teamName" wx:for-item="panel" class="team-stats-block">
+          <!-- 队伍标题 -->
+          <view class="team-stats-header">
+            <view class="team-stats-title-wrap">
+              <text class="team-stats-name">{{panel.teamName}}</text>
+              <view class="leader-list">
+                <text wx:for="{{panel.leaders}}" wx:key="*this" class="leader-item">{{item}}</text>
+              </view>
+            </view>
+            <view class="team-stats-scorebox">
+              <text class="team-stats-score">{{panel.score}}</text>
+              <text class="team-stats-status {{panel.isWinner?'':'trail'}}">{{panel.isWinner ? '领先' : '追分'}}</text>
+            </view>
+          </view>
+
+          <!-- 表格 -->
+          <view class="stats-table">
+            <!-- 表头 -->
+            <view class="table-row table-header">
+              <view class="table-cell cell-player">球员</view>
+              <view class="table-cell cell-shoot">投篮</view>
+              <view class="table-cell cell-num">篮板</view>
+              <view class="table-cell cell-num">助攻</view>
+              <view class="table-cell cell-num">抢断</view>
+              <view class="table-cell cell-points">得分</view>
+            </view>
+            <!-- 球员行 -->
+            <view wx:for="{{panel.players}}" wx:key="playerId" class="table-row">
+              <view class="table-cell cell-player">
+                <view class="player-cell">
+                  <view class="jersey-num">{{item.rankNum}}</view>
+                  <view class="player-info">
+                    <text class="player-name">{{item.nickname}}</text>
+                    <text class="player-position">{{item.position}}</text>
+                  </view>
+                </view>
+              </view>
+              <view class="table-cell cell-shoot">
+                <text>{{item.fgDisplay}}</text>
+                <text class="shoot-pct">{{item.fgPctDisplay}}</text>
+              </view>
+              <view class="table-cell cell-num">{{item.rebounds}}</view>
+              <view class="table-cell cell-num">{{item.assists}}</view>
+              <view class="table-cell cell-num">{{item.steals}}</view>
+              <view class="table-cell cell-points">{{item.points}}</view>
+            </view>
+            <!-- 总计行 -->
+            <view class="table-row table-total">
+              <view class="table-cell cell-player">总计</view>
+              <view class="table-cell cell-shoot">
+                <text>{{panel.summary.fgDisplay}}</text>
+                <text class="shoot-pct">{{panel.summary.fgPctDisplay}}</text>
+              </view>
+              <view class="table-cell cell-num">{{panel.summary.totalRebounds}}</view>
+              <view class="table-cell cell-num">{{panel.summary.totalAssists}}</view>
+              <view class="table-cell cell-num">{{panel.summary.totalSteals}}</view>
+              <view class="table-cell cell-points">{{panel.summary.totalPoints}}</view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 未出场 -->
+        <view wx:if="{{benchedPlayers.length}}" class="bench-notice">
+          <text>本场{{benchedPlayers.length}}人未出场</text>
+          <text class="bench-arrow">▼</text>
+        </view>
+        <view wx:if="{{benchedPlayers.length}}" class="bench-list">
+          <view wx:for="{{benchedPlayers}}" wx:key="playerId" class="bench-item">
+            <text class="bench-name">{{item.nickname}}</text>
+            <text class="bench-pos">{{item.position}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 节次占位 -->
+      <view wx:if="{{quarterTab > 0}}" class="placeholder-quarter">
+        <text class="placeholder-text">第{{quarterTab}}节数据开发中...</text>
+      </view>
+    </view>
+
+    <!-- 分组备注 -->
+    <view wx:if="{{tab===2}}" class="panel">
+      <view class="grouping-sheet">
+        <text class="grouping-sheet-title">分组名单</text>
+        <view wx:for="{{groupedPlayers}}" wx:key="teamName" wx:for-item="group" class="group-block">
+          <view class="group-title-row">
+            <text class="group-title">{{group.teamName}}</text>
+            <text class="group-count">{{group.players.length}}人</text>
+          </view>
+          <view wx:if="{{!group.players.length}}" class="bench">暂无分组</view>
+          <view wx:else class="group-members">
+            <text wx:for="{{group.players}}" wx:key="playerId" wx:for-item="member" class="group-member">{{member.nickname}} · {{member.position}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="note-box">
+        <text class="note-title">比赛备注</text>
+        <text class="note-text">{{match.highlights || '暂无备注'}}</text>
+      </view>
+    </view>
+
+    <!-- Action Bar -->
     <view class="action-bar">
       <button wx:if="{{canEditGrouping}}" class="btn btn-secondary" bindtap="onEdit">继续分组</button>
       <button class="btn btn-danger" bindtap="onDelete">删除</button>
