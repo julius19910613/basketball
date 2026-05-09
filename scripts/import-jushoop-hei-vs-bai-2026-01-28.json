@@ -5,7 +5,8 @@
     "recognizedOn": "2026-05-01",
     "notes": [
       "比赛日期从截图读取为 01月28日，按当前项目上下文补全年份为 2026-01-28；如果实际年份不同，请先改 matchDate 再导入。",
-      "部分截图昵称与 players 集合中的正式昵称不完全一致，已按现有球员映射到 playerId。"
+      "部分截图昵称与 players 集合中的当前昵称不完全一致，已按你导出的球员数据映射到真实 playerId。",
+      "当前球员库中 dde8ef4869db91b403f3fa2a5068f57e 的 nickname 为 tt测评师，realName 为 卢德华；导入数据已按当前 nickname 写入。"
     ]
   },
   "aliasMap": [
@@ -91,7 +92,7 @@
     },
     {
       "imageName": "卢德华",
-      "playerNickname": "卢德华",
+      "playerNickname": "tt测评师",
       "playerId": "dde8ef4869db91b403f3fa2a5068f57e"
     },
     {
@@ -101,12 +102,12 @@
     },
     {
       "imageName": "钩子鸡",
-      "playerNickname": "钩子🐔",
+      "playerNickname": "钩子🍑",
       "playerId": "d3a457a269db91b503ff016b068c0eca"
     }
   ],
   "match": {
-    "teamId": "",
+    "teamId": "d967c8d469f8aa6d00e743df6191f735",
     "teamNames": [
       "黑队",
       "白队"
@@ -552,7 +553,7 @@
       },
       {
         "playerId": "dde8ef4869db91b403f3fa2a5068f57e",
-        "nickname": "卢德华",
+        "nickname": "tt测评师",
         "position": "C",
         "played": true,
         "points": 17,
@@ -596,7 +597,7 @@
       },
       {
         "playerId": "d3a457a269db91b503ff016b068c0eca",
-        "nickname": "钩子🐔",
+        "nickname": "钩子🍑",
         "position": "C",
         "played": true,
         "points": 2,
@@ -624,7 +625,7 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "dde8ef4869db91b503f3fa3c072de9be",
-      "teamId": "",
+      "teamId": "d967c8d469f8aa6d00e743df6191f735",
       "nickname": "正义皓",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
@@ -649,7 +650,7 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "93abbbd769db91b303f7d2aa740a0a8c",
-      "teamId": "",
+      "teamId": "d967c8d469f8aa6d00e743df6191f735",
       "nickname": "抓奶可",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
@@ -674,7 +675,7 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "6a0a1fb669db91b503fd738152e1fcf4",
-      "teamId": "",
+      "teamId": "d967c8d469f8aa6d00e743df6191f735",
       "nickname": "太黑了隐藏了",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
@@ -699,7 +700,7 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "9f5d149069db91b403f0c0734a6c37e6",
-      "teamId": "",
+      "teamId": "d967c8d469f8aa6d00e743df6191f735",
       "nickname": "骚当",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
@@ -724,7 +725,7 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "f0df711e69db91b403f673fd59614314",
-      "teamId": "",
+      "teamId": "d967c8d469f8aa6d00e743df6191f735",
       "nickname": "开当的凯",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
@@ -749,7 +750,7 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "71fe4ab869db91b503fa7dc7720666fb",
-      "teamId": "",
+      "teamId": "d967c8d469f8aa6d00e743df6191f735",
       "nickname": "AVGPT",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
@@ -774,7 +775,7 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "c25002a969db91b403fa951c7a3732ea",
-      "teamId": "",
+      "teamId": "d967c8d469f8aa6d00e743df6191f735",
       "nickname": "组委会一把手李",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
@@ -799,7 +800,7 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "d3a457a269db91b403ff016263c3ee83",
-      "teamId": "",
+      "teamId": "d967c8d469f8aa6d00e743df6191f735",
       "nickname": "大\"白\"肚",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
@@ -824,7 +825,7 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "71fe4ab869db91b403fa7db768d3b860",
-      "teamId": "",
+      "teamId": "d967c8d469f8aa6d00e743df6191f735",
       "nickname": "大哥",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
@@ -849,7 +850,7 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "9f5d149069db91b503f0c07c267b07ba",
-      "teamId": "",
+      "teamId": "d967c8d469f8aa6d00e743df6191f735",
       "nickname": "党企代表要生三",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
@@ -874,7 +875,7 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "2d12bec269db91b4040385e177a323d9",
-      "teamId": "",
+      "teamId": "d967c8d469f8aa8100e744c03a7a5713",
       "nickname": "拍手嘴硬高",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
@@ -899,7 +900,7 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "f0df711e69db91b303f673fb6229ccfe",
-      "teamId": "",
+      "teamId": "d967c8d469f8aa8100e744c03a7a5713",
       "nickname": "无敌詹蜜文",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
@@ -924,7 +925,7 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "56ba808e69d8fbbe03bbe2a25249be13",
-      "teamId": "",
+      "teamId": "d967c8d469f8aa8100e744c03a7a5713",
       "nickname": "黑老王",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
@@ -949,7 +950,7 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "dde8ef4869db91b403f3fa2e476ecb17",
-      "teamId": "",
+      "teamId": "d967c8d469f8aa8100e744c03a7a5713",
       "nickname": "午觉罗",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
@@ -974,7 +975,7 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "f6fcfb9c69db91b503f4c9e25b5b79a6",
-      "teamId": "",
+      "teamId": "d967c8d469f8aa8100e744c03a7a5713",
       "nickname": "Dao小帅",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
@@ -999,7 +1000,7 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "6a0a1fb669db91b403fd737c664b7437",
-      "teamId": "",
+      "teamId": "d967c8d469f8aa8100e744c03a7a5713",
       "nickname": "贱桂",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
@@ -1024,8 +1025,8 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "dde8ef4869db91b403f3fa2a5068f57e",
-      "teamId": "",
-      "nickname": "卢德华",
+      "teamId": "d967c8d469f8aa8100e744c03a7a5713",
+      "nickname": "tt测评师",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
       "result": "loss",
@@ -1049,7 +1050,7 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "f6fcfb9c69db91b403f4c9d547ee0046",
-      "teamId": "",
+      "teamId": "d967c8d469f8aa8100e744c03a7a5713",
       "nickname": "磕比",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
@@ -1074,8 +1075,8 @@
     {
       "matchId": "<MATCH_ID_PLACEHOLDER>",
       "playerId": "d3a457a269db91b503ff016b068c0eca",
-      "teamId": "",
-      "nickname": "钩子🐔",
+      "teamId": "d967c8d469f8aa8100e744c03a7a5713",
+      "nickname": "钩子🍑",
       "matchDate": "2026-01-28",
       "matchType": "friendly",
       "result": "loss",

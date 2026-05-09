@@ -297,8 +297,7 @@ async function createPlayerMatchStats(match) {
 }
 
 async function replacePlayerMatchStats(matchId, match) {
-  await db
-    .collection(COLLECTIONS.PLAYER_MATCH_STATS)
+  await col('player_match_stats')
     .where({ matchId: matchId })
     .remove()
   await createPlayerMatchStats(Object.assign({}, match, { _id: matchId }))
@@ -346,16 +345,14 @@ async function createMatch(matchData) {
 async function getMatchList(teamId, filter = {}, page = 0, pageSize = 20) {
   try {
     var where = buildMatchWhere(teamId, filter)
-    var query = db
-      .collection(COLLECTIONS.MATCHES)
+    var query = col('matches')
       .where(where)
       .orderBy("matchDate", "desc")
       .skip(page * pageSize)
       .limit(pageSize)
 
     if (filter && filter.playerId) {
-      var history = await db
-        .collection(COLLECTIONS.PLAYER_MATCH_STATS)
+      var history = await col('player_match_stats')
         .where({ playerId: filter.playerId })
         .orderBy("matchDate", "desc")
         .get()
@@ -364,8 +361,7 @@ async function getMatchList(teamId, filter = {}, page = 0, pageSize = 20) {
       })
       if (!matchIds.length) return []
       where._id = _.in(matchIds)
-      query = db
-        .collection(COLLECTIONS.MATCHES)
+      query = col('matches')
         .where(where)
         .orderBy("matchDate", "desc")
         .skip(page * pageSize)
@@ -476,8 +472,7 @@ async function finalizeMatchGrouping(matchId, groupingPayload) {
 async function deleteMatch(matchId) {
   try {
     await col('matches').doc(matchId).remove()
-    await db
-      .collection(COLLECTIONS.PLAYER_MATCH_STATS)
+    await col('player_match_stats')
       .where({ matchId: matchId })
       .remove()
     return true
@@ -492,8 +487,7 @@ async function deleteMatch(matchId) {
  */
 async function getPlayerMatchHistory(playerId, limit = 20) {
   try {
-    var res = await db
-      .collection(COLLECTIONS.PLAYER_MATCH_STATS)
+    var res = await col('player_match_stats')
       .where({ playerId: playerId })
       .orderBy("matchDate", "desc")
       .limit(limit)
