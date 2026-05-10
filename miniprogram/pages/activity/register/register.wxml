@@ -1,0 +1,37 @@
+<view class="container">
+  <view wx:if="{{loading}}" class="status">加载中...</view>
+  <view wx:elif="{{!activity}}" class="status">活动不存在</view>
+  <view wx:else>
+    <view class="hero-card">
+      <text class="hero-title">{{activity.title}}</text>
+      <text class="hero-meta">{{activity.activityDate}} {{activity.startTime}}-{{activity.endTime}}</text>
+      <text class="hero-meta">{{activity.location || '地点待定'}}</text>
+      <text class="hero-status">{{statusText}}</text>
+    </view>
+
+    <view class="card">
+      <text class="section-title">我的报名身份</text>
+      <view wx:if="{{linkedPlayer}}" class="player-row">
+        <view>
+          <text class="player-name">{{linkedPlayer.nickname || linkedPlayer.name}}</text>
+          <text class="player-meta">{{linkedPlayer.position || '-'}} · {{linkedPlayer.height || '-'}}cm</text>
+        </view>
+        <text class="register-badge {{registered ? 'active' : ''}}">{{registered ? '已报名' : '未报名'}}</text>
+      </view>
+      <view wx:else class="empty-wrap">
+        <text class="empty-text">还没有绑定球员档案，报名前需要先到个人中心完成绑定。</text>
+        <button class="btn btn-secondary" bindtap="goProfile">去个人中心</button>
+      </view>
+    </view>
+
+    <view class="card">
+      <text class="section-title">活动说明</text>
+      <text class="note">本次活动采用 NCAA 风格比赛，预计三队双循环。报名成功后，组织者会统一分组并生成赛程。</text>
+    </view>
+
+    <view wx:if="{{linkedPlayer}}" class="action-bar">
+      <button wx:if="{{!registered}}" class="btn btn-primary" bindtap="onRegister" loading="{{submitting}}" disabled="{{submitting}}">确认报名</button>
+      <button wx:else class="btn btn-secondary" bindtap="onCancelRegistration" loading="{{submitting}}" disabled="{{submitting}}">取消报名</button>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,203 @@
+.container {
+  min-height: 100vh;
+  background: #f4f8ff;
+  padding: 24rpx;
+}
+
+.status,
+.empty {
+  text-align: center;
+  color: #64748b;
+  margin-top: 160rpx;
+}
+
+.hero-card,
+.card {
+  background: #fff;
+  border-radius: 20rpx;
+  border: 1rpx solid #d9e4fb;
+  box-shadow: 0 8rpx 20rpx rgba(22, 82, 240, 0.08);
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.hero-topline,
+.section-head,
+.registration-row,
+.action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hero-badge,
+.hero-status,
+.register-tag,
+.team-chip,
+.mini-btn {
+  border-radius: 999rpx;
+}
+
+.hero-badge {
+  background: #eef4ff;
+  color: #1652f0;
+  font-size: 20rpx;
+  padding: 8rpx 18rpx;
+  font-weight: 700;
+}
+
+.hero-status {
+  background: #fff7ed;
+  color: #b45309;
+  font-size: 20rpx;
+  padding: 8rpx 18rpx;
+}
+
+.hero-title {
+  display: block;
+  margin: 20rpx 0 12rpx;
+  color: #0f172a;
+  font-size: 40rpx;
+  font-weight: 700;
+}
+
+.hero-meta,
+.hero-subtitle,
+.player-pos,
+.hint {
+  display: block;
+  color: #64748b;
+  font-size: 24rpx;
+  line-height: 1.6;
+}
+
+.action-row {
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.btn {
+  flex: 1;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 40rpx;
+  border: none;
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: #1652f0;
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #eef4ff;
+  color: #1652f0;
+}
+
+.btn::after,
+.mini-btn::after {
+  border: none;
+}
+
+.section-title {
+  color: #0f172a;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.mini-btn {
+  margin: 0;
+  height: 56rpx;
+  line-height: 56rpx;
+  padding: 0 18rpx;
+  background: #fff1f2;
+  color: #e11d48;
+  font-size: 22rpx;
+}
+
+.registration-row {
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid #eef2ff;
+}
+
+.registration-row:last-child {
+  border-bottom: none;
+}
+
+.player-name {
+  color: #0f172a;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.register-tag {
+  padding: 8rpx 18rpx;
+  font-size: 20rpx;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.register-tag-active {
+  background: linear-gradient(135deg, #1652f0, #3b82f6);
+  color: #fff;
+}
+
+.team-chip-row {
+  display: flex;
+  gap: 12rpx;
+  flex-wrap: wrap;
+  margin: 18rpx 0 8rpx;
+}
+
+.team-chip {
+  background: #f8fbff;
+  color: #1652f0;
+  font-size: 22rpx;
+  padding: 10rpx 18rpx;
+  border: 1rpx solid #d9e4fb;
+}
+
+.hint {
+  margin-top: 16rpx;
+}
+
+.schedule-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #eef2ff;
+}
+
+.schedule-row:last-child {
+  border-bottom: none;
+}
+
+.schedule-name {
+  display: block;
+  color: #0f172a;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.schedule-meta,
+.schedule-link {
+  display: block;
+  color: #64748b;
+  font-size: 22rpx;
+  margin-top: 8rpx;
+}
+
+.schedule-right {
+  text-align: right;
+}
+
+.schedule-score {
+  display: block;
+  color: #1652f0;
+  font-size: 30rpx;
+  font-weight: 700;
+}

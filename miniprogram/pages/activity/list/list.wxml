@@ -1,0 +1,19 @@
+<view class="container">
+  <view class="header">
+    <text class="title">篮球活动</text>
+    <button class="create-btn" bindtap="goCreate">创建活动</button>
+  </view>
+
+  <view wx:if="{{loading}}" class="status">加载中...</view>
+  <view wx:elif="{{activities.length === 0}}" class="status">还没有活动，先创建一场吧。</view>
+  <view wx:else>
+    <view wx:for="{{activities}}" wx:key="_id" class="card" data-id="{{item._id}}" bindtap="goDetail">
+      <view class="row">
+        <text class="name">{{item.title}}</text>
+        <text class="tag">{{item.statusText}}</text>
+      </view>
+      <text class="meta">{{item.activityDate}} {{item.startTime}}-{{item.endTime}}</text>
+      <text class="meta">{{item.location || '地点待定'}} · {{item.teamNames.join(' / ')}}</text>
+    </view>
+  </view>
+</view>

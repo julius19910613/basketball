@@ -6,6 +6,7 @@
 const db = wx.cloud.database()
 const _ = db.command
 const matchHelper = require("./match-helper")
+const activityHelper = require("./activity-helper")
 const { getCollection } = require('../config/env')
 
 /**
@@ -19,6 +20,8 @@ const col = (name) => db.collection(getCollection(name))
  */
 const COLLECTIONS = {
   PLAYERS: 'players',
+  ACTIVITIES: 'activities',
+  ACTIVITY_REGISTRATIONS: 'activity_registrations',
   MATCHES: 'matches',
   PLAYER_MATCH_STATS: 'player_match_stats',
   TEAMS: 'teams',
@@ -267,6 +270,241 @@ async function deleteGroupResult(groupId) {
     return true
   } catch (err) {
     console.error('删除分组记录失败:', err)
+    throw err
+  }
+}
+
+/**
+ * ================== Activities 相关操作 ==================
+ */
+
+async function createActivity(activityData) {
+  try {
+    var payload = activityHelper.prepareActivityForSave(activityData)
+    var res = await col('activities').add({
+      data: Object.assign({}, payload, {
+        status: payload.status || 'draft',
+        createdAt: db.serverDate(),
+        updatedAt: db.serverDate()
+      })
+    })
+    return res._id
+  } catch (err) {
+    console.error('创建活动失败:', err)
+    throw err
+  }
+}
+
+async function updateActivity(activityId, activityData) {
+  try {
+    var payload = activityHelper.prepareActivityForSave(activityData)
+    await col('activities').doc(activityId).update({
+      data: Object.assign({}, payload, {
+        status: activityData.status || payload.status || 'draft',
+        updatedAt: db.serverDate()
+      })
+    })
+    return true
+  } catch (err) {
+    console.error('更新活动失败:', err)
+    throw err
+  }
+}
+
+async function getActivityDetail(activityId) {
+  try {
+    var res = await col('activities').doc(activityId).get()
+    return res.data || null
+  } catch (err) {
+    console.error('获取活动详情失败:', err)
+    throw err
+  }
+}
+
+async function getActivityList(page, pageSize) {
+  try {
+    var currentPage = Number(page) || 0
+    var limit = Number(pageSize) || 20
+    var res = await col('activities')
+      .orderBy('activityDate', 'desc')
+      .skip(currentPage * limit)
+      .limit(limit)
+      .get()
+    return res.data || []
+  } catch (err) {
+    console.error('获取活动列表失败:', err)
+    throw err
+  }
+}
+
+async function getActivityRegistrations(activityId) {
+  try {
+    var res = await col('activity_registrations')
+      .where({ activityId: activityId, status: _.in(['registered', 'confirmed']) })
+      .orderBy('registeredAt', 'asc')
+      .get()
+    return res.data || []
+  } catch (err) {
+    console.error('获取活动报名失败:', err)
+    throw err
+  }
+}
+
+async function getRegistrationByPlayer(activityId, playerId) {
+  var res = await col('activity_registrations')
+    .where({ activityId: activityId, playerId: playerId })
+    .limit(1)
+    .get()
+  return (res.data || [])[0] || null
+}
+
+async function registerForActivity(activityId, player) {
+  try {
+    var existing = await getRegistrationByPlayer(activityId, player._id)
+    var payload = activityHelper.buildRegistrationPayload(activityId, player)
+    if (existing) {
+      await col('activity_registrations').doc(existing._id).update({
+        data: Object.assign({}, payload, {
+          updatedAt: db.serverDate(),
+          registeredAt: existing.registeredAt || db.serverDate()
+        })
+      })
+      return existing._id
+    }
+    var res = await col('activity_registrations').add({
+      data: Object.assign({}, payload, {
+        registeredAt: db.serverDate(),
+        updatedAt: db.serverDate()
+      })
+    })
+    return res._id
+  } catch (err) {
+    console.error('活动报名失败:', err)
+    throw err
+  }
+}
+
+async function cancelActivityRegistration(activityId, playerId) {
+  try {
+    var existing = await getRegistrationByPlayer(activityId, playerId)
+    if (!existing) return true
+    await col('activity_registrations').doc(existing._id).update({
+      data: {
+        status: 'cancelled',
+        updatedAt: db.serverDate()
+      }
+    })
+    return true
+  } catch (err) {
+    console.error('取消活动报名失败:', err)
+    throw err
+  }
+}
+
+async function closeActivityRegistration(activityId) {
+  try {
+    await col('activities').doc(activityId).update({
+      data: {
+        status: 'registration_closed',
+        updatedAt: db.serverDate()
+      }
+    })
+    return true
+  } catch (err) {
+    console.error('截止活动报名失败:', err)
+    throw err
+  }
+}
+
+async function saveActivityGrouping(activityId, groupingSnapshot) {
+  try {
+    await col('activities').doc(activityId).update({
+      data: {
+        status: 'grouped',
+        groupingSnapshot: groupingSnapshot,
+        updatedAt: db.serverDate()
+      }
+    })
+    return true
+  } catch (err) {
+    console.error('保存活动分组失败:', err)
+    throw err
+  }
+}
+
+async function getMatchesByActivity(activityId) {
+  try {
+    var res = await col('matches')
+      .where({ activityId: activityId })
+      .orderBy('gameIndex', 'asc')
+      .get()
+    return res.data || []
+  } catch (err) {
+    console.error('获取活动赛程失败:', err)
+    throw err
+  }
+}
+
+async function generateActivityMatches(activity) {
+  try {
+    var schedule = activityHelper.createDoubleRoundRobinSchedule(activity.teamNames || [])
+    if (!schedule.length) throw new Error('无法生成赛程')
+
+    var existing = await getMatchesByActivity(activity._id)
+    if (existing.length) {
+      return existing
+    }
+
+    var selectedPlayerIds = ((activity.groupingSnapshot && activity.groupingSnapshot.teams) || [])
+      .reduce(function (acc, team) {
+        return acc.concat(team.playerIds || [])
+      }, [])
+
+    var created = []
+    for (var i = 0; i < schedule.length; i += 1) {
+      var game = schedule[i]
+      var matchPayload = {
+        activityId: activity._id,
+        gameIndex: game.gameIndex,
+        roundIndex: game.roundIndex,
+        homeTeamName: game.homeTeamName,
+        awayTeamName: game.awayTeamName,
+        teamId: activity.teamId || '',
+        teamNames: [game.homeTeamName, game.awayTeamName],
+        matchDate: activity.activityDate,
+        startTime: activity.startTime,
+        endTime: activity.endTime,
+        location: activity.location || '',
+        matchType: activity.ruleType || 'ncaa',
+        status: 'finalized',
+        matchStatus: 'scheduled',
+        isGroupingLocked: true,
+        selectedPlayerIds: selectedPlayerIds,
+        grouping: activityHelper.buildMatchGroupingFromActivity(activity.groupingSnapshot, game.homeTeamName, game.awayTeamName),
+        playerStats: [],
+        quarters: [
+          { quarter: 1, scoreUs: 0, scoreOpponent: 0 },
+          { quarter: 2, scoreUs: 0, scoreOpponent: 0 },
+          { quarter: 3, scoreUs: 0, scoreOpponent: 0 },
+          { quarter: 4, scoreUs: 0, scoreOpponent: 0 }
+        ],
+        scoreUs: 0,
+        scoreOpponent: 0,
+        highlights: ''
+      }
+      var matchId = await createMatch(matchPayload)
+      created.push(Object.assign({ _id: matchId }, matchPayload))
+    }
+
+    await col('activities').doc(activity._id).update({
+      data: {
+        status: 'in_progress',
+        updatedAt: db.serverDate()
+      }
+    })
+    return created
+  } catch (err) {
+    console.error('生成活动赛程失败:', err)
     throw err
   }
 }
@@ -745,6 +983,19 @@ async function getTeamMembersDetail(teamId) {
 }
 
 module.exports = {
+  // activities 相关
+  createActivity,
+  updateActivity,
+  getActivityDetail,
+  getActivityList,
+  getActivityRegistrations,
+  registerForActivity,
+  cancelActivityRegistration,
+  closeActivityRegistration,
+  saveActivityGrouping,
+  getMatchesByActivity,
+  generateActivityMatches,
+
   // matches 相关
   createMatch,
   getMatchList,

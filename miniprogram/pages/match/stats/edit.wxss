@@ -1,0 +1,143 @@
+.container {
+  min-height: 100vh;
+  background: #f4f8ff;
+  padding: 24rpx;
+  padding-bottom: 160rpx;
+}
+
+.status {
+  margin-top: 160rpx;
+  text-align: center;
+  color: #64748b;
+}
+
+.hero-card,
+.card {
+  background: #fff;
+  border-radius: 20rpx;
+  border: 1rpx solid #d9e4fb;
+  box-shadow: 0 8rpx 20rpx rgba(22, 82, 240, 0.08);
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.hero-title,
+.section-title {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.hero-title {
+  display: block;
+  font-size: 36rpx;
+  margin-bottom: 10rpx;
+}
+
+.hero-meta {
+  display: block;
+  color: #64748b;
+  font-size: 24rpx;
+  line-height: 1.6;
+}
+
+.section-title {
+  display: block;
+  font-size: 28rpx;
+  margin-bottom: 18rpx;
+}
+
+.score-row,
+.quarter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.score-item {
+  flex: 1;
+}
+
+.score-label,
+.quarter-name {
+  display: block;
+  color: #64748b;
+  font-size: 24rpx;
+  margin-bottom: 10rpx;
+}
+
+.score-item input,
+.quarter-row input {
+  background: #f8fbff;
+  border: 1rpx solid #d9e4fb;
+  border-radius: 12rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  text-align: center;
+  font-size: 30rpx;
+  color: #0f172a;
+}
+
+.score-sep {
+  color: #1652f0;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.quarter-row {
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid #eef2ff;
+}
+
+.quarter-row:last-child {
+  border-bottom: none;
+}
+
+.quarter-row .quarter-name {
+  width: 120rpx;
+  margin-bottom: 0;
+}
+
+.quarter-row input {
+  flex: 1;
+}
+
+.highlights {
+  width: 100%;
+  min-height: 180rpx;
+  background: #f8fbff;
+  border: 1rpx solid #d9e4fb;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  box-sizing: border-box;
+  font-size: 26rpx;
+  color: #0f172a;
+}
+
+.action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 20rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 -8rpx 24rpx rgba(15, 23, 42, 0.08);
+}
+
+.btn {
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 44rpx;
+  border: none;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: #1652f0;
+  color: #fff;
+}
+
+.btn::after {
+  border: none;
+}

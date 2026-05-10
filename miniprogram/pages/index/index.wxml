@@ -40,6 +40,15 @@
       <text class="action-name">比赛历史</text>
       <text class="action-desc">记录荣耀瞬间</text>
     </van-grid-item>
+    <van-grid-item 
+      use-slot 
+      bindtap="navToActivities"
+      content-class="action-card"
+    >
+      <image class="action-icon" src="/images/tabbar/home-active.png" />
+      <text class="action-name">篮球活动</text>
+      <text class="action-desc">报名、分组与赛程</text>
+    </van-grid-item>
   </van-grid>
 
   <!-- Secondary Actions -->

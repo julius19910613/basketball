@@ -1,0 +1,63 @@
+<view class="container">
+  <view wx:if="{{loading}}" class="status">加载中...</view>
+  <view wx:elif="{{!activity}}" class="status">活动不存在</view>
+  <view wx:else>
+    <view class="hero-card">
+      <view class="hero-topline">
+        <text class="hero-badge">NCAA</text>
+        <text class="hero-status">{{statusText}}</text>
+      </view>
+      <text class="hero-title">{{activity.title}}</text>
+      <text class="hero-meta">{{activity.activityDate}} {{activity.startTime}}-{{activity.endTime}}</text>
+      <text class="hero-meta">{{activity.location || '地点待定'}}</text>
+      <text class="hero-subtitle">3队双循环 · 当前已报名 {{registrations.length}} 人</text>
+    </view>
+
+    <view class="action-row">
+      <button class="btn btn-primary" bindtap="onGoRegister">去报名页</button>
+      <button class="btn btn-secondary" open-type="share">分享到微信群</button>
+    </view>
+
+    <view class="card">
+      <view class="section-head">
+        <text class="section-title">报名名单</text>
+        <button wx:if="{{activity.status === 'registration_open'}}" class="mini-btn" bindtap="onCloseRegistration">截止报名</button>
+      </view>
+      <view wx:if="{{!registrations.length}}" class="empty">还没有球员报名，先分享到群里吧。</view>
+      <view wx:for="{{registrations}}" wx:key="_id" class="registration-row">
+        <view class="player-basic">
+          <text class="player-name">{{item.nicknameSnapshot}}</text>
+          <text class="player-pos">{{item.positionSnapshot}}</text>
+        </view>
+        <text class="register-tag {{linkedPlayer && linkedPlayer._id === item.playerId ? 'register-tag-active' : ''}}">
+          {{linkedPlayer && linkedPlayer._id === item.playerId ? '我已报名' : '已报名'}}
+        </text>
+      </view>
+    </view>
+
+    <view class="card">
+      <text class="section-title">队伍设定</text>
+      <view class="team-chip-row">
+        <text wx:for="{{activity.teamNames}}" wx:key="*this" class="team-chip">{{item}}</text>
+      </view>
+      <button wx:if="{{activity.status === 'registration_closed' || activity.status === 'grouped'}}" class="btn btn-primary" bindtap="onGoGrouping">进入三队分组</button>
+      <button wx:if="{{activity.status === 'grouped' && matches.length === 0}}" class="btn btn-secondary" bindtap="onGenerateSchedule">生成6场双循环赛程</button>
+      <text class="hint">锁报名后即可进入三队分组，下一阶段会继续接上双循环赛程。</text>
+    </view>
+
+    <view class="card">
+      <text class="section-title">活动赛程</text>
+      <view wx:if="{{!matches.length}}" class="empty">分组完成后可自动生成 6 场双循环比赛。</view>
+      <view wx:for="{{matches}}" wx:key="_id" class="schedule-row" data-id="{{item._id}}" bindtap="onGoMatchStats">
+        <view>
+          <text class="schedule-name">第{{item.gameIndex}}场 · {{item.versusText}}</text>
+          <text class="schedule-meta">第{{item.roundIndex}}轮 · {{item.matchDate}} {{item.startTime}}-{{item.endTime}}</text>
+        </view>
+        <view class="schedule-right">
+          <text class="schedule-score">{{item.scoreUs}} : {{item.scoreOpponent}}</text>
+          <text class="schedule-link">录统计 ></text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

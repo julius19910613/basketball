@@ -69,17 +69,28 @@
 | 字段名 | 类型 | 说明 |
 |--------|------|------|
 | `_id` | String | 文档ID (自动生成) |
-| `type` | String | 比赛类型 ('Friendly' / 'League') |
-| `status` | String | 状态 ('scheduled' / 'ongoing' / 'finished') |
-| `homeTeamId` | String | 主队 ID |
-| `homeTeam` | Object | 主队信息快照 {_id, name, logo} |
-| `awayTeamId` | String | 客队 ID (可选) |
-| `awayTeam` | Object | 客队信息快照 (可选) |
-| `startTime` | Date | 比赛开始时间 |
-| `location` | Object | 比赛地点 {name, latitude?, longitude?} |
-| `homeScore` | Number | 主队得分 |
-| `awayScore` | Number | 客队得分 |
+| `activityId` | String | 所属活动 ID（活动赛程比赛可用） |
+| `matchType` | String | 比赛类型 (`friendly` / `league` / `cup` / `fiba` / `ncaa`) |
+| `status` | String | 文档状态 (`draft` / `finalized`) |
+| `matchStatus` | String | 比赛进度 (`scheduled` / `ongoing` / `finished`) |
+| `teamId` | String | 业务球队 ID（可为空） |
+| `teamNames` | Array\<String\> | 本场对阵队名 |
+| `homeTeamName` | String | 主队名称（活动赛程使用） |
+| `awayTeamName` | String | 客队名称（活动赛程使用） |
+| `matchDate` | String | 比赛日期 `YYYY-MM-DD` |
+| `startTime` | String | 开始时间 `HH:mm` |
+| `endTime` | String | 结束时间 `HH:mm` |
+| `location` | String | 比赛地点 |
+| `scoreUs` | Number | 左侧队伍比分 |
+| `scoreOpponent` | Number | 右侧队伍比分 |
+| `quarters` | Array | 每节比分 |
+| `playerStats` | Array | 单场球员技术统计 |
+| `grouping` | Object | 本场两队分组快照 |
+| `selectedPlayerIds` | Array\<String\> | 参赛球员 ID 列表 |
+| `highlights` | String | 比赛备注 |
+| `isGroupingLocked` | Boolean | 分组是否已锁定 |
 | `createdAt` | Date | 创建时间 |
+| `updatedAt` | Date | 更新时间 |
 
 **安全规则**:
 ```json
@@ -152,7 +163,51 @@
   "write": "doc._openid == auth.openid"
 }
 ```
-> 注：比赛数据建议仅允许创建者或管理员写入，可通过云函数验证权限。
+> 当前实现已演进为 `player_match_stats` 集合，用于按球员维度索引单场比赛数据，字段与比赛详情页统计保持一致。
+
+---
+
+## 6. activities 活动集合
+
+**用途**: 存储一场篮球活动的主记录（报名、分组、赛程入口）
+
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| `_id` | String | 文档ID (自动生成) |
+| `title` | String | 活动名称 |
+| `activityDate` | String | 活动日期 `YYYY-MM-DD` |
+| `startTime` | String | 开始时间 `HH:mm` |
+| `endTime` | String | 结束时间 `HH:mm` |
+| `location` | String | 活动地点 |
+| `ruleType` | String | 规则类型（当前固定 `ncaa`） |
+| `formatType` | String | 活动模式（当前固定 `3team-double-round-robin`） |
+| `teamCount` | Number | 队伍数量（当前固定 3） |
+| `teamNames` | Array\<String\> | 队伍名称数组 |
+| `status` | String | 活动状态 (`draft` / `registration_open` / `registration_closed` / `grouped` / `in_progress` / `finished`) |
+| `registrationDeadline` | String | 报名截止时间 |
+| `createdByOpenid` | String | 创建者 OpenID |
+| `groupingSnapshot` | Object | 活动级三队分组快照 |
+| `createdAt` | Date | 创建时间 |
+| `updatedAt` | Date | 更新时间 |
+
+---
+
+## 7. activity_registrations 活动报名集合
+
+**用途**: 存储球员对活动的报名记录
+
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| `_id` | String | 文档ID (自动生成) |
+| `activityId` | String | 活动 ID |
+| `playerId` | String | 球员 ID |
+| `openid` | String | 报名者 OpenID |
+| `nicknameSnapshot` | String | 报名时球员昵称快照 |
+| `avatarSnapshot` | String | 报名时头像快照 |
+| `positionSnapshot` | String | 报名时位置快照 |
+| `status` | String | 报名状态 (`registered` / `cancelled` / `confirmed`) |
+| `registeredAt` | Date | 报名时间 |
+| `updatedAt` | Date | 更新时间 |
 
 ---
 
@@ -166,7 +221,9 @@
    - `teams`
    - `matches`
    - `players`
-   - `match_records`
+   - `player_match_stats`
+   - `activities`
+   - `activity_registrations`
 5. 为每个集合配置相应的安全规则
 
 ## 头像功能说明

@@ -1,7 +1,13 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/activity/list/list",
+    "pages/activity/create/create",
+    "pages/activity/detail/detail",
+    "pages/activity/grouping/grouping",
+    "pages/activity/register/register",
     "pages/match/list/list",
+    "pages/match/stats/edit",
     "pages/match/create/create",
     "pages/match/grouping/grouping",
     "pages/match/detail/detail",

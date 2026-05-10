@@ -6,6 +6,8 @@
 // 集合名称映射：develop/trial → dev_xxx，release → xxx
 const COLLECTION_MAP = {
   develop: {
+    activities: 'dev_activities',
+    activity_registrations: 'dev_activity_registrations',
     players: 'dev_players',
     teams: 'dev_teams',
     matches: 'dev_matches',
@@ -14,6 +16,8 @@ const COLLECTION_MAP = {
     random_groups: 'dev_random_groups'
   },
   trial: {
+    activities: 'dev_activities',
+    activity_registrations: 'dev_activity_registrations',
     players: 'dev_players',
     teams: 'dev_teams',
     matches: 'dev_matches',
@@ -22,6 +26,8 @@ const COLLECTION_MAP = {
     random_groups: 'dev_random_groups'
   },
   release: {
+    activities: 'activities',
+    activity_registrations: 'activity_registrations',
     players: 'players',
     teams: 'teams',
     matches: 'matches',

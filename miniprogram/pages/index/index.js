@@ -55,6 +55,10 @@ Page({
     wx.switchTab({ url: '/pages/match/list/list' });
   },
 
+  navToActivities: function() {
+    wx.navigateTo({ url: '/pages/activity/list/list' });
+  },
+
   navToProfile: function() {
     wx.switchTab({ url: '/pages/profile/profile' });
   },

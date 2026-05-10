@@ -1,0 +1,50 @@
+<view class="container">
+  <view wx:if="{{loading}}" class="status">加载中...</view>
+  <view wx:elif="{{!match}}" class="status">比赛不存在</view>
+  <view wx:else>
+    <view class="hero-card">
+      <text class="hero-title">{{match.teamNames[0] || 'A队'}} vs {{match.teamNames[1] || 'B队'}}</text>
+      <text class="hero-meta">{{match.matchDate}} {{match.startTime}}-{{match.endTime}}</text>
+      <text class="hero-meta">{{match.location || '地点待定'}} · NCAA</text>
+    </view>
+
+    <view class="card">
+      <text class="section-title">全场比分</text>
+      <view class="score-row">
+        <view class="score-item">
+          <text class="score-label">{{match.teamNames[0] || 'A队'}}</text>
+          <input type="number" value="{{form.scoreUs}}" data-field="scoreUs" bindinput="onScoreInput" />
+        </view>
+        <text class="score-sep">:</text>
+        <view class="score-item">
+          <text class="score-label">{{match.teamNames[1] || 'B队'}}</text>
+          <input type="number" value="{{form.scoreOpponent}}" data-field="scoreOpponent" bindinput="onScoreInput" />
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <text class="section-title">每节比分</text>
+      <view wx:for="{{form.quarters}}" wx:key="quarter" class="quarter-row">
+        <text class="quarter-name">第{{item.quarter}}节</text>
+        <input type="number" value="{{item.scoreUs}}" data-index="{{index}}" data-side="scoreUs" bindinput="onQuarterInput" />
+        <text class="score-sep">:</text>
+        <input type="number" value="{{item.scoreOpponent}}" data-index="{{index}}" data-side="scoreOpponent" bindinput="onQuarterInput" />
+      </view>
+    </view>
+
+    <view class="card">
+      <text class="section-title">球员技术统计</text>
+      <player-stat-input players="{{players}}" value="{{form.playerStats}}" bind:change="onPlayerStatsChange" />
+    </view>
+
+    <view class="card">
+      <text class="section-title">比赛备注</text>
+      <textarea class="highlights" value="{{form.highlights}}" bindinput="onHighlightsInput" placeholder="记录这场比赛的亮点、关键回合或临场情况"></textarea>
+    </view>
+
+    <view class="action-bar">
+      <button class="btn btn-primary" bindtap="onSave" loading="{{saving}}" disabled="{{saving}}">保存技术统计</button>
+    </view>
+  </view>
+</view>

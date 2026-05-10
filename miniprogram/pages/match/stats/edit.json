@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "技术统计录入",
+  "usingComponents": {
+    "player-stat-input": "/components/player-stat-input/player-stat-input"
+  }
+}

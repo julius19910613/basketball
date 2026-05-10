@@ -1,0 +1,60 @@
+<view class="container">
+  <view class="hero-card">
+    <text class="hero-title">创建篮球活动</text>
+    <text class="hero-subtitle">先把报名页搭起来，后续分组和赛程都会挂在这场活动下。</text>
+  </view>
+
+  <view class="card">
+    <view class="field">
+      <text>活动名称 *</text>
+      <input value="{{form.title}}" data-field="title" bindinput="onInput" placeholder="例如：6月底篮球活动" />
+    </view>
+    <view class="field">
+      <text>活动日期 *</text>
+      <picker mode="date" value="{{form.activityDate}}" start="2026-01-01" end="2099-12-31" bindchange="onDateChange">
+        <view class="picker-value">{{form.activityDate}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <text>开始时间 *</text>
+      <picker mode="time" value="{{form.startTime}}" start="00:00" end="23:59" bindchange="onStartTimeChange">
+        <view class="picker-value">{{form.startTime}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <text>结束时间 *</text>
+      <picker mode="time" value="{{form.endTime}}" start="00:00" end="23:59" bindchange="onEndTimeChange">
+        <view class="picker-value">{{form.endTime}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <text>活动地点</text>
+      <input value="{{form.location}}" data-field="location" bindinput="onInput" placeholder="填写球馆或场地" />
+    </view>
+    <view class="field">
+      <text>赛制</text>
+      <view class="picker-value">NCAA</view>
+    </view>
+    <view class="field">
+      <text>模式</text>
+      <view class="picker-value">三队双循环</view>
+    </view>
+    <view class="field deadline-field">
+      <text>报名截止</text>
+      <input value="{{form.registrationDeadline}}" bindinput="onDeadlineInput" placeholder="YYYY-MM-DD HH:mm" />
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">队伍名称</view>
+    <view wx:for="{{form.teamNames}}" wx:key="index" class="team-row">
+      <text class="team-label">队伍{{index + 1}}</text>
+      <input value="{{item}}" data-index="{{index}}" bindinput="onTeamNameInput" placeholder="输入队伍名称" />
+    </view>
+  </view>
+
+  <view class="action-bar">
+    <button class="btn btn-secondary" bindtap="onSaveDraft" loading="{{saving}}" disabled="{{saving}}">保存草稿</button>
+    <button class="btn btn-primary" bindtap="onPublish" loading="{{saving}}" disabled="{{saving}}">发布报名</button>
+  </view>
+</view>
