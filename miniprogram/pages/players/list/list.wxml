@@ -16,16 +16,23 @@
 
   <view wx:else class="list">
     <view
-      class="card"
+      class="card {{item.isMvp ? 'card-mvp' : ''}}"
       wx:for="{{players}}"
       wx:key="_id"
       data-id="{{item._id}}"
       bindtap="goToDetail"
     >
+      <view wx:if="{{item.isMvp}}" class="mvp-ribbon">
+        <text class="mvp-ribbon-star">★</text>
+        <text class="mvp-ribbon-text">MVP</text>
+      </view>
       <view class="card-main">
         <view class="avatar-wrap {{item.isMvp ? 'mvp' : ''}}">
+          <view wx:if="{{item.isMvp}}" class="avatar-halo"></view>
           <image class="player-avatar" src="{{item.avatar || '/images/default_avatar.svg'}}" mode="aspectFill" />
-          <text wx:if="{{item.isMvp}}" class="crown-badge">👑</text>
+          <view wx:if="{{item.isMvp}}" class="crown-badge">
+            <text class="crown-icon">♛</text>
+          </view>
         </view>
         <view class="card-info">
           <view class="name-row">

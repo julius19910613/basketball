@@ -142,6 +142,18 @@ Page({
     this.setData({ [`form.${field}`]: value });
   },
 
+  onMatchDateChange(e) {
+    this.setData({ "form.matchDate": e.detail.value });
+  },
+
+  onStartTimeChange(e) {
+    this.setData({ "form.startTime": e.detail.value });
+  },
+
+  onEndTimeChange(e) {
+    this.setData({ "form.endTime": e.detail.value });
+  },
+
   onTypeChange(e) {
     const index = Number(e.detail.value);
     this.setData({
@@ -180,6 +192,7 @@ Page({
     const uniq = new Set(teamNames);
     if (uniq.size !== teamNames.length) return "球队名称不能重复";
     if (!form.matchDate) return "请选择比赛日期";
+    if (form.startTime && form.endTime && form.endTime <= form.startTime) return "结束时间需晚于开始时间";
     if (this.data.selectedPlayerIds.length < 4) return "至少选择4名球员";
     return "";
   },
