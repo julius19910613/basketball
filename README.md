@@ -88,8 +88,10 @@ basketball/
 │   ├── automated-testing-guide.md  # 测试指南
 │   └── archive/                # 归档文档（历史计划、报告）
 ├── package.json
-├── jest.config.js
-├── jest.e2e.config.js
+├── jest.config.ts
+├── jest.page.config.ts
+├── jest.component.config.ts
+├── jest.e2e.config.ts
 ├── project.config.json         # 微信开发者工具配置
 ├── DATABASE_SCHEMA.md          # 数据库设计
 └── DEPLOYMENT.md               # 部署指南
