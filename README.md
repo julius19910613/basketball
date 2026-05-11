@@ -163,7 +163,7 @@ wx.cloud.init({
 ## 测试
 
 ```bash
-npm test               # 运行 unit + page + component
+npm test               # 运行 unit + page + component，并生成 coverage/
 npm run test:unit      # 纯逻辑测试
 npm run test:page      # 页面逻辑测试
 npm run test:component # 组件渲染/交互测试
@@ -172,7 +172,7 @@ npm run test:e2e       # miniprogram-automator E2E
 npm run test:ci        # 本地模拟 CI（非 E2E + E2E）
 ```
 
-说明：`npm test` 默认只聚合 `unit`、`page`、`component` 三层；E2E 需要显式执行 `npm run test:e2e`。
+说明：`npm test` 默认聚合 `unit`、`page`、`component` 三层，并输出覆盖率到 `coverage/`；E2E 需要显式执行 `npm run test:e2e`。
 
 ## UI 主题
 
