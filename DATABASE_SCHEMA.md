@@ -230,7 +230,7 @@
 
 ### 预设头像配置
 
-预设头像配置位于 `miniprogram/config/avatar-presets.js`，支持以下分类：
+预设头像配置位于 `miniprogram/config/avatar-presets.ts`，支持以下分类：
 - **篮球经典**: 经典篮球动作 GIF
 - **动漫卡通**: 篮球动漫角色
 - **趣味表情**: 搞笑表情包
@@ -240,7 +240,7 @@
 1. 准备 GIF 头像文件（建议尺寸 200x200，大小 < 500KB）
 2. 上传到 CloudBase 云存储
 3. 在云存储控制台获取文件的 HTTPS 链接
-4. 将链接填入 `miniprogram/config/avatar-presets.js` 对应头像的 `url` 字段
+4. 将链接填入 `miniprogram/config/avatar-presets.ts` 对应头像的 `url` 字段
 5. 重新编译小程序
 
 ### 技术限制

@@ -75,7 +75,7 @@ The application uses three main NoSQL collections with document-based storage:
    ```
 
 2. **Configure CloudBase Environment**
-   - Ensure `miniprogram/app.js` has correct `env` ID:
+   - Ensure `miniprogram/app.ts` has correct `env` ID:
      ```javascript
      wx.cloud.init({
        env: 'your-env-id',  // Replace with actual CloudBase env ID
@@ -120,7 +120,7 @@ The application uses three main NoSQL collections with document-based storage:
 
 ## Key Files
 
-- `miniprogram/app.js` - CloudBase initialization, global app lifecycle
+- `miniprogram/app.ts` - CloudBase initialization, global app lifecycle
 - `miniprogram/app.json` - Page routing, tab bar, window configuration
 - `miniprogram/app.wxss` - Global styles (color scheme: #FF6B35 orange theme)
 - `cloudfunctions/getOpenId/index.js` - Cloud function to retrieve user openid
@@ -224,7 +224,7 @@ npm test -- path/to/test-file.test.js
 
 **Test Architecture:**
 - `jest.config.ts` - Jest configuration with Babel + ts-jest transform
-- `jest.setup.js` - Global mocks for WeChat Mini Program APIs (`wx`, `wx.cloud`, `Page`, `App`, etc.)
+- `jest.setup.ts` - Global mocks for WeChat Mini Program APIs (`wx`, `wx.cloud`, `Page`, `App`, etc.)
 - `miniprogram/__test__/mock-db.js` - In-memory mock database implementing CloudBase SDK patterns:
   - Supports collections: `users`, `teams`, `team_members`, `matches`
   - Implements `add()`, `where()`, `get()`, `doc().update()`, `doc().remove()`, `orderBy()`

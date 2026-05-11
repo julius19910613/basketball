@@ -88,7 +88,7 @@
 
 ### 2. 配置环境 ID
 
-修改 `miniprogram/app.js` 文件：
+修改 `miniprogram/app.ts` 文件：
 
 ```javascript
 wx.cloud.init({

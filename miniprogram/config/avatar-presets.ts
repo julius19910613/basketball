@@ -1,3 +1,5 @@
+/// <reference path="../../typings/index.d.ts" />
+
 /**
  * 预设头像配置
  * 
@@ -16,7 +18,20 @@
  * - meme         趣味表情
  */
 
-var AVATAR_PRESETS = [
+interface AvatarPreset {
+  id: string;
+  name: string;
+  url: string;
+  category: string;
+  categoryName: string;
+}
+
+interface Category {
+  key: string;
+  name: string;
+}
+
+const AVATAR_PRESETS: AvatarPreset[] = [
   // ===== 篮球经典 =====
   {
     id: "basketball-1",
@@ -106,14 +121,16 @@ var AVATAR_PRESETS = [
   }
 ];
 
+const DEFAULT_AVATAR = "/images/default_avatar.svg";
+
 /**
  * 获取所有分类
  */
-function getCategories() {
-  var map = {};
-  var categories = [];
-  for (var i = 0; i < AVATAR_PRESETS.length; i++) {
-    var item = AVATAR_PRESETS[i];
+function getCategories(): Category[] {
+  const map: Record<string, boolean> = {};
+  const categories: Category[] = [];
+  for (let i = 0; i < AVATAR_PRESETS.length; i++) {
+    const item = AVATAR_PRESETS[i];
     if (!map[item.category]) {
       map[item.category] = true;
       categories.push({
@@ -128,9 +145,9 @@ function getCategories() {
 /**
  * 按分类获取头像
  */
-function getAvatarsByCategory(category) {
-  var result = [];
-  for (var i = 0; i < AVATAR_PRESETS.length; i++) {
+function getAvatarsByCategory(category: string): AvatarPreset[] {
+  const result: AvatarPreset[] = [];
+  for (let i = 0; i < AVATAR_PRESETS.length; i++) {
     if (AVATAR_PRESETS[i].category === category) {
       result.push(AVATAR_PRESETS[i]);
     }
@@ -141,15 +158,15 @@ function getAvatarsByCategory(category) {
 /**
  * 获取所有头像
  */
-function getAllAvatars() {
+function getAllAvatars(): AvatarPreset[] {
   return AVATAR_PRESETS.slice();
 }
 
 /**
  * 根据 id 获取头像
  */
-function getAvatarById(id) {
-  for (var i = 0; i < AVATAR_PRESETS.length; i++) {
+function getAvatarById(id: string): AvatarPreset | null {
+  for (let i = 0; i < AVATAR_PRESETS.length; i++) {
     if (AVATAR_PRESETS[i].id === id) {
       return AVATAR_PRESETS[i];
     }
@@ -157,11 +174,11 @@ function getAvatarById(id) {
   return null;
 }
 
-module.exports = {
-  AVATAR_PRESETS: AVATAR_PRESETS,
-  getCategories: getCategories,
-  getAvatarsByCategory: getAvatarsByCategory,
-  getAllAvatars: getAllAvatars,
-  getAvatarById: getAvatarById,
-  DEFAULT_AVATAR: "/images/default_avatar.svg"
+export {
+  AVATAR_PRESETS,
+  getCategories,
+  getAvatarsByCategory,
+  getAllAvatars,
+  getAvatarById,
+  DEFAULT_AVATAR
 };
