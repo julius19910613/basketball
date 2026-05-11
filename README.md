@@ -73,7 +73,7 @@ basketball/
 │   │   ├── activity-helper.ts  # 活动工具（报名、赛程、分组快照）
 │   │   ├── match-helper.ts     # 比赛工具（分组算法、数据计算）
 │   │   ├── group-algorithm.ts  # 分组算法
-│   │   ├── db.js               # 数据库封装
+│   │   ├── db.ts               # 数据库封装
 │   │   └── basketball.ts       # 篮球常量 & 工具
 │   └── styles/                 # 样式文件
 ├── cloudfunctions/             # 云函数

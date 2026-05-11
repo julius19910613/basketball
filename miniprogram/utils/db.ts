@@ -1,3 +1,5 @@
+/// <reference path="../../typings/index.d.ts" />
+
 /**
  * 数据库工具模块
  * 封装云数据库操作
@@ -5,15 +7,15 @@
 
 const db = wx.cloud.database()
 const _ = db.command
-const matchHelper = require("./match-helper")
-const activityHelper = require("./activity-helper")
-const { getCollection } = require('../config/env')
+import matchHelper = require("./match-helper")
+import activityHelper = require("./activity-helper")
+import env = require("../config/env")
 
 /**
  * 路由集合辅助函数
  * @param {string} name 业务集合名
  */
-const col = (name) => db.collection(getCollection(name))
+const col = (name: string) => db.collection(env.getCollection(name))
 
 /**
  * 数据库集合常量（业务名，非实际集合名）
@@ -36,7 +38,7 @@ const COLLECTIONS = {
 /**
  * 添加球员
  */
-async function addPlayer(playerData) {
+async function addPlayer(playerData: any): Promise<string> {
   try {
     const res = await col('players').add({
       data: {
@@ -45,7 +47,7 @@ async function addPlayer(playerData) {
         updatedAt: db.serverDate()
       }
     })
-    return res._id
+    return res._id as string
   } catch (err) {
     console.error('添加球员失败:', err)
     throw err
@@ -61,13 +63,13 @@ async function addPlayer(playerData) {
  * @param {string} teamId - 球队ID
  * @returns {Promise<Array>} 成员列表（含skillLevel）
  */
-async function getTeamMembersWithSkillLevel(teamId) {
+async function getTeamMembersWithSkillLevel(teamId: string): Promise<any[]> {
   try {
     const res = await col('teams').doc(teamId).get()
     const members = res.data.members || []
     
     // 为每个成员添加档位描述和颜色
-    return members.map(m => ({
+    return members.map((m: any) => ({
       ...m,
       levelDesc: getLevelDesc(m.skillLevel || 3),
       levelColor: getLevelColor(m.skillLevel || 3)
@@ -85,14 +87,14 @@ async function getTeamMembersWithSkillLevel(teamId) {
  * @param {number} skillLevel - 档位 (2-5)
  * @returns {Promise<boolean>} 是否成功
  */
-async function updateMemberSkillLevel(teamId, userId, skillLevel) {
+async function updateMemberSkillLevel(teamId: string, userId: string, skillLevel: number): Promise<boolean> {
   try {
     // 1. 获取当前team数据
     const teamRes = await col('teams').doc(teamId).get()
     const members = teamRes.data.members || []
     
     // 2. 找到并更新对应成员
-    const memberIndex = members.findIndex(m => m.userId === userId)
+    const memberIndex = members.findIndex((m: any) => m.userId === userId)
     if (memberIndex === -1) {
       throw new Error('未找到该成员')
     }
@@ -107,9 +109,9 @@ async function updateMemberSkillLevel(teamId, userId, skillLevel) {
     })
     
     // 4. 同步更新users集合
-    await col('users').where({
+    await (col('users').where({
       _openid: userId
-    }).update({
+    }) as any).update({
       data: {
         skillLevel: skillLevel,
         skillLevelUpdatedAt: db.serverDate()
@@ -129,7 +131,7 @@ async function updateMemberSkillLevel(teamId, userId, skillLevel) {
  * @param {Array} updates - 更新列表 [{userId, skillLevel}, ...]
  * @returns {Promise<boolean>} 是否成功
  */
-async function batchUpdateSkillLevel(teamId, updates) {
+async function batchUpdateSkillLevel(teamId: string, updates: any[]): Promise<boolean> {
   try {
     // 1. 获取当前team数据
     const teamRes = await col('teams').doc(teamId).get()
@@ -137,7 +139,7 @@ async function batchUpdateSkillLevel(teamId, updates) {
     
     // 2. 批量更新
     updates.forEach(update => {
-      const memberIndex = members.findIndex(m => m.userId === update.userId)
+      const memberIndex = members.findIndex((m: any) => m.userId === update.userId)
       if (memberIndex !== -1) {
         members[memberIndex].skillLevel = update.skillLevel
       }
@@ -162,7 +164,7 @@ async function batchUpdateSkillLevel(teamId, updates) {
  * @param {string} teamId - 球队ID
  * @returns {Promise<Object>} 统计信息
  */
-async function getSkillLevelStats(teamId) {
+async function getSkillLevelStats(teamId: string): Promise<any> {
   try {
     const members = await getTeamMembersWithSkillLevel(teamId)
     
@@ -178,7 +180,7 @@ async function getSkillLevelStats(teamId) {
     if (members.length === 0) return stats
     
     let totalLevel = 0
-    members.forEach(m => {
+    members.forEach((m: any) => {
       const level = m.skillLevel || 3
       totalLevel += level
       if (level === 5) stats.level5++
@@ -187,7 +189,7 @@ async function getSkillLevelStats(teamId) {
       else if (level === 2) stats.level2++
     })
     
-    stats.avgLevel = (totalLevel / members.length).toFixed(2)
+    stats.avgLevel = Number((totalLevel / members.length).toFixed(2))
     
     return stats
   } catch (err) {
@@ -205,7 +207,7 @@ async function getSkillLevelStats(teamId) {
  * @param {Object} groupData - 分组数据
  * @returns {Promise<string>} 分组记录ID
  */
-async function saveGroupResult(groupData) {
+async function saveGroupResult(groupData: any): Promise<string> {
   try {
     const res = await col('random_groups').add({
       data: {
@@ -214,7 +216,7 @@ async function saveGroupResult(groupData) {
       }
     })
     
-    return res._id
+    return res._id as string
   } catch (err) {
     console.error('保存分组结果失败:', err)
     throw err
@@ -227,7 +229,7 @@ async function saveGroupResult(groupData) {
  * @param {number} limit - 返回数量
  * @returns {Promise<Array>} 分组历史列表
  */
-async function getGroupHistory(teamId, limit = 20) {
+async function getGroupHistory(teamId: string, limit = 20): Promise<any[]> {
   try {
     const res = await col('random_groups')
       .where({
@@ -249,7 +251,7 @@ async function getGroupHistory(teamId, limit = 20) {
  * @param {string} groupId - 分组ID
  * @returns {Promise<Object>} 分组详情
  */
-async function getGroupDetail(groupId) {
+async function getGroupDetail(groupId: string): Promise<any | null> {
   try {
     const res = await col('random_groups').doc(groupId).get()
     return res.data
@@ -264,7 +266,7 @@ async function getGroupDetail(groupId) {
  * @param {string} groupId - 分组ID
  * @returns {Promise<boolean>} 是否成功
  */
-async function deleteGroupResult(groupId) {
+async function deleteGroupResult(groupId: string): Promise<boolean> {
   try {
     await col('random_groups').doc(groupId).remove()
     return true
@@ -278,7 +280,7 @@ async function deleteGroupResult(groupId) {
  * ================== Activities 相关操作 ==================
  */
 
-async function createActivity(activityData) {
+async function createActivity(activityData: any): Promise<string> {
   try {
     var payload = activityHelper.prepareActivityForSave(activityData)
     var res = await col('activities').add({
@@ -288,14 +290,14 @@ async function createActivity(activityData) {
         updatedAt: db.serverDate()
       })
     })
-    return res._id
+    return res._id as string
   } catch (err) {
     console.error('创建活动失败:', err)
     throw err
   }
 }
 
-async function updateActivity(activityId, activityData) {
+async function updateActivity(activityId: string, activityData: any): Promise<boolean> {
   try {
     var payload = activityHelper.prepareActivityForSave(activityData)
     await col('activities').doc(activityId).update({
@@ -311,7 +313,7 @@ async function updateActivity(activityId, activityData) {
   }
 }
 
-async function getActivityDetail(activityId) {
+async function getActivityDetail(activityId: string): Promise<any | null> {
   try {
     var res = await col('activities').doc(activityId).get()
     return res.data || null
@@ -321,7 +323,7 @@ async function getActivityDetail(activityId) {
   }
 }
 
-async function getActivityList(page, pageSize) {
+async function getActivityList(page: number, pageSize: number): Promise<any[]> {
   try {
     var currentPage = Number(page) || 0
     var limit = Number(pageSize) || 20
@@ -337,7 +339,7 @@ async function getActivityList(page, pageSize) {
   }
 }
 
-async function getActivityRegistrations(activityId) {
+async function getActivityRegistrations(activityId: string): Promise<any[]> {
   try {
     var res = await col('activity_registrations')
       .where({ activityId: activityId, status: _.in(['registered', 'confirmed']) })
@@ -350,7 +352,7 @@ async function getActivityRegistrations(activityId) {
   }
 }
 
-async function getRegistrationByPlayer(activityId, playerId) {
+async function getRegistrationByPlayer(activityId: string, playerId: string): Promise<any | null> {
   var res = await col('activity_registrations')
     .where({ activityId: activityId, playerId: playerId })
     .limit(1)
@@ -358,7 +360,7 @@ async function getRegistrationByPlayer(activityId, playerId) {
   return (res.data || [])[0] || null
 }
 
-async function registerForActivity(activityId, player) {
+async function registerForActivity(activityId: string, player: any): Promise<string> {
   try {
     var existing = await getRegistrationByPlayer(activityId, player._id)
     var payload = activityHelper.buildRegistrationPayload(activityId, player)
@@ -377,14 +379,14 @@ async function registerForActivity(activityId, player) {
         updatedAt: db.serverDate()
       })
     })
-    return res._id
+    return res._id as string
   } catch (err) {
     console.error('活动报名失败:', err)
     throw err
   }
 }
 
-async function cancelActivityRegistration(activityId, playerId) {
+async function cancelActivityRegistration(activityId: string, playerId: string): Promise<boolean> {
   try {
     var existing = await getRegistrationByPlayer(activityId, playerId)
     if (!existing) return true
@@ -401,7 +403,7 @@ async function cancelActivityRegistration(activityId, playerId) {
   }
 }
 
-async function closeActivityRegistration(activityId) {
+async function closeActivityRegistration(activityId: string): Promise<boolean> {
   try {
     await col('activities').doc(activityId).update({
       data: {
@@ -416,7 +418,7 @@ async function closeActivityRegistration(activityId) {
   }
 }
 
-async function saveActivityGrouping(activityId, groupingSnapshot) {
+async function saveActivityGrouping(activityId: string, groupingSnapshot: any): Promise<boolean> {
   try {
     await col('activities').doc(activityId).update({
       data: {
@@ -432,7 +434,7 @@ async function saveActivityGrouping(activityId, groupingSnapshot) {
   }
 }
 
-async function getMatchesByActivity(activityId) {
+async function getMatchesByActivity(activityId: string): Promise<any[]> {
   try {
     var res = await col('matches')
       .where({ activityId: activityId })
@@ -445,7 +447,7 @@ async function getMatchesByActivity(activityId) {
   }
 }
 
-async function generateActivityMatches(activity) {
+async function generateActivityMatches(activity: any): Promise<any[]> {
   try {
     var schedule = activityHelper.createDoubleRoundRobinSchedule(activity.teamNames || [])
     if (!schedule.length) throw new Error('无法生成赛程')
@@ -456,7 +458,7 @@ async function generateActivityMatches(activity) {
     }
 
     var selectedPlayerIds = ((activity.groupingSnapshot && activity.groupingSnapshot.teams) || [])
-      .reduce(function (acc, team) {
+      .reduce(function (acc: any, team: any) {
         return acc.concat(team.playerIds || [])
       }, [])
 
@@ -513,8 +515,8 @@ async function generateActivityMatches(activity) {
  * ================== Matches 相关操作 ==================
  */
 
-function buildMatchWhere(teamId, filter) {
-  var where = {}
+function buildMatchWhere(teamId: string | null | undefined, filter: any | null | undefined): any {
+  var where: any = {}
   if (teamId) where.teamId = teamId
   if (filter && filter.result) where.result = filter.result
   if (filter && filter.matchType) where.matchType = filter.matchType
@@ -522,7 +524,7 @@ function buildMatchWhere(teamId, filter) {
   return where
 }
 
-async function createPlayerMatchStats(match) {
+async function createPlayerMatchStats(match: any): Promise<void> {
   var stats = matchHelper.extractPlayerMatchStats(match)
   if (!stats.length) return
   await Promise.all(
@@ -534,14 +536,14 @@ async function createPlayerMatchStats(match) {
   )
 }
 
-async function replacePlayerMatchStats(matchId, match) {
-  await col('player_match_stats')
-    .where({ matchId: matchId })
+async function replacePlayerMatchStats(matchId: string, match: any): Promise<void> {
+  await (col('player_match_stats')
+    .where({ matchId: matchId }) as any)
     .remove()
   await createPlayerMatchStats(Object.assign({}, match, { _id: matchId }))
 }
 
-function getGroupingPayloadUpdateData(groupingPayload, lockedAt) {
+function getGroupingPayloadUpdateData(groupingPayload: any, lockedAt?: any): any {
   var data = {
     selectedPlayerIds: groupingPayload.selectedPlayerIds || [],
     playerStats: groupingPayload.playerStats || [],
@@ -556,7 +558,7 @@ function getGroupingPayloadUpdateData(groupingPayload, lockedAt) {
 /**
  * 创建比赛
  */
-async function createMatch(matchData) {
+async function createMatch(matchData: any): Promise<string> {
   try {
     var payload = matchHelper.prepareMatchForSave(matchData)
     var grouping = payload.grouping || { teamAPlayerIds: [], teamBPlayerIds: [], lockedAt: null }
@@ -570,7 +572,7 @@ async function createMatch(matchData) {
     })
     var res = await col('matches').add({ data: nowData })
     await createPlayerMatchStats(Object.assign({}, payload, { _id: res._id }))
-    return res._id
+    return res._id as string
   } catch (err) {
     console.error("创建比赛失败:", err)
     throw err
@@ -580,7 +582,7 @@ async function createMatch(matchData) {
 /**
  * 获取比赛列表
  */
-async function getMatchList(teamId, filter = {}, page = 0, pageSize = 20) {
+async function getMatchList(teamId: string | null | undefined, filter: any = {}, page = 0, pageSize = 20): Promise<any[]> {
   try {
     var where = buildMatchWhere(teamId, filter)
     var query = col('matches')
@@ -617,7 +619,7 @@ async function getMatchList(teamId, filter = {}, page = 0, pageSize = 20) {
 /**
  * 获取比赛详情
  */
-async function getMatchDetail(matchId) {
+async function getMatchDetail(matchId: string): Promise<any | null> {
   try {
     var res = await col('matches').doc(matchId).get()
     return res.data || null
@@ -627,7 +629,7 @@ async function getMatchDetail(matchId) {
   }
 }
 
-async function getMatchById(matchId) {
+async function getMatchById(matchId: string): Promise<any | null> {
   var res = await col('matches').doc(matchId).get()
   return res.data || null
 }
@@ -635,7 +637,7 @@ async function getMatchById(matchId) {
 /**
  * 更新比赛
  */
-async function updateMatch(matchId, updateData) {
+async function updateMatch(matchId: string, updateData: any): Promise<boolean> {
   try {
     var existing = await getMatchById(matchId)
     if (!existing) throw new Error("比赛不存在")
@@ -654,7 +656,7 @@ async function updateMatch(matchId, updateData) {
   }
 }
 
-async function saveMatchDraft(payload) {
+async function saveMatchDraft(payload: any): Promise<string> {
   var data = Object.assign({}, payload, {
     status: "draft",
     isGroupingLocked: false
@@ -671,7 +673,7 @@ async function saveMatchDraft(payload) {
   return createMatch(data)
 }
 
-async function updateDraftGrouping(matchId, payload) {
+async function updateDraftGrouping(matchId: string, payload: any): Promise<boolean> {
   var existing = await getMatchById(matchId)
   if (!existing) throw new Error("草稿不存在")
   if (matchHelper.isGroupingLocked(existing)) throw new Error("已完成比赛不可修改分组")
@@ -687,7 +689,7 @@ async function updateDraftGrouping(matchId, payload) {
   return true
 }
 
-async function finalizeMatchGrouping(matchId, groupingPayload) {
+async function finalizeMatchGrouping(matchId: string, groupingPayload: any): Promise<boolean> {
   var existing = await getMatchById(matchId)
   if (!existing) throw new Error("比赛不存在")
   if (matchHelper.isGroupingLocked(existing)) throw new Error("比赛已完成")
@@ -707,11 +709,11 @@ async function finalizeMatchGrouping(matchId, groupingPayload) {
 /**
  * 删除比赛
  */
-async function deleteMatch(matchId) {
+async function deleteMatch(matchId: string): Promise<boolean> {
   try {
     await col('matches').doc(matchId).remove()
-    await col('player_match_stats')
-      .where({ matchId: matchId })
+    await (col('player_match_stats')
+      .where({ matchId: matchId }) as any)
       .remove()
     return true
   } catch (err) {
@@ -723,7 +725,7 @@ async function deleteMatch(matchId) {
 /**
  * 获取球员比赛历史
  */
-async function getPlayerMatchHistory(playerId, limit = 20) {
+async function getPlayerMatchHistory(playerId: string, limit = 20): Promise<any[]> {
   try {
     var res = await col('player_match_stats')
       .where({ playerId: playerId })
@@ -740,7 +742,7 @@ async function getPlayerMatchHistory(playerId, limit = 20) {
 /**
  * 获取球员赛季统计
  */
-async function getPlayerSeasonStats(playerId, season) {
+async function getPlayerSeasonStats(playerId: string, season: string | null | undefined): Promise<any> {
   try {
     var history = await getPlayerMatchHistory(playerId, 200)
     var list = history
@@ -795,14 +797,14 @@ async function getPlayerSeasonStats(playerId, season) {
  * @param {number} level 档位 2-5
  * @returns {string} 档位描述
  */
-function getLevelDesc(level) {
+function getLevelDesc(level: number): string {
   const descMap = {
     5: '顶级球员',
     4: '优秀球员',
     3: '普通球员',
     2: '新手球员'
   }
-  return descMap[level] || '未知'
+  return (descMap as any)[level] || '未知'
 }
 
 /**
@@ -810,14 +812,14 @@ function getLevelDesc(level) {
  * @param {number} level 档位 2-5
  * @returns {string} 颜色值
  */
-function getLevelColor(level) {
+function getLevelColor(level: number): string {
   const colorMap = {
     5: '#FF4D4F', // 红色 - 顶级
     4: '#FA8C16', // 橙色 - 优秀
     3: '#52C41A', // 绿色 - 普通
     2: '#1890FF'  // 蓝色 - 新手
   }
-  return colorMap[level] || '#8C8C8C'
+  return (colorMap as any)[level] || '#8C8C8C'
 }
 
 /**
@@ -825,7 +827,7 @@ function getLevelColor(level) {
  * @param {string} position 位置代码
  * @returns {string} 位置中文名
  */
-function getPositionName(position) {
+function getPositionName(position: string): string {
   const positionMap = {
     'PG': '控球后卫',
     'SG': '得分后卫',
@@ -833,7 +835,7 @@ function getPositionName(position) {
     'PF': '大前锋',
     'C': '中锋'
   }
-  return positionMap[position] || position
+  return (positionMap as any)[position] || position
 }
 
 /**
@@ -842,7 +844,7 @@ function getPositionName(position) {
  * @param {string} teamId - 球队ID
  * @returns {Object} 格式化后的分组数据
  */
-function formatGroupResultForSave(groupResult, teamId) {
+function formatGroupResultForSave(groupResult: any, teamId: string): any {
   const app = getApp()
   const currentUser = app.globalData.userInfo || {}
   
@@ -851,10 +853,10 @@ function formatGroupResultForSave(groupResult, teamId) {
     groupId: `group_${Date.now()}`,
     algorithm: 'balanced',
     totalMembers: groupResult.stats.totalPlayers,
-    groups: groupResult.teams.map((team, index) => ({
+    groups: groupResult.teams.map((team: any, index: number) => ({
       teamName: team.name,
       teamColor: getTeamColor(index),
-      members: team.players.map(p => ({
+      members: team.players.map((p: any) => ({
         userId: p._id || p.userId,
         number: p.number,
         name: p.name,
@@ -862,10 +864,10 @@ function formatGroupResultForSave(groupResult, teamId) {
         skillLevel: p.skillLevel
       })),
       skillDistribution: {
-        level5: team.players.filter(p => p.skillLevel === 5).length,
-        level4: team.players.filter(p => p.skillLevel === 4).length,
-        level3: team.players.filter(p => p.skillLevel === 3).length,
-        level2: team.players.filter(p => p.skillLevel === 2).length
+        level5: team.players.filter((p: any) => p.skillLevel === 5).length,
+        level4: team.players.filter((p: any) => p.skillLevel === 4).length,
+        level3: team.players.filter((p: any) => p.skillLevel === 3).length,
+        level2: team.players.filter((p: any) => p.skillLevel === 2).length
       },
       avgLevel: parseFloat(team.avgLevel)
     })),
@@ -885,7 +887,7 @@ function formatGroupResultForSave(groupResult, teamId) {
  * @param {number} index - 队伍索引
  * @returns {string} 颜色值
  */
-function getTeamColor(index) {
+function getTeamColor(index: number): string {
   const colors = ['#FFFFFF', '#2196F3', '#F44336', '#FFEB3B']
   return colors[index % colors.length]
 }
@@ -899,7 +901,7 @@ function getTeamColor(index) {
  * @param {string} openid - 用户OpenID
  * @returns {Promise<Object>} 用户信息
  */
-async function getUserInfo(openid) {
+async function getUserInfo(openid: string): Promise<any | null> {
   try {
     const res = await col('users').where({
       _openid: openid
@@ -918,11 +920,11 @@ async function getUserInfo(openid) {
  * @param {Object} data - 更新数据
  * @returns {Promise<boolean>} 是否成功
  */
-async function updateUserInfo(openid, data) {
+async function updateUserInfo(openid: string, data: any): Promise<boolean> {
   try {
-    await col('users').where({
+    await (col('users').where({
       _openid: openid
-    }).update({
+    }) as any).update({
       data: {
         ...data,
         updatedAt: db.serverDate()
@@ -945,14 +947,14 @@ async function updateUserInfo(openid, data) {
  * @param {string} teamId - 球队ID
  * @returns {Promise<Array>} 成员详情列表
  */
-async function getTeamMembersDetail(teamId) {
+async function getTeamMembersDetail(teamId: string): Promise<any[]> {
   try {
     // 1. 获取团队成员列表
     const teamRes = await col('teams').doc(teamId).get()
     const members = teamRes.data.members || []
     
     // 2. 获取所有成员的用户信息
-    const userOpenids = members.map(m => m.userId)
+    const userOpenids = members.map((m: any) => m.userId)
     
     // 注意：云数据库一次最多查询 100 条
     const usersRes = await col('users')
@@ -961,13 +963,13 @@ async function getTeamMembersDetail(teamId) {
       })
       .get()
     
-    const usersMap = {}
+    const usersMap: any = {}
     usersRes.data.forEach(user => {
       usersMap[user._openid] = user
     })
     
     // 3. 合并成员信息
-    return members.map(m => {
+    return members.map((m: any) => {
       const user = usersMap[m.userId] || {}
       return {
         ...user,
@@ -982,7 +984,7 @@ async function getTeamMembersDetail(teamId) {
   }
 }
 
-module.exports = {
+export = {
   // activities 相关
   createActivity,
   updateActivity,
