@@ -1,4 +1,26 @@
-var avatarPresets = require("../../config/avatar-presets");
+/// <reference path="../../../typings/index.d.ts" />
+
+import { getCategories, getAvatarsByCategory, getAvatarById } from "../../config/avatar-presets";
+
+interface AvatarItem {
+  id: string;
+  name: string;
+  url: string;
+  category: string;
+}
+
+interface CategoryItem {
+  key: string;
+  name: string;
+}
+
+interface AvatarPickerData {
+  categories: CategoryItem[];
+  activeCategory: string;
+  avatars: AvatarItem[];
+  convertedUrlMap: Record<string, string>;
+  loading: boolean;
+}
 
 Component({
   properties: {
@@ -18,7 +40,7 @@ Component({
     avatars: [],
     convertedUrlMap: {},
     loading: false
-  },
+  } as AvatarPickerData,
 
   lifetimes: {
     attached: function () {
@@ -27,7 +49,7 @@ Component({
   },
 
   observers: {
-    "visible": function (visible) {
+    "visible": function (visible: boolean) {
       if (visible) {
         this.initCategories();
       }
@@ -35,9 +57,9 @@ Component({
   },
 
   methods: {
-    initCategories: function () {
-      var categories = avatarPresets.getCategories();
-      var activeCategory = categories.length > 0 ? categories[0].key : "";
+    initCategories: function (this: WechatMiniprogram.Component.TrivialInstance & { data: AvatarPickerData }) {
+      const categories = getCategories();
+      const activeCategory = categories.length > 0 ? categories[0].key : "";
       this.setData({
         categories: categories,
         activeCategory: activeCategory
@@ -47,15 +69,15 @@ Component({
       }
     },
 
-    loadAvatars: function (category) {
-      var that = this;
-      var avatars = avatarPresets.getAvatarsByCategory(category);
+    loadAvatars: function (this: WechatMiniprogram.Component.TrivialInstance & { data: AvatarPickerData }, category: string) {
+      const that = this;
+      const avatars = getAvatarsByCategory(category);
 
       // 检查是否有 cloud:// 格式的 URL 需要转换
-      var cloudFiles = [];
-      var cloudIds = [];
-      for (var i = 0; i < avatars.length; i++) {
-        var url = avatars[i].url;
+      const cloudFiles: string[] = [];
+      const cloudIds: string[] = [];
+      for (let i = 0; i < avatars.length; i++) {
+        const url = avatars[i].url;
         if (url && url.indexOf("cloud://") === 0) {
           cloudFiles.push(url);
           cloudIds.push(avatars[i].id);
@@ -66,15 +88,15 @@ Component({
         that.setData({ loading: true });
         wx.cloud.getTempFileURL({
           fileList: cloudFiles,
-          success: function (res) {
-            var urlMap = that.data.convertedUrlMap;
-            var fileList = res.fileList || [];
-            for (var j = 0; j < fileList.length; j++) {
+          success: function (res: any) {
+            const urlMap = that.data.convertedUrlMap;
+            const fileList = res.fileList || [];
+            for (let j = 0; j < fileList.length; j++) {
               if (fileList[j].tempFileURL) {
                 urlMap[cloudFiles[j]] = fileList[j].tempFileURL;
               }
             }
-            var displayAvatars = avatars.map(function (item) {
+            const displayAvatars = avatars.map(function (item) {
               return {
                 id: item.id,
                 name: item.name,
@@ -118,20 +140,20 @@ Component({
       }
     },
 
-    onCategoryTap: function (e) {
-      var category = e.currentTarget.dataset.key;
+    onCategoryTap: function (this: WechatMiniprogram.Component.TrivialInstance & { data: AvatarPickerData }, e: any) {
+      const category = e.currentTarget.dataset.key;
       if (category === this.data.activeCategory) return;
       this.setData({ activeCategory: category });
       this.loadAvatars(category);
     },
 
-    onAvatarTap: function (e) {
-      var id = e.currentTarget.dataset.id;
-      var name = e.currentTarget.dataset.name;
+    onAvatarTap: function (this: WechatMiniprogram.Component.TrivialInstance, e: any) {
+      const id = e.currentTarget.dataset.id;
+      const name = e.currentTarget.dataset.name;
 
       // 通过 id 查找原始配置中的 URL（避免保存临时 URL）
-      var preset = avatarPresets.getAvatarById(id);
-      var originalUrl = preset ? preset.url : "";
+      const preset = getAvatarById(id);
+      const originalUrl = preset ? preset.url : "";
 
       if (!originalUrl) {
         wx.showToast({ title: "该头像暂未上传", icon: "none" });
@@ -152,15 +174,15 @@ Component({
       return;
     },
 
-    onMaskTap: function () {
+    onMaskTap: function (this: WechatMiniprogram.Component.TrivialInstance) {
       this.closePicker();
     },
 
-    onCloseTap: function () {
+    onCloseTap: function (this: WechatMiniprogram.Component.TrivialInstance) {
       this.closePicker();
     },
 
-    closePicker: function () {
+    closePicker: function (this: WechatMiniprogram.Component.TrivialInstance) {
       this.triggerEvent("close");
     }
   }

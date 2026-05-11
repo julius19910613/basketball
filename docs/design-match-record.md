@@ -95,7 +95,7 @@ miniprogram/
 │           └── detail.json
 ├── components/
 │   └── player-stat-input/           # 球员数据录入组件
-│       ├── player-stat-input.js
+│       ├── player-stat-input.ts
 │       ├── player-stat-input.wxml
 │       ├── player-stat-input.wxss
 │       └── player-stat-input.json
@@ -460,7 +460,7 @@ Page({
 封装为独立组件，便于复用：
 
 ```javascript
-// components/player-stat-input/player-stat-input.js
+// components/player-stat-input/player-stat-input.ts
 Component({
   properties: {
     players: { type: Array, value: [] },       // 所有球员列表

@@ -1,4 +1,6 @@
-const helper = require("../../utils/match-helper");
+/// <reference path="../../../typings/index.d.ts" />
+
+import helper = require("../../utils/match-helper");
 
 const FIELDS = [
   "points",
@@ -16,6 +18,16 @@ const FIELDS = [
   "ftAttempted"
 ];
 
+interface PlayerLike {
+  _id?: string;
+  [key: string]: any;
+}
+
+interface PlayerStatInputData {
+  statsMap: Record<string, any>;
+  selectedIds: string[];
+}
+
 Component({
   properties: {
     players: { type: Array, value: [] },
@@ -24,7 +36,7 @@ Component({
   data: {
     statsMap: {},
     selectedIds: []
-  },
+  } as PlayerStatInputData,
   observers: {
     value() {
       this.initData();
@@ -39,13 +51,13 @@ Component({
     }
   },
   methods: {
-    initData() {
-      const map = {};
-      const selected = [];
-      (this.properties.players || []).forEach((player) => {
-        map[player._id] = helper.createEmptyPlayerStat(player);
+    initData(this: WechatMiniprogram.Component.TrivialInstance & { data: PlayerStatInputData; properties: { players: PlayerLike[]; value: any[] } }) {
+      const map: Record<string, any> = {};
+      const selected: string[] = [];
+      (this.properties.players || []).forEach((player: PlayerLike) => {
+        map[player._id || ""] = helper.createEmptyPlayerStat(player);
       });
-      (this.properties.value || []).forEach((item) => {
+      (this.properties.value || []).forEach((item: any) => {
         if (!item || !item.playerId) return;
         map[item.playerId] = Object.assign({}, map[item.playerId] || {}, item);
         if (item.played) selected.push(item.playerId);
@@ -54,7 +66,7 @@ Component({
       this.emitChange();
     },
 
-    onTogglePlayer(e) {
+    onTogglePlayer(this: WechatMiniprogram.Component.TrivialInstance & { data: PlayerStatInputData }, e: any) {
       const playerId = e.currentTarget.dataset.playerId;
       const checked = Boolean(e.detail.value);
       const selected = this.data.selectedIds.slice();
@@ -68,7 +80,7 @@ Component({
       this.emitChange();
     },
 
-    onStatInput(e) {
+    onStatInput(this: WechatMiniprogram.Component.TrivialInstance & { data: PlayerStatInputData }, e: any) {
       const playerId = e.currentTarget.dataset.playerId;
       const field = e.currentTarget.dataset.field;
       const value = Number(e.detail.value || 0);
@@ -77,7 +89,7 @@ Component({
       this.emitChange();
     },
 
-    emitChange() {
+    emitChange(this: WechatMiniprogram.Component.TrivialInstance & { data: PlayerStatInputData }) {
       const list = Object.keys(this.data.statsMap).map((id) => {
         const item = Object.assign({}, this.data.statsMap[id]);
         item.fgPct = helper.calcFgPct(item.shotsMade, item.shotsAttempted);
