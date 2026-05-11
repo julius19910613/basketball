@@ -60,7 +60,7 @@
 ├─────────────────────────────────────────────────┤
 │                   工具层                          │
 │                                                   │
-│  utils/db.js (matches 相关函数)                   │
+│  utils/db.ts (matches 相关函数)                   │
 │  utils/match-helper.ts (计算/格式化)              │
 │                                                   │
 ├─────────────────────────────────────────────────┤
@@ -108,7 +108,7 @@ miniprogram/
 ```
 miniprogram/
 ├── app.json                         # 注册新页面
-├── utils/db.js                      # 新增 matches 相关 CRUD 函数
+│   ├─── utils/db.ts                      # 新增 matches 相关 CRUD 函数
 └── pages/players/detail/
     ├── detail.wxml                  # 新增"比赛记录"入口
     └── detail.js                    # 新增跳转逻辑
@@ -590,7 +590,7 @@ Component({
 
 ### 5.1 方案选择
 
-**不新建云函数**，直接在 `db.js` 中新增函数，通过小程序端调用云数据库。
+**不新建云函数**，直接在 `db.ts` 中新增函数，通过小程序端调用云数据库。
 
 原因：
 1. 比赛数据量不大（业余球队每周 1-3 场）
@@ -909,7 +909,7 @@ module.exports = {
 | 每节比分 | 支持 4 节 | 业余常见 4 节制，比分趋势有价值 |
 | 球员数据 | 内嵌在比赛文档中 | 读多写少，避免多次查询 |
 | 冗余集合 | player_match_stats | 按球员查历史无需 scan matches，性能好 |
-| 云函数 | 不新建，复用 db.js | 数据量小，查询简单，减少维护 |
+| 云函数 | 不新建，复用 db.ts | 数据量小，查询简单，减少维护 |
 | 数据校验 | 仅提示不阻止 | 球员得分合计 vs 总分可能因替补得分不一致 |
 | UI 风格 | 与球员列表一致 | 统一体验，用户无学习成本 |
 
@@ -924,7 +924,7 @@ module.exports = {
 **任务清单**：
 
 - [ ] 创建 `utils/match-helper.ts` 工具函数
-- [ ] 在 `db.js` 中新增 matches 相关 CRUD 函数
+- [ ] 在 `db.ts` 中新增 matches 相关 CRUD 函数
   - [ ] `createMatch` - 创建比赛（同时写入 player_match_stats）
   - [ ] `getMatchList` - 获取比赛列表（支持筛选和分页）
   - [ ] `getMatchDetail` - 获取比赛详情
@@ -987,7 +987,7 @@ module.exports = {
 
 **任务清单**：
 
-- [ ] 在 `db.js` 新增 `getPlayerMatchHistory` 和 `getPlayerSeasonStats`
+- [ ] 在 `db.ts` 新增 `getPlayerMatchHistory` 和 `getPlayerSeasonStats`
 - [ ] 球员详情页新增「比赛记录」卡片
 - [ ] 跳转到比赛列表（按球员过滤）
 - [ ] 统计摘要：总场次、场均得分/篮板/助攻、最高分、命中率
