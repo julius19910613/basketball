@@ -61,7 +61,7 @@
 │                   工具层                          │
 │                                                   │
 │  utils/db.js (matches 相关函数)                   │
-│  utils/match-helper.js (计算/格式化)              │
+│  utils/match-helper.ts (计算/格式化)              │
 │                                                   │
 ├─────────────────────────────────────────────────┤
 │                   数据层                          │
@@ -100,7 +100,7 @@ miniprogram/
 │       ├── player-stat-input.wxss
 │       └── player-stat-input.json
 └── utils/
-    └── match-helper.js              # 比赛相关计算/格式化工具
+    └─── match-helper.ts              # 比赛相关计算/格式化工具
 ```
 
 ### 修改文件清单
@@ -662,7 +662,7 @@ async function getPlayerSeasonStats(playerId, season) { ... }
 
 ## 6. 工具函数设计
 
-### `utils/match-helper.js`
+### `utils/match-helper.ts`
 
 ```javascript
 /**
@@ -923,7 +923,7 @@ module.exports = {
 
 **任务清单**：
 
-- [ ] 创建 `utils/match-helper.js` 工具函数
+- [ ] 创建 `utils/match-helper.ts` 工具函数
 - [ ] 在 `db.js` 中新增 matches 相关 CRUD 函数
   - [ ] `createMatch` - 创建比赛（同时写入 player_match_stats）
   - [ ] `getMatchList` - 获取比赛列表（支持筛选和分页）

@@ -71,7 +71,7 @@ basketball/
 │   │   └── toast/              # Toast 提示
 │   ├── utils/                  # 工具函数
 │   │   ├── activity-helper.ts  # 活动工具（报名、赛程、分组快照）
-│   │   ├── match-helper.js     # 比赛工具（分组算法、数据计算）
+│   │   ├── match-helper.ts     # 比赛工具（分组算法、数据计算）
 │   │   ├── group-algorithm.ts  # 分组算法
 │   │   ├── db.js               # 数据库封装
 │   │   └── basketball.ts       # 篮球常量 & 工具
