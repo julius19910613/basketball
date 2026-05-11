@@ -223,7 +223,7 @@ npm test -- path/to/test-file.test.js
 ```
 
 **Test Architecture:**
-- `jest.config.js` - Jest configuration with Babel transform
+- `jest.config.ts` - Jest configuration with Babel + ts-jest transform
 - `jest.setup.js` - Global mocks for WeChat Mini Program APIs (`wx`, `wx.cloud`, `Page`, `App`, etc.)
 - `miniprogram/__test__/mock-db.js` - In-memory mock database implementing CloudBase SDK patterns:
   - Supports collections: `users`, `teams`, `team_members`, `matches`
