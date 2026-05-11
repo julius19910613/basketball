@@ -2,7 +2,7 @@
   "name": "basketball-miniprogram",
   "version": "1.0.0",
   "description": "篮球管理小程序",
-  "main": "miniprogram/app.js",
+  "main": "miniprogram/app.ts",
   "scripts": {
     "test": "jest --config jest.config.ts --runInBand --coverage",
     "test:unit": "jest --config jest.unit.config.ts --runInBand",

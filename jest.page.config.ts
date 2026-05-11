@@ -5,7 +5,7 @@ const config: Config.InitialOptions = {
   ...shared,
   displayName: "page",
   testEnvironment: "node",
-  setupFiles: ["<rootDir>/jest.setup.js"],
+  setupFiles: ["<rootDir>/jest.setup.ts"],
   testMatch: [
     "<rootDir>/tests/**/*.page.test.ts",
     "<rootDir>/tests/**/*.page.test.js",

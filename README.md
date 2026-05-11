@@ -42,7 +42,7 @@
 
 | 层级 | 技术 |
 |------|------|
-| 前端 | 微信小程序原生框架（WXML / WXSS / JS） |
+| 前端 | 微信小程序原生框架（WXML / WXSS / TypeScript） |
 | UI 组件 | [Vant Weapp](https://vant-ui.github.io/vant-weapp/) |
 | 后端 | 腾讯云 CloudBase（`wx.cloud`） |
 | 数据库 | CloudBase NoSQL 文档数据库 |
@@ -54,7 +54,7 @@
 ```
 basketball/
 ├── miniprogram/                # 小程序前端
-│   ├── app.js                  # CloudBase 初始化
+│   ├── app.ts                  # CloudBase 初始化
 │   ├── app.json                # 页面路由 & TabBar 配置
 │   ├── app.wxss                # 全局样式（Coinbase Blue 主题）
 │   ├── pages/
@@ -118,7 +118,7 @@ npm install
 
 ### 3. 配置云环境
 
-在 `miniprogram/app.js` 中设置你的云环境 ID：
+在 `miniprogram/app.ts` 中设置你的云环境 ID：
 
 ```javascript
 wx.cloud.init({
