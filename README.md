@@ -70,11 +70,11 @@ basketball/
 │   │   ├── skeleton/           # 骨架屏
 │   │   └── toast/              # Toast 提示
 │   ├── utils/                  # 工具函数
-│   │   ├── activity-helper.js  # 活动工具（报名、赛程、分组快照）
+│   │   ├── activity-helper.ts  # 活动工具（报名、赛程、分组快照）
 │   │   ├── match-helper.js     # 比赛工具（分组算法、数据计算）
-│   │   ├── group-algorithm.js  # 分组算法
+│   │   ├── group-algorithm.ts  # 分组算法
 │   │   ├── db.js               # 数据库封装
-│   │   └── basketball.js       # 篮球常量 & 工具
+│   │   └── basketball.ts       # 篮球常量 & 工具
 │   └── styles/                 # 样式文件
 ├── cloudfunctions/             # 云函数
 │   ├── getOpenId/              # OpenID 获取

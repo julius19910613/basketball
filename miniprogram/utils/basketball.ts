@@ -1,10 +1,50 @@
+type BasketballPositionValue = "PG" | "SG" | "SF" | "PF" | "C" | "UTILITY";
+
+type BasketballSkillKey =
+  | "twoPointShot"
+  | "threePointShot"
+  | "freeThrow"
+  | "passing"
+  | "ballControl"
+  | "courtVision"
+  | "perimeterDefense"
+  | "interiorDefense"
+  | "steals"
+  | "blocks"
+  | "offensiveRebound"
+  | "defensiveRebound"
+  | "speed"
+  | "strength"
+  | "stamina"
+  | "vertical"
+  | "basketballIQ"
+  | "teamwork"
+  | "clutch";
+
+type BasketballSkills = Record<BasketballSkillKey, number>;
+type PartialBasketballSkills = Partial<Record<BasketballSkillKey, number>>;
+type PositionWeights = Record<BasketballSkillKey, number>;
+
+interface PositionDetail {
+  name: string;
+  englishName: string;
+  icon: string;
+  color: string;
+  description: string;
+}
+
 // 位置枚举
-var BasketballPosition = {
-  PG: "PG", SG: "SG", SF: "SF", PF: "PF", C: "C", UTILITY: "UTILITY"
-};
+const BasketballPosition = {
+  PG: "PG",
+  SG: "SG",
+  SF: "SF",
+  PF: "PF",
+  C: "C",
+  UTILITY: "UTILITY"
+} as const;
 
 // 位置详情
-var POSITION_DETAILS = {
+const POSITION_DETAILS: Record<BasketballPositionValue, PositionDetail> = {
   PG: { name: "控球后卫", englishName: "Point Guard", icon: "🏀", color: "#3B82F6", description: "组织进攻，掌控节奏" },
   SG: { name: "得分后卫", englishName: "Shooting Guard", icon: "🎯", color: "#EF4444", description: "外线得分手" },
   SF: { name: "小前锋", englishName: "Small Forward", icon: "⚡", color: "#F59E0B", description: "全能型球员" },
@@ -14,7 +54,7 @@ var POSITION_DETAILS = {
 };
 
 // 创建默认技能（19项）
-function createDefaultBasketballSkills() {
+function createDefaultBasketballSkills(): BasketballSkills {
   return {
     twoPointShot: 50, threePointShot: 50, freeThrow: 50,
     passing: 50, ballControl: 50, courtVision: 50,
@@ -26,8 +66,8 @@ function createDefaultBasketballSkills() {
 }
 
 // 辅助函数：获取位置的权重配置
-function getPositionWeights(position) {
-  var weights = {
+function getPositionWeights(position?: BasketballPositionValue | string): PositionWeights {
+  const weights: Record<BasketballPositionValue, PositionWeights> = {
     PG: {
       twoPointShot: 0.06, threePointShot: 0.10, freeThrow: 0.04, passing: 0.12, ballControl: 0.12, courtVision: 0.10, perimeterDefense: 0.08, interiorDefense: 0.03, steals: 0.06, blocks: 0.02, offensiveRebound: 0.02, defensiveRebound: 0.04, speed: 0.10, strength: 0.03, stamina: 0.04, vertical: 0.02, basketballIQ: 0.08, teamwork: 0.06, clutch: 0.06
     },
@@ -47,63 +87,70 @@ function getPositionWeights(position) {
       twoPointShot: 0.055, threePointShot: 0.055, freeThrow: 0.05, passing: 0.055, ballControl: 0.055, courtVision: 0.055, perimeterDefense: 0.055, interiorDefense: 0.055, steals: 0.05, blocks: 0.05, offensiveRebound: 0.055, defensiveRebound: 0.055, speed: 0.055, strength: 0.055, stamina: 0.05, vertical: 0.055, basketballIQ: 0.055, teamwork: 0.055, clutch: 0.055
     }
   };
-  return weights[position] || weights.UTILITY;
+
+  if (position && position in weights) {
+    return weights[position as BasketballPositionValue];
+  }
+
+  return weights.UTILITY;
 }
 
 // 辅助函数：获取核心属性
-function getCoreAttributes(position) {
+function getCoreAttributes(position?: BasketballPositionValue | string): BasketballSkillKey[] {
   switch (position) {
-    case 'PG': return ['passing', 'ballControl', 'courtVision', 'threePointShot', 'speed'];
-    case 'SG': return ['threePointShot', 'twoPointShot', 'perimeterDefense', 'speed'];
-    case 'SF': return ['twoPointShot', 'threePointShot', 'perimeterDefense', 'speed'];
-    case 'PF': return ['interiorDefense', 'defensiveRebound', 'offensiveRebound', 'strength'];
-    case 'C': return ['interiorDefense', 'blocks', 'defensiveRebound', 'offensiveRebound', 'strength'];
+    case "PG": return ["passing", "ballControl", "courtVision", "threePointShot", "speed"];
+    case "SG": return ["threePointShot", "twoPointShot", "perimeterDefense", "speed"];
+    case "SF": return ["twoPointShot", "threePointShot", "perimeterDefense", "speed"];
+    case "PF": return ["interiorDefense", "defensiveRebound", "offensiveRebound", "strength"];
+    case "C": return ["interiorDefense", "blocks", "defensiveRebound", "offensiveRebound", "strength"];
     default: return [];
   }
 }
 
 // 辅助函数：获取弱项属性
-function getWeakAttributes(position) {
+function getWeakAttributes(position?: BasketballPositionValue | string): BasketballSkillKey[] {
   switch (position) {
-    case 'PG': return ['interiorDefense', 'offensiveRebound', 'blocks'];
-    case 'SG': return ['interiorDefense', 'offensiveRebound'];
-    case 'SF': return [];
-    case 'PF': return ['threePointShot', 'speed'];
-    case 'C': return ['threePointShot', 'ballControl', 'speed'];
+    case "PG": return ["interiorDefense", "offensiveRebound", "blocks"];
+    case "SG": return ["interiorDefense", "offensiveRebound"];
+    case "SF": return [];
+    case "PF": return ["threePointShot", "speed"];
+    case "C": return ["threePointShot", "ballControl", "speed"];
     default: return [];
   }
 }
 
 // Overall V2 计算
-function calculateOverallSkill(skills, position) {
-  var weights = getPositionWeights(position);
-  if (!skills) skills = createDefaultBasketballSkills();
+function calculateOverallSkill(skills?: PartialBasketballSkills | null, position?: BasketballPositionValue | string): number {
+  const weights = getPositionWeights(position);
+  const skillSet = skills || createDefaultBasketballSkills();
 
   // 1. 计算加权算术平均
-  var baseScore = 0;
-  var totalWeight = 0;
-  for (var key in weights) {
-    baseScore += (skills[key] || 0) * weights[key];
-    totalWeight += weights[key];
+  let baseScore = 0;
+  let totalWeight = 0;
+  for (const key in weights) {
+    const skillKey = key as BasketballSkillKey;
+    baseScore += (skillSet[skillKey] || 0) * weights[skillKey];
+    totalWeight += weights[skillKey];
   }
   baseScore = baseScore / totalWeight;
 
   // 2. 计算加权几何平均
-  var geometricSum = 0;
-  for (var key in weights) {
-    var value = Math.max(skills[key] || 0, 1);
-    geometricSum += Math.log(value) * weights[key];
+  let geometricSum = 0;
+  for (const key in weights) {
+    const skillKey = key as BasketballSkillKey;
+    const value = Math.max(skillSet[skillKey] || 0, 1);
+    geometricSum += Math.log(value) * weights[skillKey];
   }
-  var geometricScore = Math.exp(geometricSum / totalWeight);
+  const geometricScore = Math.exp(geometricSum / totalWeight);
 
   // 3. 混合评分
-  var hybridScore = baseScore * 0.5 + geometricScore * 0.5;
+  const hybridScore = baseScore * 0.5 + geometricScore * 0.5;
 
   // 4. 极端值加成
-  var coreAttributes = getCoreAttributes(position);
-  var bonus = 0;
-  coreAttributes.forEach(function(attr) {
-    var val = skills[attr] || 0;
+  const coreAttributes = getCoreAttributes(position);
+  let bonus = 0;
+  coreAttributes.forEach(function (attr: BasketballSkillKey) {
+    const val = skillSet[attr] || 0;
     if (val >= 85) {
       bonus += (val - 85) * 2.0;
     } else if (val >= 80) {
@@ -112,17 +159,17 @@ function calculateOverallSkill(skills, position) {
   });
 
   // 5. 弱项惩罚
-  var weakAttributes = getWeakAttributes(position);
-  var penalty = 0;
-  weakAttributes.forEach(function(attr) {
-    var val = skills[attr] || 0;
+  const weakAttributes = getWeakAttributes(position);
+  let penalty = 0;
+  weakAttributes.forEach(function (attr: BasketballSkillKey) {
+    const val = skillSet[attr] || 0;
     if (val < 45) {
       penalty += (45 - val) * 0.8;
     }
   });
 
   // 6. 最终评分
-  var finalScore = hybridScore + bonus - penalty;
+  let finalScore = hybridScore + bonus - penalty;
 
   // 非线性拉伸
   if (finalScore >= 65) {
@@ -136,9 +183,9 @@ function calculateOverallSkill(skills, position) {
   return Math.max(1, Math.min(99, Math.round(finalScore)));
 }
 
-module.exports = {
-  BasketballPosition: BasketballPosition,
-  POSITION_DETAILS: POSITION_DETAILS,
-  createDefaultBasketballSkills: createDefaultBasketballSkills,
-  calculateOverallSkill: calculateOverallSkill
+export = {
+  BasketballPosition,
+  POSITION_DETAILS,
+  createDefaultBasketballSkills,
+  calculateOverallSkill
 };
