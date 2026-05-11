@@ -3,8 +3,14 @@
  * 根据调用方传入的 _envVersion 路由到对应集合
  */
 
-// 集合名称映射
-const COLLECTION_MAP = {
+/** 支持的环境版本 */
+type EnvVersion = 'develop' | 'trial' | 'release'
+
+/** 集合名称映射表 */
+type CollectionMap = Record<string, string>
+
+/** 环境到集合映射 */
+const COLLECTION_MAP: Record<EnvVersion, CollectionMap> = {
   develop: {
     players: 'dev_players',
     teams: 'dev_teams',
@@ -33,27 +39,27 @@ const COLLECTION_MAP = {
 
 /**
  * 获取指定环境版本的集合名
- * @param {string} name - 业务集合名
- * @param {string} envVersion - 环境版本 (develop/trial/release)
- * @returns {string}
+ * @param name - 业务集合名
+ * @param envVersion - 环境版本 (develop/trial/release)
+ * @returns 实际集合名
  */
-function getCollection(name, envVersion) {
-  const version = envVersion || 'release'
+function getCollection(name: string, envVersion?: string): string {
+  const version = (envVersion || 'release') as EnvVersion
   const map = COLLECTION_MAP[version] || COLLECTION_MAP.release
   return map[name] || name
 }
 
 /**
  * 获取完整集合映射表
- * @param {string} envVersion
- * @returns {Object}
+ * @param envVersion - 环境版本
+ * @returns 集合映射表
  */
-function getCollections(envVersion) {
-  const version = envVersion || 'release'
+function getCollections(envVersion?: string): CollectionMap {
+  const version = (envVersion || 'release') as EnvVersion
   return COLLECTION_MAP[version] || COLLECTION_MAP.release
 }
 
-module.exports = {
+export = {
   getCollection,
   getCollections
 }

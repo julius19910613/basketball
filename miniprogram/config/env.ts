@@ -3,8 +3,19 @@
  * 单环境内用集合前缀区分开发(dev)与生产(release)
  */
 
+/** 支持的环境版本 */
+type EnvVersion = 'develop' | 'trial' | 'release'
+
+/** 集合名称映射表 */
+type CollectionMap = Record<string, string>
+
+/** 微信全局配置对象（小程序运行时注入） */
+declare const __wxConfig: {
+  envVersion?: EnvVersion
+}
+
 // 集合名称映射：develop/trial → dev_xxx，release → xxx
-const COLLECTION_MAP = {
+const COLLECTION_MAP: Record<EnvVersion, CollectionMap> = {
   develop: {
     activities: 'dev_activities',
     activity_registrations: 'dev_activity_registrations',
@@ -39,9 +50,9 @@ const COLLECTION_MAP = {
 
 /**
  * 获取当前运行环境版本
- * @returns {string} develop | trial | release
+ * @returns develop | trial | release
  */
-function getEnvVersion() {
+function getEnvVersion(): EnvVersion {
   if (typeof __wxConfig !== 'undefined' && __wxConfig.envVersion) {
     return __wxConfig.envVersion
   }
@@ -50,10 +61,10 @@ function getEnvVersion() {
 
 /**
  * 根据当前环境获取对应集合名
- * @param {string} name - 业务集合名（如 'players'）
- * @returns {string} 实际集合名（如 'dev_players' 或 'players'）
+ * @param name - 业务集合名（如 'players'）
+ * @returns 实际集合名（如 'dev_players' 或 'players'）
  */
-function getCollection(name) {
+function getCollection(name: string): string {
   const env = getEnvVersion()
   const map = COLLECTION_MAP[env] || COLLECTION_MAP.release
   return map[name] || name
@@ -61,17 +72,25 @@ function getCollection(name) {
 
 /**
  * 是否为开发环境
- * @returns {boolean}
+ * @returns true 表示当前为 develop 环境
  */
-function isDev() {
+function isDev(): boolean {
   return getEnvVersion() === 'develop'
+}
+
+/** 环境配置对象 */
+interface EnvConfig {
+  version: EnvVersion
+  collections: CollectionMap
+  isDev: boolean
+  logLevel: 'debug' | 'warn' | 'error'
 }
 
 /**
  * 获取当前环境完整配置
- * @returns {Object}
+ * @returns 环境配置对象
  */
-function getEnvConfig() {
+function getEnvConfig(): EnvConfig {
   const env = getEnvVersion()
   return {
     version: env,
@@ -81,7 +100,7 @@ function getEnvConfig() {
   }
 }
 
-module.exports = {
+export = {
   getCollection,
   getEnvVersion,
   getEnvConfig,
