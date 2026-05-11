@@ -172,6 +172,8 @@ npm run test:e2e       # miniprogram-automator E2E
 npm run test:ci        # 本地模拟 CI（非 E2E + E2E）
 ```
 
+说明：`npm test` 默认只聚合 `unit`、`page`、`component` 三层；E2E 需要显式执行 `npm run test:e2e`。
+
 ## UI 主题
 
 | Token | 色值 | 用途 |

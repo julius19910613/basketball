@@ -620,16 +620,16 @@ describe('Performance E2E Tests', () => {
 echo "Running E2E Tests..."
 
 # 运行骨架屏测试
-npx jest e2e/skeleton.spec.js --config=jest.e2e.config.js
+npx jest e2e/skeleton.spec.js --config=jest.e2e.config.ts
 
 # 运行动画测试
-npx jest e2e/group-animation.spec.js --config=jest.e2e.config.js
+npx jest e2e/group-animation.spec.js --config=jest.e2e.config.ts
 
 # 运行性能测试
-npx jest e2e/performance.spec.js --config=jest.e2e.config.js
+npx jest e2e/performance.spec.js --config=jest.e2e.config.ts
 
 # 生成测试报告
-npx jest --coverage --config=jest.e2e.config.js
+npx jest --coverage --config=jest.e2e.config.ts
 
 echo "E2E Tests completed!"
 ```

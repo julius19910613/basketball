@@ -23,6 +23,8 @@ npm install --save-dev miniprogram-automator
 npm test
 ```
 
+`npm test` 仅运行 `unit + page + component`，不会自动执行 `e2e`。
+
 ### 方式2：按测试层运行
 ```bash
 npm run test:unit
