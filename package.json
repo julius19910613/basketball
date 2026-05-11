@@ -4,8 +4,8 @@
   "description": "篮球管理小程序",
   "main": "miniprogram/app.js",
   "scripts": {
-    "test": "jest --config jest.config.js --runInBand",
-    "test:unit": "jest --config jest.unit.config.js --runInBand",
+    "test": "jest --config jest.config.ts --runInBand",
+    "test:unit": "jest --config jest.unit.config.ts --runInBand",
     "test:page": "jest --config jest.page.config.js --runInBand",
     "test:component": "jest --config jest.component.config.js --runInBand",
     "test:self": "jest --config jest.page.config.js tests/player-module.self-test.test.js --runInBand",
@@ -23,10 +23,15 @@
   "devDependencies": {
     "@babel/core": "^7.29.0",
     "@babel/preset-env": "^7.29.0",
+    "@types/jest": "^26.0.24",
+    "@types/node": "^16.18.126",
     "jest": "^26.6.3",
     "miniprogram-automator": "^0.12.1",
     "miniprogram-simulate": "^1.0.0",
-    "miniprogram-test": "^2.0.0"
+    "miniprogram-test": "^2.0.0",
+    "ts-jest": "^26.5.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3"
   },
   "directories": {
     "doc": "docs"

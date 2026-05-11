@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "outDir": "./dist/cloudfunctions",
+    "types": ["node"]
+  },
+  "include": ["cloudfunctions/**/*.ts"],
+  "exclude": ["node_modules"]
+}
