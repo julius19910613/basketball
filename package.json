@@ -4,7 +4,7 @@
   "description": "篮球管理小程序",
   "main": "miniprogram/app.js",
   "scripts": {
-    "test": "jest --config jest.config.ts --runInBand",
+    "test": "jest --config jest.config.ts --runInBand --coverage",
     "test:unit": "jest --config jest.unit.config.ts --runInBand",
     "test:page": "jest --config jest.page.config.ts --runInBand",
     "test:component": "jest --config jest.component.config.ts --runInBand",
