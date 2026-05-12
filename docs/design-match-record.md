@@ -89,7 +89,7 @@ miniprogram/
 │       │   ├── create.wxss
 │       │   └── create.json
 │       └── detail/                  # 比赛详情
-│           ├── detail.js
+│           ├── detail.ts
 │           ├── detail.wxml
 │           ├── detail.wxss
 │           └── detail.json
@@ -111,7 +111,7 @@ miniprogram/
 │   ├─── utils/db.ts                      # 新增 matches 相关 CRUD 函数
 └── pages/players/detail/
     ├── detail.wxml                  # 新增"比赛记录"入口
-    └── detail.js                    # 新增跳转逻辑
+    └── detail.ts                    # 新增跳转逻辑
 ```
 
 ---
