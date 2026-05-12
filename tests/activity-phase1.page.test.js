@@ -139,7 +139,7 @@ describe("activity phase 1 pages", () => {
       getActivityRegistrations: jest.fn(async () => []),
       registerForActivity: jest.fn()
     }));
-    const { page, wxMock } = loadPage("miniprogram/pages/activity/register/register.js");
+    const { page, wxMock } = loadPage("miniprogram/pages/activity/register/register.ts");
     page.setData({ id: "a1", linkedPlayer: null });
 
     await page.onRegister();

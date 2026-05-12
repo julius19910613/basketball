@@ -20,6 +20,7 @@ function applySetData(target, patch) {
 function loadPage(relativePath) {
   jest.resetModules();
   let pageConfig = null;
+  let loadError = null;
   global.wx = {
     cloud: {
       database: jest.fn(() => ({
@@ -40,7 +41,23 @@ function loadPage(relativePath) {
     pageConfig = config;
     return config;
   };
-  require(path.resolve(__dirname, "..", relativePath));
+
+  try {
+    jest.isolateModules(() => {
+      require(path.resolve(__dirname, "..", relativePath));
+    });
+  } catch (error) {
+    loadError = error;
+  }
+
+  if (loadError) {
+    const error = loadError instanceof Error ? loadError : new Error(String(loadError));
+    error.message = `Page module load failed: ${relativePath}\n${error.message}`;
+    throw error;
+  }
+
+  if (!pageConfig) throw new Error(`Page load failed: ${relativePath}`);
+
   const page = {
     data: JSON.parse(JSON.stringify(pageConfig.data || {})),
     setData(next) {
@@ -55,7 +72,7 @@ function loadPage(relativePath) {
 
 describe("activity grouping page", () => {
   test("builds grouping snapshot from current team groups", () => {
-    const { page } = loadPage("miniprogram/pages/activity/grouping/grouping.js");
+    const { page } = loadPage("miniprogram/pages/activity/grouping/grouping.ts");
     page.setData({
       activity: {
         teamNames: ["白队", "黑队", "红队"],
@@ -82,7 +99,7 @@ describe("activity grouping page", () => {
   });
 
   test("auto balance splits six players across three groups", () => {
-    const { page } = loadPage("miniprogram/pages/activity/grouping/grouping.js");
+    const { page } = loadPage("miniprogram/pages/activity/grouping/grouping.ts");
     page.setData({
       players: [
         { playerId: "p1", overall: 99 },
