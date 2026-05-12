@@ -1,25 +1,33 @@
-// pages/index/index.js
+/// <reference path="../../../typings/index.d.ts" />
+
 const app = getApp();
-const { getCollection } = require('../../config/env');
+const env = require("../../config/env");
+const { getCollection } = env;
+
+interface IndexData {
+  teamCount: number;
+  matchCount: number;
+  userInfo: any;
+}
 
 Page({
   data: {
     teamCount: 0,
     matchCount: 0,
     userInfo: null
-  },
+  } as IndexData,
 
-  onLoad: function() {
+  onLoad: function () {
     this.checkLogin();
   },
 
-  onShow: function() {
+  onShow: function () {
     if (app.globalData.isLoggedIn) {
       this.fetchSummary();
     }
   },
 
-  checkLogin: async function() {
+  checkLogin: async function () {
     const loginRes = await app.checkLogin();
     if (loginRes) {
       this.setData({ userInfo: loginRes.userInfo });
@@ -27,15 +35,13 @@ Page({
     }
   },
 
-  fetchSummary: async function() {
+  fetchSummary: async function () {
     const db = wx.cloud.database();
     try {
-      // 获取球队数量
       const teamRes = await db.collection(getCollection('teams')).where({
         _openid: app.globalData.openid
       }).count();
-      
-      // 获取比赛数量
+
       const matchRes = await db.collection(getCollection('matches')).count();
 
       this.setData({
@@ -47,23 +53,25 @@ Page({
     }
   },
 
-  navToPlayers: function() {
+  navToPlayers: function () {
     wx.switchTab({ url: '/pages/players/list/list' });
   },
 
-  navToMatches: function() {
+  navToMatches: function () {
     wx.switchTab({ url: '/pages/match/list/list' });
   },
 
-  navToActivities: function() {
+  navToActivities: function () {
     wx.navigateTo({ url: '/pages/activity/list/list' });
   },
 
-  navToProfile: function() {
+  navToProfile: function () {
     wx.switchTab({ url: '/pages/profile/profile' });
   },
 
-  navToCreateMatch: function() {
+  navToCreateMatch: function () {
     wx.navigateTo({ url: '/pages/match/create/create' });
   }
 });
+
+export {};
