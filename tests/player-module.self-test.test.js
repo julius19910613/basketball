@@ -138,7 +138,7 @@ describe("player module self-check", () => {
   test("H1: create page仅允许5个标准位置", () => {
     const addMock = jest.fn().mockResolvedValue({ _id: "p1" });
     const dbMock = { collection: () => ({ add: addMock }), serverDate: () => "serverDate" };
-    const { page } = loadPage("miniprogram/pages/players/create/create.js", { dbMock });
+    const { page } = loadPage("miniprogram/pages/players/create/create.ts", { dbMock });
     debugLog("H1", "player-module.self-test.test.js:create", "positions snapshot", {
       positions: page.data.positions
     });
@@ -148,7 +148,7 @@ describe("player module self-check", () => {
   test("H2: create page校验年龄身高体重并写入规范字段", async () => {
     const addMock = jest.fn().mockResolvedValue({ _id: "p2" });
     const dbMock = { collection: () => ({ add: addMock }), serverDate: () => "serverDate" };
-    const { page, wxMock } = loadPage("miniprogram/pages/players/create/create.js", { dbMock });
+    const { page, wxMock } = loadPage("miniprogram/pages/players/create/create.ts", { dbMock });
 
     page.onFieldInput({ currentTarget: { dataset: { field: "nickname" } }, detail: { value: "小飞" } });
     page.onFieldInput({ currentTarget: { dataset: { field: "realName" } }, detail: { value: "张飞" } });
