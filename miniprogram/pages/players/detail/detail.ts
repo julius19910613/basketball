@@ -1,53 +1,111 @@
+/// <reference path="../../../../typings/index.d.ts" />
+
 const cloudDb = wx.cloud.database();
-const appDb = require("../../../utils/db");
+const appDb = require("../../../utils/db") as {
+  getPlayerSeasonStats(playerId: string, season: string): Promise<any>;
+};
 const COLLECTION_MISSING_CODE = -502005;
 
-function isCollectionMissing(error) {
+interface PlayerDoc {
+  _id: string;
+  nickname?: string;
+  name?: string;
+  realName?: string;
+  position?: string;
+  avatar?: string;
+  isMvp?: boolean;
+  age?: number | string;
+  birthday?: unknown;
+  height?: number | string;
+  weight?: number | string;
+  createdAt?: unknown;
+}
+
+interface PlayerView {
+  _id: string;
+  nickname: string;
+  realName: string;
+  position: string;
+  avatar: string;
+  isMvp: boolean;
+  age: number | string;
+  birthdayText: string;
+  height: number | string;
+  weight: number | string;
+  createdAtText: string;
+}
+
+interface EditForm {
+  nickname: string;
+  realName: string;
+  positionIndex: number;
+  birthday: string;
+  height: string;
+  weight: string;
+  avatar: string;
+  isMvp: boolean;
+}
+
+interface DetailData {
+  loading: boolean;
+  player: PlayerView | null;
+  errorMessage: string;
+  editing: boolean;
+  saving: boolean;
+  playerId: string;
+  editForm: EditForm;
+  positionDisplayNames: string[];
+  matchStats: any;
+  avatarPickerVisible: boolean;
+  selectedAvatarId: string;
+}
+
+function isCollectionMissing(error: any): boolean {
   if (!error) return false;
-  var message = String(error.message || error.errMsg || "");
+  const message = String(error.message || error.errMsg || "");
   return Number(error.errCode) === COLLECTION_MISSING_CODE || message.includes("DATABASE_COLLECTION_NOT_EXIST");
 }
 
-function formatDate(value) {
+function formatDate(value: unknown): string {
   if (!value) return "-";
-  var date = value instanceof Date ? value : new Date(value);
+  const date = value instanceof Date ? value : new Date(value as string | number);
   if (Number.isNaN(date.getTime())) return "-";
-  var y = date.getFullYear();
-  var m = String(date.getMonth() + 1).padStart(2, "0");
-  var d = String(date.getDate()).padStart(2, "0");
-  var hh = String(date.getHours()).padStart(2, "0");
-  var mm = String(date.getMinutes()).padStart(2, "0");
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  const hh = String(date.getHours()).padStart(2, "0");
+  const mm = String(date.getMinutes()).padStart(2, "0");
   return y + "-" + m + "-" + d + " " + hh + ":" + mm;
 }
 
-function calcAge(birthday) {
+function calcAge(birthday: unknown): number | null {
   if (!birthday) return null;
-  var birthDate = birthday instanceof Date ? birthday : new Date(birthday);
+  const birthDate = birthday instanceof Date ? birthday : new Date(birthday as string | number);
   if (Number.isNaN(birthDate.getTime())) return null;
-  var now = new Date();
-  var age = now.getFullYear() - birthDate.getFullYear();
-  var mDiff = now.getMonth() - birthDate.getMonth();
+  const now = new Date();
+  let age = now.getFullYear() - birthDate.getFullYear();
+  const mDiff = now.getMonth() - birthDate.getMonth();
   if (mDiff < 0 || (mDiff === 0 && now.getDate() < birthDate.getDate())) {
     age--;
   }
   return age;
 }
 
-function formatBirthday(value) {
+function formatBirthday(value: unknown): string {
   if (!value) return "-";
-  var date = value instanceof Date ? value : new Date(value);
+  const date = value instanceof Date ? value : new Date(value as string | number);
   if (Number.isNaN(date.getTime())) return "-";
-  var y = date.getFullYear();
-  var m = String(date.getMonth() + 1).padStart(2, "0");
-  var d = String(date.getDate()).padStart(2, "0");
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
   return y + "-" + m + "-" + d;
 }
 
-var positions = ["PG", "SG", "SF", "PF", "C"];
-var positionDisplayNames = ["控球后卫 PG", "得分后卫 SG", "小前锋 SF", "大前锋 PF", "中锋 C"];
+const positions = ["PG", "SG", "SF", "PF", "C"];
+const positionDisplayNames = ["控球后卫 PG", "得分后卫 SG", "小前锋 SF", "大前锋 PF", "中锋 C"];
 
-function getPositionIndex(pos) {
-  var idx = positions.indexOf(pos);
+function getPositionIndex(pos: string): number {
+  const idx = positions.indexOf(pos);
   return idx >= 0 ? idx : 2;
 }
 
@@ -69,14 +127,14 @@ Page({
       avatar: "",
       isMvp: false
     },
-    positionDisplayNames: positionDisplayNames,
+    positionDisplayNames,
     matchStats: null,
     avatarPickerVisible: false,
     selectedAvatarId: ""
-  },
+  } as DetailData,
 
-  onLoad: function (options) {
-    var id = options.id;
+  onLoad(options: { id?: string }) {
+    const id = options.id;
     if (!id) {
       this.setData({
         loading: false,
@@ -88,11 +146,11 @@ Page({
     this.loadPlayer(id);
   },
 
-  loadPlayer: function (id) {
-    var that = this;
+  loadPlayer(id: string) {
+    const that = this;
     that.setData({ loading: true, errorMessage: "" });
-    cloudDb.collection("players").doc(id).get().then(function (res) {
-      var player = res.data;
+    cloudDb.collection("players").doc(id).get().then(function (res: { data?: PlayerDoc | null }) {
+      const player = res.data;
       if (!player) {
         that.setData({
           loading: false,
@@ -100,7 +158,7 @@ Page({
         });
         return;
       }
-      var age = calcAge(player.birthday);
+      const age = calcAge(player.birthday);
       that.setData({
         loading: false,
         player: {
@@ -110,7 +168,7 @@ Page({
           position: player.position || "-",
           avatar: player.avatar || "",
           isMvp: player.isMvp || false,
-          age: age !== null ? age : (player.age || "-"),
+          age: age !== null ? age : player.age || "-",
           birthdayText: formatBirthday(player.birthday),
           height: player.height || "-",
           weight: player.weight || "-",
@@ -118,8 +176,8 @@ Page({
         }
       });
       that.loadPlayerMatchStats(id);
-    }).catch(function (error) {
-      var message = isCollectionMissing(error)
+    }).catch(function (error: any) {
+      const message = isCollectionMissing(error)
         ? "当前环境缺少 players 集合，请先在 CloudBase 控制台创建"
         : "加载失败，请稍后重试";
       that.setData({
@@ -130,10 +188,10 @@ Page({
     });
   },
 
-  onEdit: function () {
-    var player = this.data.player;
+  onEdit() {
+    const player = this.data.player as PlayerView;
     // 从 birthdayText 反推 birthday 字符串（YYYY-MM-DD）
-    var birthdayStr = "";
+    let birthdayStr = "";
     if (player.birthdayText && player.birthdayText !== "-") {
       birthdayStr = player.birthdayText;
     }
@@ -152,7 +210,7 @@ Page({
     });
   },
 
-  onCancel: function () {
+  onCancel() {
     this.setData({
       editing: false,
       avatarPickerVisible: false
@@ -163,11 +221,11 @@ Page({
     this.setData({ avatarPickerVisible: true });
   },
 
-  onAvatarSelected(e) {
-    var avatar = e.detail;
+  onAvatarSelected(e: WechatMiniprogram.CustomEvent) {
+    const avatar = e.detail as { url?: string; id?: string };
     this.setData({
-      "editForm.avatar": avatar.url,
-      selectedAvatarId: avatar.id
+      "editForm.avatar": avatar.url || "",
+      selectedAvatarId: avatar.id || ""
     });
   },
 
@@ -175,31 +233,31 @@ Page({
     this.setData({ avatarPickerVisible: false });
   },
 
-  onEditInput: function (e) {
-    var field = e.currentTarget.dataset.field;
+  onEditInput(e: WechatMiniprogram.BaseEvent) {
+    const field = (e.currentTarget.dataset.field || "") as keyof EditForm;
     this.setData({
-      ["editForm." + field]: e.detail.value
+      ["editForm." + field]: (e as WechatMiniprogram.CustomEvent).detail.value
     });
   },
 
-  onEditPositionChange: function (e) {
+  onEditPositionChange(e: WechatMiniprogram.CustomEvent) {
     this.setData({
       "editForm.positionIndex": Number(e.detail.value)
     });
   },
 
-  onEditBirthdayChange: function (e) {
+  onEditBirthdayChange(e: WechatMiniprogram.CustomEvent) {
     this.setData({
       "editForm.birthday": e.detail.value
     });
   },
 
-  onToggleMvpEdit(e) {
+  onToggleMvpEdit(e: WechatMiniprogram.CustomEvent) {
     this.setData({ "editForm.isMvp": e.detail.value });
   },
 
-  validateEditForm: function () {
-    var form = this.data.editForm;
+  validateEditForm(): string {
+    const form = this.data.editForm;
     if (!form.nickname.trim()) {
       return "请输入昵称";
     }
@@ -207,8 +265,8 @@ Page({
       return "昵称不能超过20个字符";
     }
 
-    var heightNum = Number(form.height);
-    var weightNum = Number(form.weight);
+    const heightNum = Number(form.height);
+    const weightNum = Number(form.weight);
 
     if (form.height && (!Number.isFinite(heightNum) || heightNum < 120 || heightNum > 250)) {
       return "身高需为120-250cm";
@@ -218,8 +276,8 @@ Page({
     }
 
     if (form.birthday) {
-      var age = calcAge(form.birthday);
-      if (age < 10 || age > 60) {
+      const age = calcAge(form.birthday);
+      if (age! < 10 || age! > 60) {
         return "年龄需在10-60岁之间（当前 " + age + " 岁）";
       }
     }
@@ -227,16 +285,16 @@ Page({
     return "";
   },
 
-  onSave: function () {
-    var that = this;
-    var errorMsg = that.validateEditForm();
+  onSave() {
+    const that = this;
+    const errorMsg = that.validateEditForm();
     if (errorMsg) {
       wx.showToast({ title: errorMsg, icon: "none" });
       return;
     }
 
-    var form = that.data.editForm;
-    var updateData = {
+    const form = that.data.editForm;
+    const updateData: Record<string, any> = {
       nickname: form.nickname.trim(),
       realName: form.realName.trim(),
       position: positions[form.positionIndex],
@@ -274,7 +332,7 @@ Page({
       wx.showToast({ title: "保存成功", icon: "success" });
       // 重新加载数据
       that.loadPlayer(that.data.playerId);
-    }).catch(function (error) {
+    }).catch(function (error: any) {
       wx.hideLoading();
       that.setData({ saving: false });
       wx.showToast({ title: "保存失败，请重试", icon: "none" });
@@ -282,7 +340,7 @@ Page({
     });
   },
 
-  async loadPlayerMatchStats(playerId) {
+  async loadPlayerMatchStats(playerId: string): Promise<void> {
     try {
       const year = new Date().getFullYear();
       const stats = await appDb.getPlayerSeasonStats(playerId, String(year));
@@ -298,3 +356,5 @@ Page({
     });
   }
 });
+
+export {};

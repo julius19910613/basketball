@@ -113,12 +113,12 @@ function createPlayerDetailDbMock(playerDoc) {
   const playerMatchStatsGetMock = jest.fn().mockResolvedValue({ data: [] });
   return {
     collection(name) {
-      if (name === "players") {
+      if (name === "players" || name === "dev_players") {
         return {
           doc: () => ({ get: playerGetMock })
         };
       }
-      if (name === "player_match_stats") {
+      if (name === "player_match_stats" || name === "dev_player_match_stats") {
         return {
           where: () => ({
             orderBy: () => ({
@@ -196,7 +196,7 @@ describe("player module self-check", () => {
 
   test("H4: detail page缺少id时返回可见错误信息", () => {
     const dbMock = createPlayerDetailDbMock(null);
-    const { page } = loadPage("miniprogram/pages/players/detail/detail.js", { dbMock });
+    const { page } = loadPage("miniprogram/pages/players/detail/detail.ts", { dbMock });
     page.onLoad({});
     debugLog("H4", "player-module.self-test.test.js:detail", "detail missing id state", {
       errorMessage: page.data.errorMessage
@@ -215,7 +215,7 @@ describe("player module self-check", () => {
       weight: 92,
       createdAt: "2026-04-10T12:00:00.000Z"
     });
-    const { page } = loadPage("miniprogram/pages/players/detail/detail.js", { dbMock });
+    const { page } = loadPage("miniprogram/pages/players/detail/detail.ts", { dbMock });
     page.onLoad({ id: "p1" });
     await new Promise((resolve) => setImmediate(resolve));
     debugLog("H5", "player-module.self-test.test.js:detail", "detail loaded state", {
