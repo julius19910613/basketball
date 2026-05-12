@@ -74,7 +74,7 @@ function loadPage(relativePath, options = {}) {
 
 describe("activity phase 1 pages", () => {
   test("activity create page blocks invalid publish", async () => {
-    const { page, wxMock } = loadPage("miniprogram/pages/activity/create/create.js");
+    const { page, wxMock } = loadPage("miniprogram/pages/activity/create/create.ts");
     page.setData({
       form: {
         ...page.data.form,
@@ -97,7 +97,7 @@ describe("activity phase 1 pages", () => {
       createActivity
     }));
 
-    const { page, wxMock } = loadPage("miniprogram/pages/activity/create/create.js");
+    const { page, wxMock } = loadPage("miniprogram/pages/activity/create/create.ts");
     page.setData({
       form: {
         ...page.data.form,
@@ -137,7 +137,7 @@ describe("activity phase 1 pages", () => {
       getActivityRegistrations: jest.fn(),
       closeActivityRegistration: jest.fn()
     }));
-    const { page } = loadPage("miniprogram/pages/activity/detail/detail.js");
+    const { page } = loadPage("miniprogram/pages/activity/detail/detail.ts");
     page.setData({
       id: "a1",
       activity: { title: "6月底篮球活动" }
@@ -155,7 +155,7 @@ describe("activity phase 1 pages", () => {
       getActivityRegistrations: jest.fn(),
       closeActivityRegistration: jest.fn()
     }));
-    const { page, wxMock } = loadPage("miniprogram/pages/activity/detail/detail.js");
+    const { page, wxMock } = loadPage("miniprogram/pages/activity/detail/detail.ts");
     page.setData({ id: "a1" });
     page.onGoGrouping();
     expect(wxMock.navigateTo).toHaveBeenCalledWith({ url: "/pages/activity/grouping/grouping?id=a1" });
@@ -169,7 +169,7 @@ describe("activity phase 1 pages", () => {
       closeActivityRegistration: jest.fn(),
       generateActivityMatches: jest.fn()
     }));
-    const { page, wxMock } = loadPage("miniprogram/pages/activity/detail/detail.js");
+    const { page, wxMock } = loadPage("miniprogram/pages/activity/detail/detail.ts");
     page.onGoMatchStats({ currentTarget: { dataset: { id: "m1" } } });
     expect(wxMock.navigateTo).toHaveBeenCalledWith({ url: "/pages/match/stats/edit?id=m1" });
   });
