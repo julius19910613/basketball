@@ -54,7 +54,7 @@ function loadPage(relativePath) {
 
 describe("match stats edit page", () => {
   test("builds submit payload with updated scores, quarters, and status", () => {
-    const { page } = loadPage("miniprogram/pages/match/stats/edit.js");
+    const { page } = loadPage("miniprogram/pages/match/stats/edit.ts");
     page.setData({
       match: {
         _id: "m1",

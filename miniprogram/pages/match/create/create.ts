@@ -118,7 +118,7 @@ Page({
       const selectedPlayerIds = (detail.selectedPlayerIds || [])
         .concat((detail.playerStats || []).filter((p: { played?: boolean; playerId?: string }) => p.played).map((p: { playerId?: string }) => p.playerId));
       this.setData({
-        selectedPlayerIds: [...new Set(selectedPlayerIds)],
+        selectedPlayerIds: Array.from(new Set(selectedPlayerIds)),
         form: Object.assign(helper.createEmptyMatch(this.data.teamId), detail, {
           matchTypeIndex: Math.max(0, matchTypeOptions.indexOf(detail.matchType))
         })
