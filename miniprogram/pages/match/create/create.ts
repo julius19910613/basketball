@@ -1,8 +1,73 @@
+/// <reference path="../../../../typings/index.d.ts" />
+
 const db = require("../../../utils/db");
 const helper = require("../../../utils/match-helper");
 
-const matchTypeOptions = ["friendly", "league", "cup", "fiba", "ncaa"];
-const matchTypeDisplay = ["友谊赛", "联赛", "杯赛", "全场球赛 (FIBA)", "全场球赛 (NCAA)"];
+const matchTypeOptions = ["friendly", "league", "cup", "fiba", "ncaa"] as const;
+const matchTypeDisplay = ["友谊赛", "联赛", "杯赛", "全场球赛 (FIBA)", "全场球赛 (NCAA)"] as const;
+
+interface PlayerItem {
+  _id?: string;
+  id?: string;
+  playerId?: string;
+  nickname?: string;
+  name?: string;
+  displayNickname: string;
+  position?: string;
+  displayPosition: string;
+  [key: string]: unknown;
+}
+
+interface CreatePageData {
+  teamId: string;
+  matchId: string;
+  editMode: boolean;
+  loading: boolean;
+  saving: boolean;
+  players: PlayerItem[];
+  selectedPlayerIds: string[];
+  tempSelectedPlayerIds: string[];
+  showPlayerPicker: boolean;
+  isAllPlayersSelected: boolean;
+  form: ReturnType<typeof helper.createEmptyMatch>;
+}
+
+interface LoadOptions {
+  teamId?: string;
+  id?: string;
+}
+
+interface InputEvent extends WechatMiniprogram.BaseEvent {
+  currentTarget: WechatMiniprogram.BaseEvent["currentTarget"] & {
+    dataset: {
+      field?: string;
+      index?: string | number;
+    };
+  };
+  detail: {
+    value: string;
+  };
+}
+
+interface PickerEvent extends WechatMiniprogram.BaseEvent {
+  detail: {
+    value: string;
+  };
+}
+
+interface CheckboxEvent extends WechatMiniprogram.BaseEvent {
+  detail: {
+    value: string[];
+  };
+}
+
+interface ToggleEvent extends WechatMiniprogram.BaseEvent {
+  currentTarget: WechatMiniprogram.BaseEvent["currentTarget"] & {
+    dataset: {
+      id?: string;
+    };
+  };
+}
 
 Page({
   data: {
@@ -17,9 +82,9 @@ Page({
     showPlayerPicker: false,
     isAllPlayersSelected: false,
     form: helper.createEmptyMatch("")
-  },
+  } as CreatePageData,
 
-  async onLoad(options) {
+  async onLoad(options: LoadOptions): Promise<void> {
     const teamId = options.teamId || "";
     const matchId = options.id || "";
     this.setData({ teamId, matchId, editMode: !!matchId, "form.teamId": teamId });
@@ -28,18 +93,18 @@ Page({
     this.setData({ loading: false });
   },
 
-  async loadPlayers() {
+  async loadPlayers(): Promise<void> {
     try {
       const cloudDb = wx.cloud.database();
       const res = await cloudDb.collection("players").orderBy("createdAt", "desc").get();
       const players = (res.data || [])
-        .map((item) => ({
+        .map((item: Record<string, unknown>) => ({
           ...item,
-          playerId: item._id || item.id || item.playerId || "",
-          displayNickname: item.nickname || item.name || "未命名球员",
-          displayPosition: item.position || "-"
+          playerId: (item._id as string) || (item.id as string) || (item.playerId as string) || "",
+          displayNickname: (item.nickname as string) || (item.name as string) || "未命名球员",
+          displayPosition: (item.position as string) || "-"
         }))
-        .filter((item) => !!item.playerId);
+        .filter((item: PlayerItem) => !!item.playerId);
       this.setData({ players });
     } catch (err) {
       console.error("load players failed", err);
@@ -47,11 +112,11 @@ Page({
     }
   },
 
-  async loadDetail(id) {
+  async loadDetail(id: string): Promise<void> {
     try {
       const detail = await db.getMatchDetail(id);
       const selectedPlayerIds = (detail.selectedPlayerIds || [])
-        .concat((detail.playerStats || []).filter((p) => p.played).map((p) => p.playerId));
+        .concat((detail.playerStats || []).filter((p: { played?: boolean; playerId?: string }) => p.played).map((p: { playerId?: string }) => p.playerId));
       this.setData({
         selectedPlayerIds: [...new Set(selectedPlayerIds)],
         form: Object.assign(helper.createEmptyMatch(this.data.teamId), detail, {
@@ -64,32 +129,30 @@ Page({
     }
   },
 
-  onShowPlayerPicker() {
+  onShowPlayerPicker(): void {
     const tempSelectedPlayerIds = [...this.data.selectedPlayerIds];
-    const allIds = this.data.players.map((player) => player.playerId);
+    const allIds = this.data.players.map((player: PlayerItem) => player.playerId);
     this.setData({
       showPlayerPicker: true,
       tempSelectedPlayerIds,
-      isAllPlayersSelected: allIds.length > 0 && allIds.every((id) => tempSelectedPlayerIds.includes(id))
+      isAllPlayersSelected: allIds.length > 0 && allIds.every((id: string) => tempSelectedPlayerIds.includes(id))
     });
   },
 
-  onHidePlayerPicker() {
+  onHidePlayerPicker(): void {
     this.setData({ showPlayerPicker: false });
   },
 
-  onPlayerSelectionChange(e) {
-    const tempSelectedPlayerIds = Array.isArray(e.detail)
-      ? e.detail
-      : (e.detail && Array.isArray(e.detail.value) ? e.detail.value : []);
-    const allIds = this.data.players.map((player) => player.playerId);
+  onPlayerSelectionChange(e: CheckboxEvent): void {
+    const tempSelectedPlayerIds = e.detail.value || [];
+    const allIds = this.data.players.map((player: PlayerItem) => player.playerId);
     this.setData({
       tempSelectedPlayerIds,
-      isAllPlayersSelected: allIds.length > 0 && allIds.every((id) => tempSelectedPlayerIds.includes(id))
+      isAllPlayersSelected: allIds.length > 0 && allIds.every((id: string) => tempSelectedPlayerIds.includes(id))
     });
   },
 
-  onConfirmPlayers() {
+  onConfirmPlayers(): void {
     const { tempSelectedPlayerIds, players, form } = this.data;
     const newPlayerStats = helper.buildPlayerStatsForSelection(players, form.playerStats || [], tempSelectedPlayerIds);
     this.setData({
@@ -99,9 +162,9 @@ Page({
     });
   },
 
-  onTogglePlayerSelection(e) {
-    const { id } = e.currentTarget.dataset;
-    const { tempSelectedPlayerIds } = this.data;
+  onTogglePlayerSelection(e: ToggleEvent): void {
+    const id = e.currentTarget.dataset.id || "";
+    const tempSelectedPlayerIds = this.data.tempSelectedPlayerIds;
     const index = tempSelectedPlayerIds.indexOf(id);
     const newSelected = [...tempSelectedPlayerIds];
     if (index > -1) {
@@ -109,15 +172,15 @@ Page({
     } else {
       newSelected.push(id);
     }
-    const allIds = this.data.players.map((player) => player.playerId);
+    const allIds = this.data.players.map((player: PlayerItem) => player.playerId);
     this.setData({
       tempSelectedPlayerIds: newSelected,
-      isAllPlayersSelected: allIds.length > 0 && allIds.every((itemId) => newSelected.includes(itemId))
+      isAllPlayersSelected: allIds.length > 0 && allIds.every((itemId: string) => newSelected.includes(itemId))
     });
   },
 
-  onToggleSelectAllPlayers() {
-    const allIds = this.data.players.map((player) => player.playerId);
+  onToggleSelectAllPlayers(): void {
+    const allIds = this.data.players.map((player: PlayerItem) => player.playerId);
     if (!allIds.length) {
       this.setData({
         tempSelectedPlayerIds: [],
@@ -126,7 +189,7 @@ Page({
       return;
     }
 
-    const isAllPlayersSelected = allIds.every((id) => this.data.tempSelectedPlayerIds.includes(id));
+    const isAllPlayersSelected = allIds.every((id: string) => this.data.tempSelectedPlayerIds.includes(id));
     const nextSelectedIds = isAllPlayersSelected ? [] : allIds;
     this.setData({
       tempSelectedPlayerIds: nextSelectedIds,
@@ -134,27 +197,27 @@ Page({
     });
   },
 
-  noop() {},
+  noop(): void {},
 
-  onInput(e) {
-    const field = e.currentTarget.dataset.field;
+  onInput(e: InputEvent): void {
+    const field = e.currentTarget.dataset.field || "";
     const value = e.detail.value;
-    this.setData({ [`form.${field}`]: value });
+    this.setData({ [`form.${field}`]: value } as unknown as Partial<CreatePageData>);
   },
 
-  onMatchDateChange(e) {
+  onMatchDateChange(e: PickerEvent): void {
     this.setData({ "form.matchDate": e.detail.value });
   },
 
-  onStartTimeChange(e) {
+  onStartTimeChange(e: PickerEvent): void {
     this.setData({ "form.startTime": e.detail.value });
   },
 
-  onEndTimeChange(e) {
+  onEndTimeChange(e: PickerEvent): void {
     this.setData({ "form.endTime": e.detail.value });
   },
 
-  onTypeChange(e) {
+  onTypeChange(e: PickerEvent): void {
     const index = Number(e.detail.value);
     this.setData({
       "form.matchType": matchTypeOptions[index],
@@ -162,19 +225,19 @@ Page({
     });
   },
 
-  onTeamNameInput(e) {
+  onTeamNameInput(e: InputEvent): void {
     const index = Number(e.currentTarget.dataset.index);
     const value = e.detail.value;
-    this.setData({ [`form.teamNames[${index}]`]: value });
+    this.setData({ [`form.teamNames[${index}]`]: value } as unknown as Partial<CreatePageData>);
   },
 
-  onAddTeam() {
+  onAddTeam(): void {
     const names = (this.data.form.teamNames || []).slice();
     names.push(`队伍${names.length + 1}`);
     this.setData({ "form.teamNames": names });
   },
 
-  onRemoveTeam(e) {
+  onRemoveTeam(e: InputEvent): void {
     const index = Number(e.currentTarget.dataset.index);
     const names = (this.data.form.teamNames || []).slice();
     if (names.length <= 2) {
@@ -185,9 +248,9 @@ Page({
     this.setData({ "form.teamNames": names });
   },
 
-  validateForm() {
+  validateForm(): string {
     const form = this.data.form;
-    const teamNames = (form.teamNames || []).map((name) => String(name || "").trim()).filter(Boolean);
+    const teamNames = (form.teamNames || []).map((name: unknown) => String(name || "").trim()).filter(Boolean);
     if (teamNames.length < 2) return "至少录入2支球队";
     const uniq = new Set(teamNames);
     if (uniq.size !== teamNames.length) return "球队名称不能重复";
@@ -197,7 +260,7 @@ Page({
     return "";
   },
 
-  async onGoGrouping() {
+  async onGoGrouping(): Promise<void> {
     const errorMessage = this.validateForm();
     if (errorMessage) {
       wx.showToast({ title: errorMessage, icon: "none" });
@@ -213,14 +276,14 @@ Page({
         status: "draft",
         isGroupingLocked: false,
         selectedPlayerIds: this.data.selectedPlayerIds,
-        teamNames: this.data.form.teamNames.map((name) => String(name || "").trim()).filter(Boolean),
+        teamNames: this.data.form.teamNames.map((name: unknown) => String(name || "").trim()).filter(Boolean),
         grouping: this.data.form.grouping || {
-          teams: this.data.form.teamNames.map((name) => ({ teamName: String(name || "").trim(), playerIds: [] })),
+          teams: this.data.form.teamNames.map((name: unknown) => ({ teamName: String(name || "").trim(), playerIds: [] })),
           lockedAt: null
         },
-        playerStats: (this.data.form.playerStats || []).map((item) => ({
+        playerStats: (this.data.form.playerStats || []).map((item: Record<string, unknown>) => ({
           ...item,
-          played: this.data.selectedPlayerIds.includes(item.playerId)
+          played: this.data.selectedPlayerIds.includes(item.playerId as string)
         }))
       });
       const matchId = await db.saveMatchDraft(payload);
@@ -235,3 +298,5 @@ Page({
     }
   }
 });
+
+export {};

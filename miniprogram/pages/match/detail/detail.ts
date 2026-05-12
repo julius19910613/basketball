@@ -1,5 +1,85 @@
+/// <reference path="../../../../typings/index.d.ts" />
+
 const db = require("../../../utils/db");
 const helper = require("../../../utils/match-helper");
+
+interface PlayerRow {
+  playerId: string;
+  nickname: string;
+  position: string;
+  rankNum: number;
+  fgDisplay: string;
+  fgPctDisplay: string;
+  points: number;
+  rebounds: number;
+  assists: number;
+  steals: number;
+  [key: string]: unknown;
+}
+
+interface TeamStatSummary {
+  totalPoints: number;
+  totalRebounds: number;
+  totalAssists: number;
+  totalSteals: number;
+  totalBlocks: number;
+  fgDisplay: string;
+  fgPctDisplay: string;
+}
+
+interface TeamStatPanel {
+  teamName: string;
+  score: number;
+  isWinner: boolean;
+  players: PlayerRow[];
+  summary: TeamStatSummary;
+  leaders: string[];
+}
+
+interface GroupedTeam {
+  teamName: string;
+  players: Array<Record<string, unknown> & { nickname?: string; position?: string }>;
+}
+
+interface DetailPageData {
+  id: string;
+  loading: boolean;
+  tab: number;
+  quarterTab: number;
+  match: Record<string, unknown> & {
+    teamNames?: string[];
+    opponent?: string;
+    matchTypeText?: string;
+    scoreUs?: number | string;
+    scoreOpponent?: number | string;
+    diff?: number;
+    isGroupingLocked?: boolean;
+    highlights?: string;
+    quarters?: Array<{ quarter: number; scoreUs: number; scoreOpponent: number }>;
+    grouping?: {
+      teams?: Array<{ teamName: string; playerIds: string[] }>;
+      teamAPlayerIds?: string[];
+      teamBPlayerIds?: string[];
+    };
+    playerStats?: Array<Record<string, unknown> & { played?: boolean; playerId?: string }>;
+    teamNames?: string[];
+    [key: string]: unknown;
+  } | null;
+  playedPlayers: Array<Record<string, unknown>>;
+  benchedPlayers: Array<Record<string, unknown> & { nickname?: string; position?: string }>;
+  groupedPlayers: GroupedTeam[];
+  teamStatPanels: TeamStatPanel[];
+  canEditGrouping: boolean;
+}
+
+interface TabChangeEvent extends WechatMiniprogram.BaseEvent {
+  currentTarget: WechatMiniprogram.BaseEvent["currentTarget"] & {
+    dataset: {
+      tab?: string | number;
+      idx?: string | number;
+    };
+  };
+}
 
 Page({
   data: {
@@ -13,14 +93,14 @@ Page({
     groupedPlayers: [],
     teamStatPanels: [],
     canEditGrouping: false
-  },
+  } as DetailPageData,
 
-  onLoad(options) {
+  onLoad(options: { id?: string }): void {
     this.setData({ id: options.id || "" });
     this.loadDetail();
   },
 
-  async loadDetail() {
+  async loadDetail(): Promise<void> {
     if (!this.data.id) {
       this.setData({ loading: false });
       return;
@@ -28,29 +108,30 @@ Page({
     this.setData({ loading: true });
     try {
       const match = await db.getMatchDetail(this.data.id);
-      const played = (match.playerStats || []).filter((item) => item.played).sort((a, b) => (b.points || 0) - (a.points || 0));
-      const benched = (match.playerStats || []).filter((item) => !item.played);
-      const statsMap = {};
-      (match.playerStats || []).forEach((item) => {
-        statsMap[item.playerId] = item;
+      const played = (match.playerStats || [])
+        .filter((item: { played?: boolean }) => item.played)
+        .sort((a: { points?: number }, b: { points?: number }) => (b.points || 0) - (a.points || 0));
+      const benched = (match.playerStats || []).filter((item: { played?: boolean }) => !item.played);
+      const statsMap: Record<string, Record<string, unknown>> = {};
+      (match.playerStats || []).forEach((item: Record<string, unknown>) => {
+        if (item.playerId) statsMap[item.playerId as string] = item;
       });
 
-      let groups = ((match.grouping && match.grouping.teams) || []).map((group) => ({
+      let groups: GroupedTeam[] = ((match.grouping && match.grouping.teams) || []).map((group: { teamName: string; playerIds: string[] }) => ({
         teamName: group.teamName,
-        players: (group.playerIds || []).map((id) => statsMap[id]).filter(Boolean)
+        players: (group.playerIds || []).map((id: string) => statsMap[id]).filter(Boolean)
       }));
 
       if (!groups.length && match.grouping) {
         const teamNames = (match.teamNames && match.teamNames.length >= 2) ? match.teamNames : ["A队", "B队"];
         groups = [
-          { teamName: teamNames[0], players: (match.grouping.teamAPlayerIds || []).map((id) => statsMap[id]).filter(Boolean) },
-          { teamName: teamNames[1], players: (match.grouping.teamBPlayerIds || []).map((id) => statsMap[id]).filter(Boolean) }
+          { teamName: teamNames[0], players: (match.grouping.teamAPlayerIds || []).map((id: string) => statsMap[id]).filter(Boolean) },
+          { teamName: teamNames[1], players: (match.grouping.teamBPlayerIds || []).map((id: string) => statsMap[id]).filter(Boolean) }
         ];
       }
 
-      // 回退：无有效分组时，用 playedPlayers 塞成默认分组
       if (!groups.length && played.length) {
-        groups = [{ teamName: match.teamNames[0] || "参赛球员", players: played }];
+        groups = [{ teamName: (match.teamNames && match.teamNames[0]) || "参赛球员", players: played }];
       }
 
       const teamStatPanels = this.buildTeamStatPanels(groups, match);
@@ -74,34 +155,34 @@ Page({
     }
   },
 
-  formatPct(value) {
+  formatPct(value: number | string | null | undefined): string {
     const num = Number(value || 0);
     return `${num % 1 === 0 ? num.toFixed(0) : num.toFixed(1)}%`;
   },
 
-  sumBy(players, key) {
-    return (players || []).reduce((sum, item) => sum + Number(item[key] || 0), 0);
+  sumBy(players: Array<Record<string, unknown>>, key: string): number {
+    return (players || []).reduce((sum: number, item: Record<string, unknown>) => sum + Number(item[key] || 0), 0);
   },
 
-  findLeader(players, key) {
+  findLeader(players: Array<Record<string, unknown>>, key: string): Record<string, unknown> | null {
     if (!players || !players.length) return null;
-    return players.reduce((best, item) => {
+    return players.reduce((best: Record<string, unknown> | null, item: Record<string, unknown>) => {
       if (!best) return item;
       return Number(item[key] || 0) > Number(best[key] || 0) ? item : best;
     }, null);
   },
 
-  buildTeamStatPanels(groups, match) {
+  buildTeamStatPanels(groups: GroupedTeam[], match: Record<string, unknown>): TeamStatPanel[] {
     const teamScores = [Number(match.scoreUs || 0), Number(match.scoreOpponent || 0)];
     return (groups || []).map((group, index) => {
       const players = (group.players || [])
         .slice()
-        .sort((a, b) => {
+        .sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
           const pointDiff = Number(b.points || 0) - Number(a.points || 0);
           if (pointDiff !== 0) return pointDiff;
           return Number(b.rebounds || 0) - Number(a.rebounds || 0);
         })
-        .map((player, playerIndex) => {
+        .map((player: Record<string, unknown>, playerIndex: number) => {
           return Object.assign({}, player, {
             rankNum: playerIndex + 1,
             fgDisplay: `${player.shotsMade || 0}/${player.shotsAttempted || 0}`,
@@ -143,21 +224,21 @@ Page({
     });
   },
 
-  onTabChange(e) {
+  onTabChange(e: TabChangeEvent): void {
     this.setData({ tab: Number(e.currentTarget.dataset.tab) || 0 });
   },
 
-  onQuarterTabChange(e) {
+  onQuarterTabChange(e: TabChangeEvent): void {
     this.setData({ quarterTab: Number(e.currentTarget.dataset.idx) || 0 });
   },
 
-  onEdit() {
+  onEdit(): void {
     if (!this.data.canEditGrouping) return;
     wx.navigateTo({ url: `/pages/match/grouping/grouping?id=${this.data.id}` });
   },
 
-  async onDelete() {
-    const confirm = await new Promise((resolve) => {
+  async onDelete(): Promise<void> {
+    const confirm = await new Promise<boolean>((resolve) => {
       wx.showModal({
         title: "删除比赛",
         content: "确认删除这场比赛吗？",
@@ -176,3 +257,5 @@ Page({
     }
   }
 });
+
+export {};
