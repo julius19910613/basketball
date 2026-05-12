@@ -1,5 +1,69 @@
+/// <reference path="../../../../typings/index.d.ts" />
+
 const db = require("../../../utils/db");
 const helper = require("../../../utils/match-helper");
+
+interface MatchFilter {
+  status?: "draft" | "finalized";
+  playerId?: string;
+}
+
+interface MatchListItem {
+  _id?: string;
+  opponent?: string;
+  teamNames?: string[];
+  matchType?: string;
+  status?: "draft" | "finalized" | string;
+  result?: "win" | "loss" | "draw" | string;
+  scoreUs?: number | string;
+  scoreOpponent?: number | string;
+  [key: string]: unknown;
+}
+
+interface FormattedMatchListItem extends MatchListItem {
+  teamsText: string;
+  matchTypeText: string;
+  typeClass: string;
+  scoreClass: string;
+  resultClass: string;
+  status: string;
+  statusText: string;
+  statusClass: string;
+}
+
+interface ListPageData {
+  teamId: string;
+  playerId: string;
+  matches: FormattedMatchListItem[];
+  loading: boolean;
+  loadingMore: boolean;
+  activeTab: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+}
+
+interface LoadOptions {
+  teamId?: string;
+  playerId?: string;
+}
+
+interface TabChangeEvent extends WechatMiniprogram.BaseEvent {
+  currentTarget: WechatMiniprogram.BaseEvent["currentTarget"] & {
+    dataset: {
+      tab?: string | number;
+    };
+  };
+}
+
+interface MatchActionEvent extends WechatMiniprogram.BaseEvent {
+  currentTarget: WechatMiniprogram.BaseEvent["currentTarget"] & {
+    dataset: {
+      id?: string;
+      locked?: boolean;
+    };
+  };
+}
 
 Page({
   data: {
@@ -12,9 +76,9 @@ Page({
     page: 0,
     pageSize: 20,
     hasMore: true
-  },
+  } as ListPageData,
 
-  onLoad(options) {
+  onLoad(options: LoadOptions): void {
     this.setData({
       teamId: options.teamId || "",
       playerId: options.playerId || ""
@@ -22,22 +86,22 @@ Page({
     this.loadMatches(true);
   },
 
-  onPullDownRefresh() {
+  onPullDownRefresh(): void {
     this.loadMatches(true).finally(() => wx.stopPullDownRefresh());
   },
 
-  onReachBottom() {
+  onReachBottom(): void {
     if (this.data.hasMore && !this.data.loadingMore) {
       this.loadMatches(false);
     }
   },
 
-  onTabChange(e) {
+  onTabChange(e: TabChangeEvent): void {
     this.setData({ activeTab: Number(e.currentTarget.dataset.tab) || 0 });
     this.loadMatches(true);
   },
 
-  async loadMatches(reset) {
+  async loadMatches(reset: boolean): Promise<void> {
     if (reset) {
       this.setData({ loading: true, page: 0, hasMore: true });
     } else {
@@ -45,13 +109,18 @@ Page({
     }
 
     try {
-      const filter = {};
+      const filter: MatchFilter = {};
       if (this.data.activeTab === 1) filter.status = "draft";
       if (this.data.activeTab === 2) filter.status = "finalized";
       if (this.data.playerId) filter.playerId = this.data.playerId;
 
       const page = reset ? 0 : this.data.page;
-      const list = await db.getMatchList(this.data.teamId, filter, page, this.data.pageSize);
+      const list = (await db.getMatchList(
+        this.data.teamId,
+        filter,
+        page,
+        this.data.pageSize
+      )) as MatchListItem[];
       const merged = reset ? list : this.data.matches.concat(list);
       this.setData({
         matches: merged.map(this.formatMatchCard),
@@ -67,7 +136,7 @@ Page({
     }
   },
 
-  formatMatchCard(item) {
+  formatMatchCard(item: MatchListItem): FormattedMatchListItem {
     const diff = Number(item.scoreUs || 0) - Number(item.scoreOpponent || 0);
     const status = item.status || "finalized";
     const groupingLocked = helper.isGroupingLocked(item);
@@ -83,12 +152,12 @@ Page({
     });
   },
 
-  goCreate() {
+  goCreate(): void {
     const query = this.data.teamId ? `?teamId=${this.data.teamId}` : "";
     wx.navigateTo({ url: `/pages/match/create/create${query}` });
   },
 
-  goDetail(e) {
+  goDetail(e: MatchActionEvent): void {
     const id = e.currentTarget.dataset.id;
     const locked = e.currentTarget.dataset.locked;
     if (!locked) {
@@ -98,9 +167,9 @@ Page({
     wx.navigateTo({ url: `/pages/match/detail/detail?id=${id}` });
   },
 
-  async onDelete(e) {
+  async onDelete(e: MatchActionEvent): Promise<void> {
     const id = e.currentTarget.dataset.id;
-    const confirm = await new Promise((resolve) => {
+    const confirm = await new Promise<boolean>((resolve) => {
       wx.showModal({
         title: "删除比赛",
         content: "删除后不可恢复，确认删除吗？",
@@ -120,3 +189,5 @@ Page({
     }
   }
 });
+
+export {};

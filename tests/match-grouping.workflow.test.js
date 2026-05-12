@@ -187,13 +187,13 @@ describe("match grouping workflow", () => {
   });
 
   test("list page routes unlocked item to grouping page", () => {
-    const { page, wxMock } = loadPage("miniprogram/pages/match/list/list.js");
+    const { page, wxMock } = loadPage("miniprogram/pages/match/list/list.ts");
     page.goDetail({ currentTarget: { dataset: { id: "m1", locked: false } } });
     expect(wxMock.navigateTo).toHaveBeenCalledWith({ url: "/pages/match/grouping/grouping?id=m1" });
   });
 
   test("list page routes locked item to detail page", () => {
-    const { page, wxMock } = loadPage("miniprogram/pages/match/list/list.js");
+    const { page, wxMock } = loadPage("miniprogram/pages/match/list/list.ts");
     page.goDetail({ currentTarget: { dataset: { id: "m2", locked: true } } });
     expect(wxMock.navigateTo).toHaveBeenCalledWith({ url: "/pages/match/detail/detail?id=m2" });
   });
