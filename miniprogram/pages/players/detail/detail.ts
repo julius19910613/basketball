@@ -1,13 +1,15 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
-const cloudDb = wx.cloud.database();
-const appDb = require("../../../utils/db") as {
+type CloudDb = ReturnType<typeof wx.cloud.database>;
+type AppDb = {
   getPlayerSeasonStats(playerId: string, season: string): Promise<any>;
 };
+let cloudDb: CloudDb | null = null;
+let appDb: AppDb | null = null;
 const COLLECTION_MISSING_CODE = -502005;
 
 interface PlayerDoc {
-  _id: string;
+  _id?: string | number;
   nickname?: string;
   name?: string;
   realName?: string;
@@ -109,6 +111,20 @@ function getPositionIndex(pos: string): number {
   return idx >= 0 ? idx : 2;
 }
 
+function getCloudDb(): CloudDb {
+  if (!cloudDb) {
+    cloudDb = wx.cloud.database();
+  }
+  return cloudDb;
+}
+
+function getAppDb(): AppDb {
+  if (!appDb) {
+    appDb = require("../../../utils/db") as AppDb;
+  }
+  return appDb;
+}
+
 Page({
   data: {
     loading: true,
@@ -148,8 +164,9 @@ Page({
 
   loadPlayer(id: string) {
     const that = this;
+    const db = getCloudDb();
     that.setData({ loading: true, errorMessage: "" });
-    cloudDb.collection("players").doc(id).get().then(function (res: { data?: PlayerDoc | null }) {
+    db.collection("players").doc(id).get().then(function (res: { data?: Partial<PlayerDoc> | null }) {
       const player = res.data;
       if (!player) {
         that.setData({
@@ -162,7 +179,7 @@ Page({
       that.setData({
         loading: false,
         player: {
-          _id: player._id,
+          _id: String(player._id || id),
           nickname: player.nickname || player.name || "未命名球员",
           realName: player.realName || "-",
           position: player.position || "-",
@@ -300,31 +317,31 @@ Page({
       position: positions[form.positionIndex],
       avatar: form.avatar || "",
       isMvp: Boolean(form.isMvp),
-      updatedAt: cloudDb.serverDate()
+      updatedAt: getCloudDb().serverDate()
     };
 
     if (form.height) {
       updateData.height = Number(form.height);
     } else {
-      updateData.height = cloudDb.command.remove();
+      updateData.height = getCloudDb().command.remove();
     }
     if (form.weight) {
       updateData.weight = Number(form.weight);
     } else {
-      updateData.weight = cloudDb.command.remove();
+      updateData.weight = getCloudDb().command.remove();
     }
     if (form.birthday) {
       updateData.birthday = new Date(form.birthday);
       updateData.age = calcAge(form.birthday);
     } else {
-      updateData.birthday = cloudDb.command.remove();
-      updateData.age = cloudDb.command.remove();
+      updateData.birthday = getCloudDb().command.remove();
+      updateData.age = getCloudDb().command.remove();
     }
 
     that.setData({ saving: true });
     wx.showLoading({ title: "保存中...", mask: true });
 
-    cloudDb.collection("players").doc(that.data.playerId).update({
+    getCloudDb().collection("players").doc(that.data.playerId).update({
       data: updateData
     }).then(function () {
       wx.hideLoading();
@@ -343,7 +360,7 @@ Page({
   async loadPlayerMatchStats(playerId: string): Promise<void> {
     try {
       const year = new Date().getFullYear();
-      const stats = await appDb.getPlayerSeasonStats(playerId, String(year));
+      const stats = await getAppDb().getPlayerSeasonStats(playerId, String(year));
       this.setData({ matchStats: stats });
     } catch (error) {
       console.error("load player match stats failed:", error);

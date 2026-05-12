@@ -69,6 +69,7 @@ function applySetData(target, patch) {
 function loadPage(relativePath, options = {}) {
   jest.resetModules();
   let pageConfig = null;
+  let loadError = null;
   const dbMock = options.dbMock || {};
   const wxMock = {
     cloud: {
@@ -87,7 +88,20 @@ function loadPage(relativePath, options = {}) {
     return config;
   };
 
-  require(path.resolve(__dirname, "..", relativePath));
+  try {
+    jest.isolateModules(() => {
+      require(path.resolve(__dirname, "..", relativePath));
+    });
+  } catch (error) {
+    loadError = error;
+  }
+
+  if (loadError) {
+    const error = loadError instanceof Error ? loadError : new Error(String(loadError));
+    error.message = `Page module load failed: ${relativePath}\n${error.message}`;
+    throw error;
+  }
+
   if (!pageConfig) throw new Error(`Page load failed: ${relativePath}`);
 
   const page = {
