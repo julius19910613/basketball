@@ -204,7 +204,7 @@ Page({
     if (!id || Number.isNaN(index)) return;
     const teamGroups = (this.data.teamGroups || []).map((group: TeamGroup, groupIndex: number) => {
       const filtered = (group.playerIds || []).filter((item: string) => item !== id);
-      if (groupIndex === index) return { ...group, playerIds: [...new Set(filtered.concat(id))] };
+      if (groupIndex === index) return { ...group, playerIds: Array.from(new Set(filtered.concat(id))) };
       return { ...group, playerIds: filtered };
     });
     this.setData({ teamGroups });
