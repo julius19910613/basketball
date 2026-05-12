@@ -118,7 +118,7 @@ Page({
       const payload = pageHelper.prepareActivityForSave(this.data.form, {
         status: status,
         createdByOpenid: getAppInstance().globalData.openid || ""
-      } as SavePayloadExtra);
+      } as any);
       const activityId = await getDb().createActivity(payload);
       wx.hideLoading();
       wx.showToast({ title: status === "registration_open" ? "活动已发布" : "草稿已保存", icon: "success" });
