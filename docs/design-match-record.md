@@ -79,7 +79,7 @@ miniprogram/
 ├── pages/
 │   └── match/
 │       ├── list/                    # 比赛列表
-│       │   ├── list.js
+│       │   ├── list.ts
 │       │   ├── list.wxml
 │       │   ├── list.wxss
 │       │   └── list.json
