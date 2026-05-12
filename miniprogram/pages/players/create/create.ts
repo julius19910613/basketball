@@ -1,14 +1,17 @@
+/// <reference path="../../../../typings/index.d.ts" />
+
 const db = wx.cloud.database();
-const { getCollection } = require('../../../config/env');
+const env = require("../../../config/env");
+const { getCollection } = env;
 const COLLECTION_MISSING_CODE = -502005;
 
-function isCollectionMissing(error) {
+function isCollectionMissing(error: any): boolean {
   if (!error) return false;
   const message = String(error.message || error.errMsg || "");
   return Number(error.errCode) === COLLECTION_MISSING_CODE || message.includes("DATABASE_COLLECTION_NOT_EXIST");
 }
 
-function calcAge(birthdayStr) {
+function calcAge(birthdayStr: string): number {
   if (!birthdayStr) return 0;
   var birthDate = new Date(birthdayStr);
   var today = new Date();
@@ -18,6 +21,29 @@ function calcAge(birthdayStr) {
     age--;
   }
   return age;
+}
+
+interface CreateForm {
+  nickname: string;
+  realName: string;
+  age: string;
+  birthday: string;
+  height: string;
+  weight: string;
+  avatar: string;
+  isMvp: boolean;
+}
+
+interface CreateData {
+  submitting: boolean;
+  positionIndex: number;
+  positions: string[];
+  positionDisplayNames: string[];
+  form: CreateForm;
+  fromProfile: boolean;
+  linkedOpenid: string;
+  avatarPickerVisible: boolean;
+  selectedAvatarId: string;
 }
 
 Page({
@@ -40,9 +66,9 @@ Page({
     linkedOpenid: "",
     avatarPickerVisible: false,
     selectedAvatarId: ""
-  },
+  } as CreateData,
 
-  onLoad: function (options) {
+  onLoad: function (options: any) {
     if (options && options.fromProfile === "1") {
       this.setData({
         fromProfile: true,
@@ -51,20 +77,20 @@ Page({
     }
   },
 
-  onFieldInput(e) {
+  onFieldInput(e: WechatMiniprogram.BaseEvent) {
     const { field } = e.currentTarget.dataset;
     this.setData({
-      [`form.${field}`]: e.detail.value
+      [`form.${field}`]: (e as any).detail.value
     });
   },
 
-  onBirthdayChange(e) {
+  onBirthdayChange(e: WechatMiniprogram.CustomEvent) {
     this.setData({
       "form.birthday": e.detail.value
     });
   },
 
-  onPositionChange(e) {
+  onPositionChange(e: WechatMiniprogram.CustomEvent) {
     this.setData({
       positionIndex: Number(e.detail.value)
     });
@@ -74,11 +100,11 @@ Page({
     this.setData({ avatarPickerVisible: true });
   },
 
-  onToggleMvp(e) {
+  onToggleMvp(e: WechatMiniprogram.CustomEvent) {
     this.setData({ "form.isMvp": e.detail.value });
   },
 
-  onAvatarSelected(e) {
+  onAvatarSelected(e: WechatMiniprogram.CustomEvent) {
     var avatar = e.detail;
     this.setData({
       "form.avatar": avatar.url,
@@ -90,7 +116,7 @@ Page({
     this.setData({ avatarPickerVisible: false });
   },
 
-  validateForm() {
+  validateForm(): string {
     const { nickname, realName, age, birthday, height, weight } = this.data.form;
 
     if (!nickname.trim()) {
@@ -137,7 +163,7 @@ Page({
       const { nickname, realName, age, birthday, height, weight } = this.data.form;
       const ageValue = birthday ? calcAge(birthday) : Number(age);
 
-      var newPlayerData = {
+      var newPlayerData: any = {
         nickname: nickname.trim(),
         realName: realName.trim(),
         position: this.data.positions[this.data.positionIndex],
@@ -159,11 +185,11 @@ Page({
         newPlayerData.linkedOpenid = this.data.linkedOpenid;
       }
 
-      var addResult = await db.collection(getCollection("players")).add({ data: newPlayerData });
+      var addResult: any = await db.collection(getCollection("players")).add({ data: newPlayerData });
 
       // 如果从 profile 跳转，还需要更新 users 表
       if (this.data.linkedOpenid && addResult._id) {
-        var uRes = await db.collection(getCollection("users")).where({ _openid: this.data.linkedOpenid }).get();
+        var uRes: any = await db.collection(getCollection("users")).where({ _openid: this.data.linkedOpenid }).get();
         if (uRes.data && uRes.data.length > 0) {
           await db.collection(getCollection("users")).doc(uRes.data[0]._id).update({
             data: {
@@ -196,3 +222,5 @@ Page({
     }
   }
 });
+
+export {};
