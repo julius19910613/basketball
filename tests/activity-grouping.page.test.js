@@ -55,7 +55,7 @@ function loadPage(relativePath) {
 
 describe("activity grouping page", () => {
   test("builds grouping snapshot from current team groups", () => {
-    const { page } = loadPage("miniprogram/pages/activity/grouping/grouping.js");
+    const { page } = loadPage("miniprogram/pages/activity/grouping/grouping.ts");
     page.setData({
       activity: {
         teamNames: ["白队", "黑队", "红队"],
@@ -82,7 +82,7 @@ describe("activity grouping page", () => {
   });
 
   test("auto balance splits six players across three groups", () => {
-    const { page } = loadPage("miniprogram/pages/activity/grouping/grouping.js");
+    const { page } = loadPage("miniprogram/pages/activity/grouping/grouping.ts");
     page.setData({
       players: [
         { playerId: "p1", overall: 99 },
