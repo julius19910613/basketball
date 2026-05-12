@@ -62,7 +62,7 @@ function loadPage(relativePath) {
 
 describe("match create page player select all", () => {
   test("toggles select all and clear all in picker", () => {
-    const page = loadPage("miniprogram/pages/match/create/create.js");
+    const page = loadPage("miniprogram/pages/match/create/create.ts");
     page.setData({
       players: [{ playerId: "p1" }, { playerId: "p2" }, { playerId: "p3" }],
       selectedPlayerIds: ["p1"]
@@ -82,7 +82,7 @@ describe("match create page player select all", () => {
   });
 
   test("supports checkbox-group change detail.value shape", () => {
-    const page = loadPage("miniprogram/pages/match/create/create.js");
+    const page = loadPage("miniprogram/pages/match/create/create.ts");
     page.setData({
       players: [{ playerId: "p1" }, { playerId: "p2" }, { playerId: "p3" }]
     });

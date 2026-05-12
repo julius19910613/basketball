@@ -1,5 +1,114 @@
-const db = require("../../../utils/db");
-const helper = require("../../../utils/match-helper");
+/// <reference path="../../../../typings/index.d.ts" />
+
+type Id = string | number;
+
+interface MatchPlayer {
+  _id?: Id;
+  id?: Id;
+  playerId?: Id;
+  nickname?: string;
+  name?: string;
+  position?: string;
+  overall?: number;
+  [key: string]: any;
+}
+
+interface DisplayPlayer extends MatchPlayer {
+  playerId: Id;
+  displayNickname: string;
+  displayPosition: string;
+}
+
+interface TeamGroup {
+  teamName: string;
+  playerIds: Id[];
+  [key: string]: any;
+}
+
+interface GroupingPayload {
+  selectedPlayerIds: Id[];
+  playerStats: any[];
+  grouping: {
+    teams: TeamGroup[];
+  };
+}
+
+interface MatchRecord {
+  _id?: Id;
+  selectedPlayerIds?: Id[];
+  playerStats?: any[];
+  teamNames?: string[];
+  grouping?: {
+    teams?: TeamGroup[];
+    teamAPlayerIds?: Id[];
+    teamBPlayerIds?: Id[];
+    [key: string]: any;
+  } | null;
+  [key: string]: any;
+}
+
+interface GroupingPageData {
+  loading: boolean;
+  saving: boolean;
+  matchId: string;
+  match: MatchRecord | null;
+  players: DisplayPlayer[];
+  selectedPlayerIds: Id[];
+  teamGroups: TeamGroup[];
+  showPlayerPicker: boolean;
+  tempSelectedPlayerIds: Id[];
+  groupedPlayers: Array<{
+    teamName: string;
+    playerIds: Id[];
+    players: DisplayPlayer[];
+  }>;
+  unassignedPlayers: DisplayPlayer[];
+  matchTeamsText: string;
+  statusText: string;
+}
+
+interface LoadOptions {
+  id?: string;
+  [key: string]: any;
+}
+
+interface DatasetEvent extends WechatMiniprogram.BaseEvent {
+  currentTarget: WechatMiniprogram.BaseEvent["currentTarget"] & {
+    dataset: {
+      id?: Id;
+      targetIndex?: string | number;
+    };
+  };
+  detail: {
+    value?: any;
+    [key: string]: any;
+  };
+}
+
+let dbModule: any;
+let helperModule: any;
+let cloudDb: any;
+
+function getDb(): any {
+  if (!dbModule) {
+    dbModule = require("../../../utils/db");
+  }
+  return dbModule;
+}
+
+function getHelper(): any {
+  if (!helperModule) {
+    helperModule = require("../../../utils/match-helper");
+  }
+  return helperModule;
+}
+
+function getCloudDb(): any {
+  if (!cloudDb) {
+    cloudDb = wx.cloud.database();
+  }
+  return cloudDb;
+}
 
 Page({
   data: {
@@ -16,9 +125,9 @@ Page({
     unassignedPlayers: [],
     matchTeamsText: "",
     statusText: ""
-  },
+  } as GroupingPageData,
 
-  async onLoad(options) {
+  async onLoad(options: LoadOptions): Promise<void> {
     const matchId = options.id || "";
     if (!matchId) {
       wx.showToast({ title: "缺少比赛ID", icon: "none" });
@@ -29,47 +138,48 @@ Page({
     await this.loadData();
   },
 
-  async loadData() {
+  async loadData(): Promise<void> {
     this.setData({ loading: true });
     try {
-      const cloudDb = wx.cloud.database();
+      const db = getDb();
+      const helper = getHelper();
       const [match, playersRes] = await Promise.all([
         db.getMatchDetail(this.data.matchId),
-        cloudDb.collection("players").orderBy("createdAt", "desc").get()
+        getCloudDb().collection("players").orderBy("createdAt", "desc").get()
       ]);
 
-      const players = (playersRes.data || [])
-        .map((item) => ({
+      const players = ((playersRes.data || []) as MatchPlayer[])
+        .map((item: MatchPlayer) => ({
           ...item,
           playerId: item._id || item.id || item.playerId || "",
           displayNickname: item.nickname || item.name || "未命名球员",
           displayPosition: item.position || "-"
         }))
-        .filter((item) => !!item.playerId);
+        .filter((item: DisplayPlayer) => !!item.playerId);
 
-      const selectedPlayerIds = (match.selectedPlayerIds || [])
-        .concat((match.playerStats || []).filter((p) => p.played).map((p) => p.playerId))
-        .filter(Boolean);
+      const selectedPlayerIds = ((match.selectedPlayerIds || []) as Id[])
+        .concat(((match.playerStats || []) as any[]).filter((p: any) => p.played).map((p: any) => p.playerId))
+        .filter(Boolean) as Id[];
       const uniqSelected = Array.from(new Set(selectedPlayerIds));
-      const teamNames = (match.teamNames || []).filter(Boolean);
+      const teamNames = ((match.teamNames || []) as string[]).filter(Boolean);
       const defaultTeams = teamNames.length >= 2 ? teamNames : ["A队", "B队"];
-      let groupsFromDoc = (match.grouping && match.grouping.teams) || [];
+      let groupsFromDoc = (((match.grouping && match.grouping.teams) || []) as TeamGroup[]);
       if (!groupsFromDoc.length && match.grouping) {
         groupsFromDoc = [
           { teamName: defaultTeams[0], playerIds: match.grouping.teamAPlayerIds || [] },
           { teamName: defaultTeams[1], playerIds: match.grouping.teamBPlayerIds || [] }
         ];
       }
-      const teamGroups = defaultTeams.map((name, index) => {
-        const found = groupsFromDoc[index] || {};
-        const ids = (found.playerIds || []).filter((id) => uniqSelected.includes(id));
+      const teamGroups = defaultTeams.map((name: string, index: number) => {
+        const found = groupsFromDoc[index] || ({} as TeamGroup);
+        const ids = ((found.playerIds || []) as Id[]).filter((id: Id) => uniqSelected.includes(id));
         return { teamName: name, playerIds: ids };
       });
 
       this.setData({
         loading: false,
         match,
-        matchTeamsText: ((match.teamNames || []).filter(Boolean).join(" vs ")) || "未设置队伍",
+        matchTeamsText: (((match.teamNames || []) as string[]).filter(Boolean).join(" vs ")) || "未设置队伍",
         statusText: helper.isGroupingLocked(match) ? "分组已锁定" : "草稿",
         players,
         selectedPlayerIds: uniqSelected,
@@ -84,27 +194,25 @@ Page({
     }
   },
 
-  getPlayerById(id) {
-    return this.data.players.find((item) => item.playerId === id) || null;
+  getPlayerById(id: Id): DisplayPlayer | null {
+    return this.data.players.find((item: DisplayPlayer) => item.playerId === id) || null;
   },
 
-  getTeamPlayers(ids) {
-    return (ids || [])
-      .map((id) => this.getPlayerById(id))
-      .filter(Boolean);
+  getTeamPlayers(ids: Id[]): DisplayPlayer[] {
+    return (ids || []).map((id: Id) => this.getPlayerById(id)).filter(Boolean) as DisplayPlayer[];
   },
 
-  getUnassignedPlayerIds() {
-    const assignedIds = [];
-    (this.data.teamGroups || []).forEach((group) => {
+  getUnassignedPlayerIds(): Id[] {
+    const assignedIds: Id[] = [];
+    (this.data.teamGroups || []).forEach((group: TeamGroup) => {
       assignedIds.push(...(group.playerIds || []));
     });
     const assigned = new Set(assignedIds);
-    return this.data.selectedPlayerIds.filter((id) => !assigned.has(id));
+    return this.data.selectedPlayerIds.filter((id: Id) => !assigned.has(id));
   },
 
-  syncDisplayPlayers() {
-    const groupedPlayers = (this.data.teamGroups || []).map((group) => ({
+  syncDisplayPlayers(): void {
+    const groupedPlayers = (this.data.teamGroups || []).map((group: TeamGroup) => ({
       teamName: group.teamName,
       playerIds: group.playerIds || [],
       players: this.getTeamPlayers(group.playerIds || [])
@@ -115,11 +223,11 @@ Page({
     });
   },
 
-  isGroupingLocked() {
-    return helper.isGroupingLocked(this.data.match);
+  isGroupingLocked(): boolean {
+    return !!getHelper().isGroupingLocked(this.data.match);
   },
 
-  onShowPlayerPicker() {
+  onShowPlayerPicker(): void {
     if (this.isGroupingLocked()) return;
     this.setData({
       showPlayerPicker: true,
@@ -127,55 +235,56 @@ Page({
     });
   },
 
-  onHidePlayerPicker() {
+  onHidePlayerPicker(): void {
     this.setData({ showPlayerPicker: false });
   },
 
-  onPlayerSelectionChange(e) {
+  onPlayerSelectionChange(e: DatasetEvent): void {
     const next = (e.detail && e.detail.value) || [];
     this.setData({ tempSelectedPlayerIds: next });
   },
 
-  onConfirmPlayerPicker() {
-    const selectedPlayerIds = [...new Set(this.data.tempSelectedPlayerIds)];
+  onConfirmPlayerPicker(): void {
+    const selectedPlayerIds = Array.from(new Set(this.data.tempSelectedPlayerIds));
     const selectedSet = new Set(selectedPlayerIds);
     this.setData({
       selectedPlayerIds,
-      teamGroups: (this.data.teamGroups || []).map((group) => ({
+      teamGroups: (this.data.teamGroups || []).map((group: TeamGroup) => ({
         ...group,
-        playerIds: (group.playerIds || []).filter((id) => selectedSet.has(id))
+        playerIds: (group.playerIds || []).filter((id: Id) => selectedSet.has(id))
       })),
       showPlayerPicker: false
     });
     this.syncDisplayPlayers();
   },
 
-  onMovePlayer(e) {
+  onMovePlayer(e: DatasetEvent): void {
     if (this.isGroupingLocked()) return;
     const { id, targetIndex } = e.currentTarget.dataset;
     const index = Number(targetIndex);
     if (!id || Number.isNaN(index)) return;
 
-    const teamGroups = (this.data.teamGroups || []).map((group, groupIndex) => {
-      const filtered = (group.playerIds || []).filter((item) => item !== id);
-      if (groupIndex === index) return { ...group, playerIds: [...new Set(filtered.concat(id))] };
+    const teamGroups = (this.data.teamGroups || []).map((group: TeamGroup, groupIndex: number) => {
+      const filtered = (group.playerIds || []).filter((item: Id) => item !== id);
+      if (groupIndex === index) return { ...group, playerIds: Array.from(new Set(filtered.concat(id))) };
       return { ...group, playerIds: filtered };
     });
     this.setData({ teamGroups });
     this.syncDisplayPlayers();
   },
 
-  onAutoBalance() {
+  onAutoBalance(): void {
     if (this.isGroupingLocked()) return;
     if (this.data.selectedPlayerIds.length < 2) {
       wx.showToast({ title: "至少选择2名球员", icon: "none" });
       return;
     }
+    const helper = getHelper();
     const grouped =
       (this.data.teamGroups || []).length === 2
         ? helper.buildBalancedTwoTeamGrouping(this.data.players, this.data.selectedPlayerIds)
         : helper.buildSnakeGrouping(this.data.players, this.data.selectedPlayerIds, this.data.teamGroups.length);
-    const teamGroups = (this.data.teamGroups || []).map((group, index) => ({
+    const teamGroups = (this.data.teamGroups || []).map((group: TeamGroup, index: number) => ({
       ...group,
       playerIds: (grouped.groups && grouped.groups[index]) || []
     }));
@@ -183,7 +292,8 @@ Page({
     this.syncDisplayPlayers();
   },
 
-  buildGroupingPayload() {
+  buildGroupingPayload(): GroupingPayload {
+    const helper = getHelper();
     return {
       selectedPlayerIds: this.data.selectedPlayerIds,
       playerStats: helper.buildPlayerStatsForSelection(
@@ -192,7 +302,7 @@ Page({
         this.data.selectedPlayerIds
       ),
       grouping: {
-        teams: (this.data.teamGroups || []).map((group) => ({
+        teams: (this.data.teamGroups || []).map((group: TeamGroup) => ({
           teamName: group.teamName,
           playerIds: group.playerIds || []
         }))
@@ -200,11 +310,13 @@ Page({
     };
   },
 
-  async onSaveDraft() {
+  async onSaveDraft(): Promise<void> {
     if (this.isGroupingLocked()) return;
     this.setData({ saving: true });
     wx.showLoading({ title: "保存草稿..." });
     try {
+      const db = getDb();
+      const helper = getHelper();
       await db.updateDraftGrouping(this.data.matchId, this.buildGroupingPayload());
       wx.hideLoading();
       wx.showToast({ title: "草稿已保存", icon: "success" });
@@ -222,10 +334,11 @@ Page({
     }
   },
 
-  async onFinalize() {
+  async onFinalize(): Promise<void> {
     if (this.isGroupingLocked()) return;
+    const helper = getHelper();
     const check = helper.validateGrouping(this.data.selectedPlayerIds, {
-      teams: (this.data.teamGroups || []).map((group) => ({
+      teams: (this.data.teamGroups || []).map((group: TeamGroup) => ({
         teamName: group.teamName,
         playerIds: group.playerIds || []
       }))
@@ -235,11 +348,11 @@ Page({
       return;
     }
 
-    const confirm = await new Promise((resolve) => {
+    const confirm = await new Promise<boolean>((resolve) => {
       wx.showModal({
         title: "完成分组",
         content: "保存后分组将不可修改，是否继续？",
-        success: (res) => resolve(!!res.confirm),
+        success: (res: WechatMiniprogram.ShowModalSuccessCallbackResult) => resolve(!!res.confirm),
         fail: () => resolve(false)
       });
     });
@@ -248,7 +361,7 @@ Page({
     this.setData({ saving: true });
     wx.showLoading({ title: "正在完成..." });
     try {
-      await db.finalizeMatchGrouping(this.data.matchId, this.buildGroupingPayload());
+      await getDb().finalizeMatchGrouping(this.data.matchId, this.buildGroupingPayload());
       wx.hideLoading();
       wx.showToast({ title: "分组已完成", icon: "success" });
       setTimeout(() => {
@@ -263,3 +376,5 @@ Page({
     }
   }
 });
+
+export {};

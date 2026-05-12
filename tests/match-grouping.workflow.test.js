@@ -20,6 +20,7 @@ function applySetData(target, patch) {
 function loadPage(relativePath, { wxMock } = {}) {
   jest.resetModules();
   let pageConfig = null;
+  let loadError = null;
   global.wx = wxMock || {
     showToast: jest.fn(),
     showLoading: jest.fn(),
@@ -31,7 +32,19 @@ function loadPage(relativePath, { wxMock } = {}) {
     pageConfig = config;
     return config;
   };
-  require(path.resolve(__dirname, "..", relativePath));
+  try {
+    jest.isolateModules(() => {
+      require(path.resolve(__dirname, "..", relativePath));
+    });
+  } catch (error) {
+    loadError = error;
+  }
+  if (loadError) {
+    const err = loadError instanceof Error ? loadError : new Error(String(loadError));
+    err.message = `Page module load failed: ${relativePath}\n${err.message}`;
+    throw err;
+  }
+  if (!pageConfig) throw new Error(`Page load failed: ${relativePath}`);
   const page = {
     data: JSON.parse(JSON.stringify(pageConfig.data || {})),
     setData(next) {
@@ -139,7 +152,7 @@ describe("match grouping workflow", () => {
   });
 
   test("create page blocks grouping when selected players < 4", async () => {
-    const { page, wxMock } = loadPage("miniprogram/pages/match/create/create.js");
+    const { page, wxMock } = loadPage("miniprogram/pages/match/create/create.ts");
     page.setData({
       form: { ...page.data.form, teamNames: ["A队", "B队"], matchDate: "2026-01-01" },
       selectedPlayerIds: ["p1", "p2", "p3"]
@@ -150,7 +163,7 @@ describe("match grouping workflow", () => {
   });
 
   test("grouping page payload syncs playerStats with selected players", () => {
-    const { page } = loadPage("miniprogram/pages/match/grouping/grouping.js");
+    const { page } = loadPage("miniprogram/pages/match/grouping/grouping.ts");
     page.setData({
       players: [
         { playerId: "p1", displayNickname: "A", displayPosition: "PG" },
