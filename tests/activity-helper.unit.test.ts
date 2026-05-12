@@ -1,4 +1,8 @@
-const helper = require("../miniprogram/utils/activity-helper");
+import helper = require("../miniprogram/utils/activity-helper");
+
+type ValidateActivityFormInput = Parameters<typeof helper.validateActivityForm>[0];
+type PrepareActivityForSaveInput = Parameters<typeof helper.prepareActivityForSave>[0];
+type PrepareActivityForSaveExtra = Parameters<typeof helper.prepareActivityForSave>[1];
 
 describe("activity helper", () => {
   test("creates default activity form with three teams", () => {
@@ -10,33 +14,36 @@ describe("activity helper", () => {
   });
 
   test("validates core form rules", () => {
-    expect(helper.validateActivityForm({
+    const emptyTitleForm: ValidateActivityFormInput = {
       title: "",
       activityDate: "2026-06-28",
       startTime: "19:00",
       endTime: "22:00",
       teamNames: ["白队", "黑队", "红队"]
-    })).toBe("请输入活动名称");
+    };
+    expect(helper.validateActivityForm(emptyTitleForm)).toBe("请输入活动名称");
 
-    expect(helper.validateActivityForm({
+    const invalidTimeForm: ValidateActivityFormInput = {
       title: "活动",
       activityDate: "2026-06-28",
       startTime: "20:00",
       endTime: "19:00",
       teamNames: ["白队", "黑队", "红队"]
-    })).toBe("结束时间需晚于开始时间");
+    };
+    expect(helper.validateActivityForm(invalidTimeForm)).toBe("结束时间需晚于开始时间");
 
-    expect(helper.validateActivityForm({
+    const duplicateTeamNamesForm: ValidateActivityFormInput = {
       title: "活动",
       activityDate: "2026-06-28",
       startTime: "19:00",
       endTime: "22:00",
       teamNames: ["白队", "白队", "红队"]
-    })).toBe("队伍名称不能重复");
+    };
+    expect(helper.validateActivityForm(duplicateTeamNamesForm)).toBe("队伍名称不能重复");
   });
 
   test("prepares payload with normalized team names and grouping snapshot", () => {
-    const payload = helper.prepareActivityForSave({
+    const form: PrepareActivityForSaveInput = {
       title: " 6月底活动 ",
       activityDate: "2026-06-28",
       startTime: "19:00",
@@ -44,7 +51,9 @@ describe("activity helper", () => {
       location: " 1号场 ",
       teamNames: [" 白队 ", "黑队", " 红队 "],
       registrationDeadline: "2026-06-28 18:00"
-    }, { status: "registration_open" });
+    };
+    const extraData: PrepareActivityForSaveExtra = { status: "registration_open" };
+    const payload = helper.prepareActivityForSave(form, extraData);
 
     expect(payload.title).toBe("6月底活动");
     expect(payload.location).toBe("1号场");
@@ -58,16 +67,18 @@ describe("activity helper", () => {
   });
 
   test("builds and validates three-team grouping snapshots", () => {
+    const selectedPlayerIds: string[] = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const groups: string[][] = [["p1", "p2"], ["p3", "p4"], ["p5", "p6"]];
     const snapshot = helper.buildActivityGroupingPayload(
       ["白队", "黑队", "红队"],
-      ["p1", "p2", "p3", "p4", "p5", "p6"],
-      [["p1", "p2"], ["p3", "p4"], ["p5", "p6"]],
+      selectedPlayerIds,
+      groups,
       2
     );
     expect(snapshot.version).toBe(2);
     expect(snapshot.teams).toHaveLength(3);
 
-    const pass = helper.validateActivityGrouping(["p1", "p2", "p3", "p4", "p5", "p6"], snapshot);
+    const pass = helper.validateActivityGrouping(selectedPlayerIds, snapshot);
     expect(pass.ok).toBe(true);
 
     const fail = helper.validateActivityGrouping(["p1", "p2", "p3"], {

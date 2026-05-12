@@ -1,4 +1,6 @@
-const helper = require("../miniprogram/utils/match-helper");
+import helper = require("../miniprogram/utils/match-helper");
+
+type PrepareMatchForSaveInput = Parameters<typeof helper.prepareMatchForSave>[0];
 
 describe("match-helper", () => {
   test("calcFgPct handles divide-by-zero", () => {
@@ -7,7 +9,7 @@ describe("match-helper", () => {
   });
 
   test("prepareMatchForSave calculates result and percentages", () => {
-    const payload = helper.prepareMatchForSave({
+    const matchData: PrepareMatchForSaveInput = {
       scoreUs: 68,
       scoreOpponent: 55,
       quarters: [{ quarter: 1, scoreUs: 18, scoreOpponent: 12 }],
@@ -32,11 +34,12 @@ describe("match-helper", () => {
           ftAttempted: 4
         }
       ]
-    });
+    };
+    const payload = helper.prepareMatchForSave(matchData);
 
     expect(payload.result).toBe("win");
-    expect(payload.playerStats[0].fgPct).toBe(66.7);
-    expect(payload.playerStats[0].threePtPct).toBe(33.3);
-    expect(payload.playerStats[0].ftPct).toBe(50);
+    expect(payload.playerStats?.[0].fgPct).toBe(66.7);
+    expect(payload.playerStats?.[0].threePtPct).toBe(33.3);
+    expect(payload.playerStats?.[0].ftPct).toBe(50);
   });
 });
