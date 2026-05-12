@@ -1,11 +1,22 @@
+/// <reference path="../../../../typings/index.d.ts" />
+
 const db = wx.cloud.database();
-const { getCollection } = require('../../../config/env');
+const env = require("../../../config/env");
+const { getCollection } = env;
+
 const COLLECTION_MISSING_CODE = -502005;
 
-function isCollectionMissing(error) {
+function isCollectionMissing(error: any): boolean {
   if (!error) return false;
   const message = String(error.message || error.errMsg || "");
   return Number(error.errCode) === COLLECTION_MISSING_CODE || message.includes("DATABASE_COLLECTION_NOT_EXIST");
+}
+
+interface ListData {
+  loading: boolean;
+  players: any[];
+  collectionMissingNotified: boolean;
+  userAvatar: string;
 }
 
 Page({
@@ -14,7 +25,7 @@ Page({
     players: [],
     collectionMissingNotified: false,
     userAvatar: ""
-  },
+  } as ListData,
 
   onShow() {
     this.loadPlayers();
@@ -29,7 +40,7 @@ Page({
     this.setData({ loading: true });
     try {
       const res = await db.collection(getCollection("players")).orderBy("createdAt", "desc").get();
-      const players = (res.data || []).map((item) => ({
+      const players = (res.data || []).map((item: any) => ({
         ...item,
         displayNickname: item.nickname || item.name || "未命名球员",
         displayRealName: item.realName || "-",
@@ -66,7 +77,7 @@ Page({
     });
   },
 
-  goToDetail(e) {
+  goToDetail(e: WechatMiniprogram.BaseEvent) {
     const { id } = e.currentTarget.dataset;
     if (!id) return;
     wx.navigateTo({
@@ -75,7 +86,7 @@ Page({
   },
 
   loadUserAvatar() {
-    var app = getApp();
+    const app = getApp();
     if (app.globalData.userInfo && app.globalData.userInfo.avatarUrl) {
       this.setData({ userAvatar: app.globalData.userInfo.avatarUrl });
     }
@@ -87,3 +98,5 @@ Page({
     });
   }
 });
+
+export {};

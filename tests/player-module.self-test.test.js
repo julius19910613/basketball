@@ -182,7 +182,7 @@ describe("player module self-check", () => {
     const dbMock = {
       collection: () => ({ orderBy: () => ({ get: getMock }) })
     };
-    const { page } = loadPage("miniprogram/pages/players/list/list.js", { dbMock });
+    const { page } = loadPage("miniprogram/pages/players/list/list.ts", { dbMock });
     await page.loadPlayers();
 
     debugLog("H3", "player-module.self-test.test.js:list", "list mapped result", {
