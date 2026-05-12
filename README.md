@@ -97,7 +97,7 @@ basketball/
 └── DEPLOYMENT.md               # 部署指南
 ```
 
-页面逻辑入口统一使用 TypeScript，例如 `miniprogram/pages/players/detail/detail.ts`。
+页面逻辑入口统一使用 TypeScript，例如 `miniprogram/pages/activity/list/list.ts` 与 `miniprogram/pages/players/detail/detail.ts`。
 
 ## 快速开始
 
