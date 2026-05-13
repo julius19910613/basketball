@@ -4,24 +4,128 @@
  *
  * 使用方式：
  * 1. 确保 .env 文件包含 CLOUDBASE_ENV_ID, CLOUDBASE_SECRET_ID, CLOUDBASE_SECRET_KEY
- * 2. 运行：node scripts/seed-match.js
+ * 2. 运行：npx ts-node --project tsconfig.scripts.json scripts/seed-match.ts
  */
 
-const https = require('https');
-const crypto = require('crypto');
+import crypto from 'crypto';
+import fs from 'fs';
+import https from 'https';
 
 // ============ 配置 ============
-const ENV_ID = process.env.CLOUDBASE_ENV_ID || 'fanchen-2gkerrmcf3aee832';
-const SECRET_ID = process.env.CLOUDBASE_SECRET_ID || '';
-const SECRET_KEY = process.env.CLOUDBASE_SECRET_KEY || '';
+const ENV_ID: string = process.env.CLOUDBASE_ENV_ID || 'fanchen-2gkerrmcf3aee832';
+const SECRET_ID: string = process.env.CLOUDBASE_SECRET_ID || '';
+const SECRET_KEY: string = process.env.CLOUDBASE_SECRET_KEY || '';
+
+type MatchResult = 'win' | 'loss' | 'draw';
+
+interface AccessToken {
+  timestamp: number;
+  nonce: number;
+  signature: string;
+}
+
+interface CloudbaseRequestData {
+  [key: string]: unknown;
+}
+
+interface CloudbaseRequestResponse {
+  status: 'ok';
+}
+
+interface QuarterScore {
+  quarter: number;
+  scoreUs: number;
+  scoreOpponent: number;
+}
+
+interface PlayerStat {
+  playerId: string;
+  nickname: string;
+  position: string;
+  played: boolean;
+  points: number;
+  rebounds: number;
+  assists: number;
+  steals: number;
+  blocks: number;
+  turnovers: number;
+  fouls: number;
+  shotsMade: number;
+  shotsAttempted: number;
+  threePtMade: number;
+  threePtAttempted: number;
+  ftMade: number;
+  ftAttempted: number;
+  fgPct: number;
+  threePtPct: number;
+  ftPct: number;
+}
+
+interface MatchData {
+  teamId: string;
+  teamNames: [string, string];
+  matchDate: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+  matchType: string;
+  status: string;
+  isGroupingLocked: boolean;
+  selectedPlayerIds: string[];
+  grouping: {
+    teams: Array<{
+      teamName: string;
+      playerIds: string[];
+    }>;
+    lockedAt: string;
+  };
+  scoreUs: number;
+  scoreOpponent: number;
+  quarters: QuarterScore[];
+  playerStats: PlayerStat[];
+  highlights: string;
+  result: MatchResult;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface PlayerMatchStat {
+  matchId: string;
+  playerId: string;
+  nickname: string;
+  position: string;
+  points: number;
+  rebounds: number;
+  assists: number;
+  steals: number;
+  blocks: number;
+  turnovers: number;
+  fouls: number;
+  shotsMade: number;
+  shotsAttempted: number;
+  threePtMade: number;
+  threePtAttempted: number;
+  ftMade: number;
+  ftAttempted: number;
+  fgPct: number;
+  result: MatchResult;
+  matchDate: string;
+  createdAt: string;
+}
+
+interface SeedOutput {
+  match: MatchData;
+  playerMatchStats: PlayerMatchStat[];
+  importInstructions: string[];
+}
 
 // ============ CloudBase API Helper ============
 
-function sha1(str) {
+function sha1(str: string): string {
   return crypto.createHash('sha1').update(str).digest('hex');
 }
 
-async function getAccessToken() {
+async function getAccessToken(): Promise<AccessToken> {
   if (!SECRET_ID || !SECRET_KEY) {
     throw new Error('缺少 CLOUDBASE_SECRET_ID 或 CLOUDBASE_SECRET_KEY');
   }
@@ -34,7 +138,10 @@ async function getAccessToken() {
   return { timestamp, nonce, signature };
 }
 
-async function cloudbaseRequest(action, data) {
+async function cloudbaseRequest(
+  action: string,
+  data: CloudbaseRequestData
+): Promise<CloudbaseRequestResponse> {
   const { timestamp, nonce, signature } = await getAccessToken();
 
   const payload = JSON.stringify({
@@ -47,8 +154,14 @@ async function cloudbaseRequest(action, data) {
   // 使用微信云开发 REST API
   const url = `https://tcb-admin.tencent.com/admin/v2/tcb/${action}?access_token=mock`;
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     // 实际使用时替换为正确的 API
+    void https;
+    void timestamp;
+    void nonce;
+    void signature;
+    void body;
+    void url;
     console.log('Request:', action, payload);
     resolve({ status: 'ok' });
   });
@@ -56,7 +169,7 @@ async function cloudbaseRequest(action, data) {
 
 // ============ 查询现有球员 ============
 
-async function queryPlayers() {
+async function queryPlayers(): Promise<void> {
   console.log('\n📋 查询现有球员...\n');
   console.log('提示：请在微信开发者工具中手动查询 players 集合，');
   console.log('或者在 CloudBase 控制台中查看球员列表，记录 playerId 备用。\n');
@@ -64,18 +177,20 @@ async function queryPlayers() {
 
   // 输出示例数据结构（playerId 留空待填）
   console.log('========== 示例 playerStats 结构 ==========');
-  console.log(JSON.stringify(generateMatchData(['<替换为球员A的ID>', '<替换为球员B的ID>']), null, 2));
+  console.log(
+    JSON.stringify(generateMatchData(['<替换为球员A的ID>', '<替换为球员B的ID>']), null, 2)
+  );
 }
 
 // ============ 生成比赛数据 ============
 
-function calcFgPct(made, attempted) {
+function calcFgPct(made: number, attempted: number): number {
   const a = Number(attempted) || 0;
   if (!a) return 0;
   return Math.round((Number(made) / a) * 1000) / 10;
 }
 
-function generateMatchData(playerIds) {
+function generateMatchData(playerIds: string[]): MatchData {
   if (playerIds.length < 4) {
     throw new Error('至少需要 4 名球员 ID');
   }
@@ -85,7 +200,7 @@ function generateMatchData(playerIds) {
   const teamB = playerIds.slice(Math.ceil(playerIds.length / 2));
 
   // 每节比分（模拟真实比赛，总分约 80-100）
-  const quarters = [
+  const quarters: QuarterScore[] = [
     { quarter: 1, scoreUs: 22, scoreOpponent: 18 },
     { quarter: 2, scoreUs: 20, scoreOpponent: 24 },
     { quarter: 3, scoreUs: 18, scoreOpponent: 22 },
@@ -94,10 +209,10 @@ function generateMatchData(playerIds) {
 
   const scoreUs = quarters.reduce((s, q) => s + q.scoreUs, 0);
   const scoreOpponent = quarters.reduce((s, q) => s + q.scoreOpponent, 0);
-  const result = scoreUs > scoreOpponent ? 'win' : scoreUs < scoreOpponent ? 'loss' : 'draw';
+  const result: MatchResult = scoreUs > scoreOpponent ? 'win' : scoreUs < scoreOpponent ? 'loss' : 'draw';
 
   // 球员数据（按 teamA 的 5 人生成）
-  const playerStats = teamA.map((playerId, i) => {
+  const playerStats: PlayerStat[] = teamA.map((playerId, i) => {
     const points = [18, 14, 12, 10, 8][i] || 6;
     const rebounds = [8, 6, 5, 4, 3][i] || 2;
     const assists = [4, 5, 3, 2, 3][i] || 1;
@@ -168,7 +283,7 @@ function generateMatchData(playerIds) {
 
 // ============ 主程序 ============
 
-async function main() {
+async function main(): Promise<void> {
   console.log('🏀 Basketball 小程序 — 比赛数据导入工具\n');
   console.log(`CloudBase 环境：${ENV_ID}\n`);
 
@@ -186,7 +301,9 @@ async function main() {
   if (!hasRealIds) {
     console.log('⚠️  未提供球员 ID，使用占位符生成模板\n');
     console.log('请先查询 players 集合获取真实 ID，再重新运行：');
-    console.log('  node scripts/seed-match.js <id1> <id2> <id3> <id4> <id5> <id6>\n');
+    console.log(
+      '  npx ts-node --project tsconfig.scripts.json scripts/seed-match.ts <id1> <id2> <id3> <id4> <id5> <id6>\n'
+    );
   }
 
   console.log(`使用 ${playerIds.length} 名球员生成比赛数据...\n`);
@@ -205,7 +322,7 @@ async function main() {
 
     // 同时生成 player_match_stats 数据
     console.log('========== player_match_stats 数据（每人一条）==========');
-    const statsData = matchData.playerStats.map((stat) => ({
+    const statsData: PlayerMatchStat[] = matchData.playerStats.map((stat) => ({
       matchId: '<导入后复制的match记录_id>',
       playerId: stat.playerId,
       nickname: stat.nickname,
@@ -232,8 +349,7 @@ async function main() {
     console.log(JSON.stringify(statsData, null, 2));
 
     // 保存到文件
-    const fs = require('fs');
-    const output = {
+    const output: SeedOutput = {
       match: matchData,
       playerMatchStats: statsData,
       importInstructions: [
@@ -248,11 +364,14 @@ async function main() {
 
     fs.writeFileSync('./seed-output.json', JSON.stringify(output, null, 2));
     console.log('\n✅ 数据已保存到 ./seed-output.json');
-
   } catch (err) {
-    console.error('❌ 错误：', err.message);
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('❌ 错误：', message);
     process.exit(1);
   }
 }
 
-main();
+void cloudbaseRequest;
+void queryPlayers;
+
+void main();
