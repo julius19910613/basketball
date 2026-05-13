@@ -120,7 +120,7 @@ WeChat Mini Program for basketball team management, built on Tencent CloudBase.
 - `miniprogram/app.ts` — CloudBase init, global lifecycle
 - `miniprogram/app.json` — Page routing, tab bar, window config
 - `miniprogram/app.wxss` — Global styles
-- `cloudfunctions/getOpenId/index.js` — OpenID retrieval
+- `cloudfunctions/getOpenId/index.ts` — OpenID retrieval
 - `project.config.json` — WeChat project settings (appid: `wxe8d95bf55ebc2ae7`)
 
 ## Documentation

@@ -160,7 +160,7 @@ wx.cloud.init({
 
 ### 5. 部署云函数
 
-在微信开发者工具中右键 `cloudfunctions/getOpenId` → **上传并部署：云端安装依赖**。
+在微信开发者工具中右键 `cloudfunctions/getOpenId`（入口：`index.ts`）→ **上传并部署：云端安装依赖**。
 
 ## 测试
 
