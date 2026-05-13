@@ -3,7 +3,47 @@
  * 用于随机分组功能开发测试
  */
 
-const mockGroupHistory = [
+interface GroupTeamData {
+  name: string;
+  players: string[];
+  avgLevel: number;
+}
+
+interface GroupRecordBase {
+  _id: string;
+  createTime: string;
+  playerCount: number;
+  groupCount: number;
+}
+
+interface GroupRecordInput {
+  playerCount: number;
+  groupCount: number;
+  [key: string]: unknown;
+}
+
+interface GroupRecord extends GroupRecordBase {
+  [key: string]: unknown;
+}
+
+interface PlayerLike {
+  _id: string;
+  [key: string]: unknown;
+}
+
+interface DisplayTeam {
+  name: string;
+  players: PlayerLike[];
+  avgLevel: number;
+}
+
+interface DisplayGroup {
+  _id: string;
+  createTime: string;
+  teams: DisplayTeam[];
+}
+
+const mockGroupHistory: GroupRecord[] = [
   {
     _id: 'g1',
     createTime: '2024-05-20 14:30:00',
@@ -63,7 +103,7 @@ const mockGroupHistory = [
  * 获取所有分组历史
  * @returns {Array} 分组历史列表
  */
-function getGroupHistory() {
+function getGroupHistory(): GroupRecord[] {
   return mockGroupHistory
 }
 
@@ -72,8 +112,8 @@ function getGroupHistory() {
  * @param {string} groupId 分组 ID
  * @returns {Object|null} 分组详情
  */
-function getGroupById(groupId) {
-  return mockGroupHistory.find(g => g._id === groupId) || null
+function getGroupById(groupId: string): GroupRecord | null {
+  return mockGroupHistory.find((g: GroupRecord) => g._id === groupId) || null
 }
 
 /**
@@ -81,8 +121,8 @@ function getGroupById(groupId) {
  * @param {Object} groupData 分组数据
  * @returns {Object} 新增的分组记录
  */
-function addGroupRecord(groupData) {
-  const newGroup = {
+function addGroupRecord(groupData: GroupRecordInput): GroupRecord {
+  const newGroup: GroupRecord = {
     _id: `g${mockGroupHistory.length + 1}`,
     createTime: new Date().toLocaleString('zh-CN', {
       year: 'numeric',
@@ -104,34 +144,38 @@ function addGroupRecord(groupData) {
  * @param {Array} players 所有球员数据
  * @returns {Object} 格式化后的分组数据
  */
-function formatGroupForDisplay(group, players) {
-  const result = {
+function formatGroupForDisplay(group: GroupRecord, players: PlayerLike[]): DisplayGroup {
+  const result: DisplayGroup = {
     _id: group._id,
     createTime: group.createTime,
     teams: []
   }
-  
+
   // 处理每个队伍
-  const teamKeys = Object.keys(group).filter(key => key.startsWith('team'))
-  
-  teamKeys.forEach(key => {
-    const team = group[key]
-    const teamPlayers = team.players.map(playerId => {
-      const player = players.find(p => p._id === playerId)
+  const teamKeys = Object.keys(group).filter((key: string) => key.startsWith('team'))
+
+  teamKeys.forEach((key: string) => {
+    const team = group[key] as GroupTeamData | undefined
+    if (!team) {
+      return
+    }
+
+    const teamPlayers = team.players.map((playerId: string) => {
+      const player = players.find((p: PlayerLike) => p._id === playerId)
       return player ? { ...player } : null
-    }).filter(p => p !== null)
-    
+    }).filter((p: PlayerLike | null): p is PlayerLike => p !== null)
+
     result.teams.push({
       name: team.name,
       players: teamPlayers,
       avgLevel: team.avgLevel
     })
   })
-  
+
   return result
 }
 
-module.exports = {
+export = {
   mockGroupHistory,
   getGroupHistory,
   getGroupById,

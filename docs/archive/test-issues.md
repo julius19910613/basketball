@@ -21,8 +21,8 @@
 | 模块 | 状态 |
 |------|------|
 | utils/mock/mock-players.js | ✅ 通过 |
-| utils/mock/mock-groups.js | ✅ 通过 |
-| utils/mock/index.js | ✅ 通过 |
+| utils/mock/mock-groups.ts | ✅ 通过 |
+| utils/mock/index.ts | ✅ 通过 |
 | utils/group-algorithm.js | ✅ 通过 |
 
 ### 1.3 页面注册检查
