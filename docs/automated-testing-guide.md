@@ -14,7 +14,7 @@ npm install --save-dev miniprogram-automator
 
 3. **确认 CLI 路径**（MacOS 通常无需配置）
    - 默认路径：`/Applications/wechatwebdevtools.app/Contents/MacOS/cli`
-   - 如需修改，编辑 `e2e/phase01.test.js` 中的 `cliPath`
+   - 如需修改，编辑 `e2e/phase01.test.ts`
 
 ## 运行测试
 
@@ -40,7 +40,7 @@ npx jest --config jest.page.config.ts tests/match-grouping.workflow.test
 
 ### 方式4：运行单个测试用例
 ```bash
-npx jest e2e/phase01.test.js -t "Overall V2 算法应该正确计算"
+npx jest e2e/phase01.test -t "Overall V2 算法应该正确计算"
 ```
 
 ## 测试分层
