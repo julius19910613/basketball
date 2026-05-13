@@ -1,15 +1,43 @@
-const path = require("path");
+import path = require("path");
 
-function applySetData(target, patch) {
-  Object.keys(patch).forEach((key) => {
+type DataRecord = Record<string, any>;
+type MockFunction = jest.Mock<any, any[]>;
+
+interface PageConfig extends DataRecord {
+  data?: DataRecord;
+}
+
+interface PageInstance extends DataRecord {
+  data: DataRecord;
+  setData(next: DataRecord): void;
+}
+
+interface WxMock {
+  cloud: {
+    database: MockFunction;
+  };
+  showToast: MockFunction;
+  showLoading: MockFunction;
+  hideLoading: MockFunction;
+  redirectTo: MockFunction;
+  navigateBack: MockFunction;
+}
+
+interface LoadPageResult {
+  page: PageInstance;
+  wxMock: WxMock;
+}
+
+function applySetData(target: DataRecord, patch: DataRecord): void {
+  Object.keys(patch).forEach((key: string) => {
     if (!key.includes(".")) {
       target[key] = patch[key];
       return;
     }
-    const segments = key.split(".");
-    let cursor = target;
+    const segments: string[] = key.split(".");
+    let cursor: DataRecord = target;
     for (let i = 0; i < segments.length - 1; i += 1) {
-      const seg = segments[i];
+      const seg: string = segments[i];
       cursor[seg] = cursor[seg] || {};
       cursor = cursor[seg];
     }
@@ -17,11 +45,16 @@ function applySetData(target, patch) {
   });
 }
 
-function loadPage(relativePath) {
+function loadPage(relativePath: string): LoadPageResult {
   jest.resetModules();
-  let pageConfig = null;
-  let loadError = null;
-  global.wx = {
+  let pageConfig: PageConfig | null = null;
+  let loadError: unknown = null;
+  const globalScope = global as typeof globalThis & {
+    wx?: WxMock;
+    Page?: (config: PageConfig) => PageConfig;
+  };
+
+  globalScope.wx = {
     cloud: {
       database: jest.fn(() => ({
         collection: jest.fn(() => ({
@@ -37,7 +70,7 @@ function loadPage(relativePath) {
     redirectTo: jest.fn(),
     navigateBack: jest.fn()
   };
-  global.Page = (config) => {
+  globalScope.Page = (config: PageConfig): PageConfig => {
     pageConfig = config;
     return config;
   };
@@ -56,22 +89,28 @@ function loadPage(relativePath) {
     throw error;
   }
 
-  if (!pageConfig) throw new Error(`Page load failed: ${relativePath}`);
+  if (!pageConfig) {
+    throw new Error(`Page load failed: ${relativePath}`);
+  }
 
-  const page = {
-    data: JSON.parse(JSON.stringify(pageConfig.data || {})),
-    setData(next) {
+  const page: PageInstance = {
+    data: JSON.parse(JSON.stringify(pageConfig.data || {})) as DataRecord,
+    setData(next: DataRecord): void {
       applySetData(this.data, next);
     }
   };
-  Object.keys(pageConfig).forEach((key) => {
-    if (typeof pageConfig[key] === "function") page[key] = pageConfig[key].bind(page);
+  Object.keys(pageConfig).forEach((key: string) => {
+    if (typeof pageConfig[key] === "function") {
+      page[key] = (pageConfig[key] as Function).bind(page);
+    } else if (key !== "data") {
+      page[key] = pageConfig[key];
+    }
   });
-  return { page, wxMock: global.wx };
+  return { page, wxMock: globalScope.wx };
 }
 
-describe("activity grouping page", () => {
-  test("builds grouping snapshot from current team groups", () => {
+describe("activity grouping page", (): void => {
+  test("builds grouping snapshot from current team groups", (): void => {
     const { page } = loadPage("miniprogram/pages/activity/grouping/grouping.ts");
     page.setData({
       activity: {
@@ -98,7 +137,7 @@ describe("activity grouping page", () => {
     });
   });
 
-  test("auto balance splits six players across three groups", () => {
+  test("auto balance splits six players across three groups", (): void => {
     const { page } = loadPage("miniprogram/pages/activity/grouping/grouping.ts");
     page.setData({
       players: [
@@ -118,8 +157,14 @@ describe("activity grouping page", () => {
     });
 
     page.onAutoBalance();
-    const total = page.data.teamGroups.reduce((sum, item) => sum + item.playerIds.length, 0);
-    const overlap = page.data.teamGroups[0].playerIds.filter((id) => page.data.teamGroups[1].playerIds.includes(id) || page.data.teamGroups[2].playerIds.includes(id));
+    const total: number = page.data.teamGroups.reduce(
+      (sum: number, item: { playerIds: string[] }) => sum + item.playerIds.length,
+      0
+    );
+    const overlap: string[] = page.data.teamGroups[0].playerIds.filter(
+      (id: string) =>
+        page.data.teamGroups[1].playerIds.includes(id) || page.data.teamGroups[2].playerIds.includes(id)
+    );
     expect(total).toBe(6);
     expect(overlap).toHaveLength(0);
   });
