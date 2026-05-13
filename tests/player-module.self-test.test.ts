@@ -1,14 +1,66 @@
-const path = require("path");
-const http = require("http");
-const https = require("https");
-const { URL } = require("url");
+import * as http from "http";
+import * as https from "https";
+import * as path from "path";
+import { URL } from "url";
+
+type AnyRecord = Record<string, any>;
+
+type FetchOptions = {
+  method?: string;
+  headers?: Record<string, string>;
+  body?: string;
+};
+
+type FetchResponse = {
+  ok: boolean;
+  status: number;
+};
+
+type FetchLike = (url: string, options?: FetchOptions) => Promise<FetchResponse>;
+
+type PageConfig = AnyRecord & {
+  data?: AnyRecord;
+};
+
+type PageInstance = AnyRecord & {
+  data: AnyRecord;
+  setData: (next: AnyRecord) => void;
+};
+
+type WxMock = {
+  cloud: {
+    database: () => AnyRecord;
+  };
+  showToast: jest.Mock;
+  showLoading: jest.Mock;
+  hideLoading: jest.Mock;
+  navigateBack: jest.Mock;
+  navigateTo: jest.Mock;
+  stopPullDownRefresh: jest.Mock;
+};
+
+type LoadPageOptions = {
+  dbMock?: AnyRecord;
+};
+
+type TestGlobal = typeof globalThis & {
+  wx?: WxMock;
+  Page?: (config: PageConfig) => PageConfig;
+};
+
+const testGlobal = global as TestGlobal;
+const fetchContainer = global as typeof globalThis & { fetch?: unknown };
+
+function getFetch(): FetchLike | undefined {
+  return typeof fetchContainer.fetch === "function" ? (fetchContainer.fetch as FetchLike) : undefined;
+}
 
 const DEBUG_ENDPOINT = "http://127.0.0.1:7833/ingest/7901a233-946d-4c78-a131-c48434f5c472";
 const DEBUG_SESSION = "d74edc";
 const DEBUG_RUN_ID = "self-test-v1";
 
-if (typeof fetch !== "function") {
-  global.fetch = function (url, options = {}) {
+if (typeof fetchContainer.fetch !== "function") {
+  (fetchContainer as any).fetch = function (url: string, options: FetchOptions = {}): Promise<FetchResponse> {
     return new Promise((resolve, reject) => {
       const parsed = new URL(url);
       const lib = parsed.protocol === "https:" ? https : http;
@@ -20,7 +72,12 @@ if (typeof fetch !== "function") {
         },
         (res) => {
           res.on("data", () => {});
-          res.on("end", () => resolve({ ok: res.statusCode >= 200 && res.statusCode < 300, status: res.statusCode }));
+          res.on("end", () =>
+            resolve({
+              ok: (res.statusCode ?? 0) >= 200 && (res.statusCode ?? 0) < 300,
+              status: res.statusCode ?? 0
+            })
+          );
         }
       );
       req.on("error", reject);
@@ -30,10 +87,10 @@ if (typeof fetch !== "function") {
   };
 }
 
-function debugLog(hypothesisId, location, message, data = {}) {
+function debugLog(hypothesisId: string, location: string, message: string, data: AnyRecord = {}): void {
   // #region agent log
-  typeof fetch === "function" &&
-    fetch(DEBUG_ENDPOINT, {
+  getFetch() &&
+    getFetch()!(DEBUG_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Debug-Session-Id": DEBUG_SESSION },
       body: JSON.stringify({
@@ -49,7 +106,7 @@ function debugLog(hypothesisId, location, message, data = {}) {
   // #endregion
 }
 
-function applySetData(target, patch) {
+function applySetData(target: AnyRecord, patch: AnyRecord): void {
   Object.keys(patch).forEach((key) => {
     if (!key.includes(".")) {
       target[key] = patch[key];
@@ -66,12 +123,12 @@ function applySetData(target, patch) {
   });
 }
 
-function loadPage(relativePath, options = {}) {
+function loadPage(relativePath: string, options: LoadPageOptions = {}): { page: PageInstance; wxMock: WxMock } {
   jest.resetModules();
-  let pageConfig = null;
-  let loadError = null;
+  let pageConfig: PageConfig | null = null;
+  let loadError: unknown = null;
   const dbMock = options.dbMock || {};
-  const wxMock = {
+  const wxMock: WxMock = {
     cloud: {
       database: () => dbMock
     },
@@ -82,8 +139,8 @@ function loadPage(relativePath, options = {}) {
     navigateTo: jest.fn(),
     stopPullDownRefresh: jest.fn()
   };
-  global.wx = wxMock;
-  global.Page = (config) => {
+  testGlobal.wx = wxMock;
+  testGlobal.Page = (config: PageConfig): PageConfig => {
     pageConfig = config;
     return config;
   };
@@ -104,29 +161,30 @@ function loadPage(relativePath, options = {}) {
 
   if (!pageConfig) throw new Error(`Page load failed: ${relativePath}`);
 
-  const page = {
-    data: JSON.parse(JSON.stringify(pageConfig.data || {})),
-    setData(next) {
+  const page: PageInstance = {
+    data: JSON.parse(JSON.stringify(pageConfig.data || {})) as AnyRecord,
+    setData(next: AnyRecord) {
       applySetData(this.data, next);
     }
   };
 
   Object.keys(pageConfig).forEach((key) => {
-    if (typeof pageConfig[key] === "function") {
-      page[key] = pageConfig[key].bind(page);
+    const value = pageConfig?.[key];
+    if (typeof value === "function") {
+      page[key] = value.bind(page);
     } else if (key !== "data") {
-      page[key] = pageConfig[key];
+      page[key] = value;
     }
   });
 
   return { page, wxMock };
 }
 
-function createPlayerDetailDbMock(playerDoc) {
+function createPlayerDetailDbMock(playerDoc: AnyRecord | null): AnyRecord {
   const playerGetMock = jest.fn().mockResolvedValue({ data: playerDoc });
   const playerMatchStatsGetMock = jest.fn().mockResolvedValue({ data: [] });
   return {
-    collection(name) {
+    collection(name: string) {
       if (name === "players" || name === "dev_players") {
         return {
           doc: () => ({ get: playerGetMock })
@@ -153,7 +211,7 @@ describe("player module self-check", () => {
     const addMock = jest.fn().mockResolvedValue({ _id: "p1" });
     const dbMock = { collection: () => ({ add: addMock }), serverDate: () => "serverDate" };
     const { page } = loadPage("miniprogram/pages/players/create/create.ts", { dbMock });
-    debugLog("H1", "player-module.self-test.test.js:create", "positions snapshot", {
+    debugLog("H1", "player-module.self-test.test.ts:create", "positions snapshot", {
       positions: page.data.positions
     });
     expect(page.data.positions).toEqual(["PG", "SG", "SF", "PF", "C"]);
@@ -173,7 +231,7 @@ describe("player module self-check", () => {
     await page.onSubmit();
 
     const payload = addMock.mock.calls[0][0].data;
-    debugLog("H2", "player-module.self-test.test.js:create", "submit payload", payload);
+    debugLog("H2", "player-module.self-test.test.ts:create", "submit payload", payload);
 
     expect(payload).toMatchObject({
       nickname: "小飞",
@@ -199,7 +257,7 @@ describe("player module self-check", () => {
     const { page } = loadPage("miniprogram/pages/players/list/list.ts", { dbMock });
     await page.loadPlayers();
 
-    debugLog("H3", "player-module.self-test.test.js:list", "list mapped result", {
+    debugLog("H3", "player-module.self-test.test.ts:list", "list mapped result", {
       first: page.data.players[0],
       second: page.data.players[1]
     });
@@ -212,7 +270,7 @@ describe("player module self-check", () => {
     const dbMock = createPlayerDetailDbMock(null);
     const { page } = loadPage("miniprogram/pages/players/detail/detail.ts", { dbMock });
     page.onLoad({});
-    debugLog("H4", "player-module.self-test.test.js:detail", "detail missing id state", {
+    debugLog("H4", "player-module.self-test.test.ts:detail", "detail missing id state", {
       errorMessage: page.data.errorMessage
     });
     expect(page.data.errorMessage).toBe("缺少球员ID");
@@ -231,8 +289,8 @@ describe("player module self-check", () => {
     });
     const { page } = loadPage("miniprogram/pages/players/detail/detail.ts", { dbMock });
     page.onLoad({ id: "p1" });
-    await new Promise((resolve) => setImmediate(resolve));
-    debugLog("H5", "player-module.self-test.test.js:detail", "detail loaded state", {
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    debugLog("H5", "player-module.self-test.test.ts:detail", "detail loaded state", {
       player: page.data.player
     });
 

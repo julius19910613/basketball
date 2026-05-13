@@ -8,7 +8,7 @@
     "test:unit": "jest --config jest.unit.config.ts --runInBand",
     "test:page": "jest --config jest.page.config.ts --runInBand",
     "test:component": "jest --config jest.component.config.ts --runInBand",
-    "test:self": "jest --config jest.page.config.ts tests/player-module.self-test.test.js --runInBand",
+    "test:self": "jest --config jest.page.config.ts tests/player-module.self-test.test.ts --runInBand",
     "test:e2e": "jest --config jest.e2e.config.ts",
     "test:e2e:watch": "jest --config jest.e2e.config.ts --watch",
     "test:ci": "npm run test && npm run test:e2e"
