@@ -4,7 +4,7 @@
     "composite": true,
     "declaration": true,
     "outDir": "./dist/cloudfunctions",
-    "types": ["node"]
+    "types": ["node", "wx-server-sdk"]
   },
   "include": ["cloudfunctions/**/*.ts"],
   "exclude": ["node_modules"]

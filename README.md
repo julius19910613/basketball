@@ -46,7 +46,7 @@
 | UI 组件 | [Vant Weapp](https://vant-ui.github.io/vant-weapp/) |
 | 后端 | 腾讯云 CloudBase（`wx.cloud`） |
 | 数据库 | CloudBase NoSQL 文档数据库 |
-| 云函数 | Node.js（`getOpenId`、`batchImportPlayers`） |
+| 云函数 | Node.js（`getOpenId`、`batchImportPlayers`，入口均为 `index.ts`） |
 | 测试 | Jest（unit / page / component / E2E） |
 
 ## 项目结构
@@ -78,7 +78,7 @@ basketball/
 │   └── styles/                 # 样式文件
 ├── cloudfunctions/             # 云函数
 │   ├── getOpenId/              # OpenID 获取
-│   └── batchImportPlayers/     # 批量导入球员
+│   └── batchImportPlayers/     # 批量导入球员（入口：index.ts）
 ├── scripts/                    # 脚本工具
 │   └── import-players.ts       # 球员数据导入脚本
 ├── tests/                      # Jest 分层测试（unit / page / component）
@@ -160,7 +160,9 @@ wx.cloud.init({
 
 ### 5. 部署云函数
 
-在微信开发者工具中右键 `cloudfunctions/getOpenId`（入口：`index.ts`）→ **上传并部署：云端安装依赖**。
+在微信开发者工具中右键 `cloudfunctions/getOpenId` 或 `cloudfunctions/batchImportPlayers`（入口均为 `index.ts`）→ **上传并部署：云端安装依赖**。
+
+组件交互测试示例：`tests/player-stat-input.component.test.ts`。
 
 ## 测试
 
