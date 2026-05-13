@@ -20,7 +20,7 @@
 
 | 模块 | 状态 |
 |------|------|
-| utils/mock/mock-players.js | ✅ 通过 |
+| utils/mock/mock-players.ts | ✅ 通过 |
 | utils/mock/mock-groups.ts | ✅ 通过 |
 | utils/mock/index.ts | ✅ 通过 |
 | utils/group-algorithm.js | ✅ 通过 |

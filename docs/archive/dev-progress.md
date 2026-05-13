@@ -10,7 +10,7 @@
 
 **完成内容：**
 - 创建 `miniprogram/utils/mock/` 目录
-- 创建 `mock-players.js` - 包含 20 个球员 Mock 数据
+- 创建 `mock-players.ts` - 包含 20 个球员 Mock 数据
   - 5档球员：2人（张伟、李强）
   - 4档球员：4人（王磊、刘洋、陈明、赵鹏）
   - 3档球员：8人（孙浩、周杰、吴涛、郑凯、冯勇、蒋华、沈亮、韩冰）
@@ -164,7 +164,7 @@
 ```
 miniprogram/utils/mock/
 ├── index.ts
-├── mock-players.js
+├── mock-players.ts
 └── mock-groups.ts
 
 miniprogram/utils/

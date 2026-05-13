@@ -9,7 +9,22 @@
  * - 2档：新手球员（6人）
  */
 
-const mockPlayers = [
+type PlayerPosition = 'PG' | 'SG' | 'SF' | 'PF' | 'C'
+type SkillLevel = 2 | 3 | 4 | 5
+
+interface MockPlayer {
+  _id: string;
+  name: string;
+  number: number;
+  position: PlayerPosition;
+  skillLevel: SkillLevel;
+  avatar: string;
+  height: number;
+  weight: number;
+  joinDate: string;
+}
+
+const mockPlayers: MockPlayer[] = [
   // 5档球员 - 2人
   {
     _id: 'p1',
@@ -244,8 +259,8 @@ const mockPlayers = [
  * @param {number} level 档位 2-5
  * @returns {string} 档位描述
  */
-function getLevelDesc(level) {
-  const descMap = {
+function getLevelDesc(level: number): string {
+  const descMap: Record<number, string> = {
     5: '顶级球员',
     4: '优秀球员',
     3: '普通球员',
@@ -259,8 +274,8 @@ function getLevelDesc(level) {
  * @param {number} level 档位 2-5
  * @returns {string} 颜色值
  */
-function getLevelColor(level) {
-  const colorMap = {
+function getLevelColor(level: number): string {
+  const colorMap: Record<number, string> = {
     5: '#FF4D4F', // 红色 - 顶级
     4: '#FA8C16', // 橙色 - 优秀
     3: '#52C41A', // 绿色 - 普通
@@ -274,18 +289,18 @@ function getLevelColor(level) {
  * @param {string} position 位置代码
  * @returns {string} 位置中文名
  */
-function getPositionName(position) {
-  const positionMap = {
-    'PG': '控球后卫',
-    'SG': '得分后卫',
-    'SF': '小前锋',
-    'PF': '大前锋',
-    'C': '中锋'
+function getPositionName(position: string): string {
+  const positionMap: Record<string, string> = {
+    PG: '控球后卫',
+    SG: '得分后卫',
+    SF: '小前锋',
+    PF: '大前锋',
+    C: '中锋'
   }
   return positionMap[position] || position
 }
 
-module.exports = {
+export = {
   mockPlayers,
   getLevelDesc,
   getLevelColor,
