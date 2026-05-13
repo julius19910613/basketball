@@ -8,7 +8,16 @@
  * 云函数名: batchImportPlayers
  */
 
-const players = [
+type PlayerPosition = 'G' | 'F' | 'C'
+
+type PlayerImportRecord = {
+  nickname: string
+  position: PlayerPosition
+  height?: number
+  weight?: number
+}
+
+const players: PlayerImportRecord[] = [
   { nickname: "抓奶可", position: "G", height: 183, weight: 77 },
   { nickname: "无敌詹蜜文", position: "G", height: 178, weight: 83 },
   { nickname: "大哥", position: "C", height: 187, weight: 82 },
@@ -28,7 +37,7 @@ const players = [
   { nickname: "党企代表要生三", position: "F", height: 184, weight: 77 },
   { nickname: "黑老王", position: "F", height: 180, weight: 82 },
   { nickname: "Dao小帅", position: "F" }
-];
+]
 
 // === 调用方式 ===
 
@@ -42,4 +51,4 @@ const players = [
 
 // 方式2：云开发控制台测试
 // 在 batchImportPlayers 云函数的测试面板中，输入以下 JSON 作为测试参数：
-console.log(JSON.stringify({ players: players }, null, 2));
+console.log(JSON.stringify({ players: players }, null, 2))

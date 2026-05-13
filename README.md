@@ -80,7 +80,7 @@ basketball/
 │   ├── getOpenId/              # OpenID 获取
 │   └── batchImportPlayers/     # 批量导入球员
 ├── scripts/                    # 脚本工具
-│   └── import-players.js       # 球员数据导入脚本
+│   └── import-players.ts       # 球员数据导入脚本
 ├── tests/                      # Jest 分层测试（unit / page / component）
 ├── e2e/                        # E2E 测试
 ├── docs/
