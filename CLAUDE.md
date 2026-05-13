@@ -123,7 +123,7 @@ The application uses three main NoSQL collections with document-based storage:
 - `miniprogram/app.ts` - CloudBase initialization, global app lifecycle
 - `miniprogram/app.json` - Page routing, tab bar, window configuration
 - `miniprogram/app.wxss` - Global styles (color scheme: #FF6B35 orange theme)
-- `cloudfunctions/getOpenId/index.js` - Cloud function to retrieve user openid
+- `cloudfunctions/getOpenId/index.ts` - Cloud function to retrieve user openid
 - `project.config.json` - WeChat Mini Program project settings (appid: wxe8d95bf55ebc2ae7)
 
 ## CloudBase-Specific Patterns

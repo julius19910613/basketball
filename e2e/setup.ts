@@ -2,7 +2,7 @@
 jest.setTimeout(120000);
 
 // 全局错误处理
-process.on('unhandledRejection', (error) => {
-  console.error('Unhandled Promise Rejection:', error);
+process.on("unhandledRejection", (error: unknown) => {
+  console.error("Unhandled Promise Rejection:", error);
   throw error;
 });

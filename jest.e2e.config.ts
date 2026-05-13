@@ -8,7 +8,7 @@ const config: Config.InitialOptions = {
   testMatch: ["**/e2e/**/*.test.js", "**/e2e/**/*.test.ts"],
   maxWorkers: 1,
   testTimeout: 120000,
-  setupFilesAfterEnv: ["./e2e/setup.js"],
+  setupFilesAfterEnv: ["./e2e/setup"],
   verbose: true,
   collectCoverage: false,
   coveragePathIgnorePatterns: ["/node_modules/", "/e2e/"]

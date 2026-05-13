@@ -2,7 +2,7 @@
   "name": "getOpenId",
   "version": "1.0.0",
   "description": "获取用户openid的云函数",
-  "main": "index.js",
+  "main": "index.ts",
   "dependencies": {
     "wx-server-sdk": "latest"
   },
