@@ -4,7 +4,7 @@
     "composite": true,
     "declaration": true,
     "outDir": "./dist/tests",
-    "types": ["jest", "node"]
+    "types": ["jest", "node", "miniprogram-simulate"]
   },
   "include": ["tests/**/*.ts", "e2e/**/*.ts", "jest*.ts"],
   "exclude": ["node_modules"]

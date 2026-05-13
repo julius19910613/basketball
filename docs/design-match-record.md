@@ -67,7 +67,7 @@
 │                   数据层                          │
 │                                                   │
 │  云数据库: matches / player_match_stats           │
-│  云函数: (复用现有 batchImportPlayers 架构)       │
+│  云函数: (复用现有 `cloudfunctions/batchImportPlayers/index.ts` 架构) │
 │                                                   │
 └─────────────────────────────────────────────────┘
 ```
@@ -99,6 +99,8 @@ miniprogram/
 │       ├── player-stat-input.wxml
 │       ├── player-stat-input.wxss
 │       └── player-stat-input.json
+├── tests/
+│   └── player-stat-input.component.test.ts  # 组件交互测试
 └── utils/
     └─── match-helper.ts              # 比赛相关计算/格式化工具
 ```
