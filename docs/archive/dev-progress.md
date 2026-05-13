@@ -15,8 +15,8 @@
   - 4档球员：4人（王磊、刘洋、陈明、赵鹏）
   - 3档球员：8人（孙浩、周杰、吴涛、郑凯、冯勇、蒋华、沈亮、韩冰）
   - 2档球员：6人（杨帆、徐峰、何阳、林波、高远、龙飞）
-- 创建 `mock-groups.js` - 分组历史记录 Mock 数据
-- 创建 `index.js` - 统一导出模块
+- 创建 `mock-groups.ts` - 分组历史记录 Mock 数据
+- 创建 `index.ts` - 统一导出模块
 - 提供辅助函数：`getLevelDesc()`, `getLevelColor()`, `getPositionName()`
 
 **遇到的问题：** 无
@@ -163,9 +163,9 @@
 ### 新建文件
 ```
 miniprogram/utils/mock/
-├── index.js
+├── index.ts
 ├── mock-players.js
-└── mock-groups.js
+└── mock-groups.ts
 
 miniprogram/utils/
 └── group-algorithm.js
