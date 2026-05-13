@@ -35,7 +35,7 @@ npm run test:e2e
 
 ### 方式3：运行特定测试文件
 ```bash
-npx jest --config jest.page.config.ts tests/match-grouping.workflow.test.js
+npx jest --config jest.page.config.ts tests/match-grouping.workflow.test
 ```
 
 ### 方式4：运行单个测试用例
