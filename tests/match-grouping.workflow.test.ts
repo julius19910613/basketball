@@ -1,34 +1,78 @@
 const path = require("path");
 
-function applySetData(target, patch) {
-  Object.keys(patch).forEach((key) => {
+type JsonObject = Record<string, unknown>;
+type SetDataPatch = Record<string, unknown>;
+
+interface WxMock {
+  showToast: jest.Mock;
+  showLoading: jest.Mock;
+  hideLoading: jest.Mock;
+  navigateTo: jest.Mock;
+  cloud: {
+    database: () => {
+      collection: () => {
+        orderBy: () => {
+          get: () => Promise<{ data: unknown[] }>;
+        };
+      };
+    };
+  };
+}
+
+interface PageConfig extends JsonObject {
+  data?: JsonObject;
+}
+
+interface PageInstance extends JsonObject {
+  data: JsonObject;
+  setData: (next: SetDataPatch) => void;
+}
+
+function applySetData(target: JsonObject, patch: SetDataPatch): void {
+  Object.keys(patch).forEach((key: string) => {
     if (!key.includes(".")) {
       target[key] = patch[key];
       return;
     }
     const segments = key.split(".");
-    let cursor = target;
+    let cursor = target as Record<string, unknown>;
     for (let i = 0; i < segments.length - 1; i += 1) {
       const seg = segments[i];
-      cursor[seg] = cursor[seg] || {};
-      cursor = cursor[seg];
+      cursor[seg] = (cursor[seg] as Record<string, unknown> | undefined) || {};
+      cursor = cursor[seg] as Record<string, unknown>;
     }
     cursor[segments[segments.length - 1]] = patch[key];
   });
 }
 
-function loadPage(relativePath, { wxMock } = {}) {
-  jest.resetModules();
-  let pageConfig = null;
-  let loadError = null;
-  global.wx = wxMock || {
+function createDefaultWxMock(): WxMock {
+  return {
     showToast: jest.fn(),
     showLoading: jest.fn(),
     hideLoading: jest.fn(),
     navigateTo: jest.fn(),
-    cloud: { database: () => ({ collection: () => ({ orderBy: () => ({ get: async () => ({ data: [] }) }) }) }) }
+    cloud: {
+      database: () => ({
+        collection: () => ({
+          orderBy: () => ({
+            get: async () => ({ data: [] })
+          })
+        })
+      })
+    }
   };
-  global.Page = (config) => {
+}
+
+function loadPage(relativePath: string, options: { wxMock?: WxMock } = {}): { page: PageInstance; wxMock: WxMock } {
+  jest.resetModules();
+  let pageConfig: PageConfig | null = null;
+  let loadError: unknown = null;
+  const globalContext = global as typeof globalThis & {
+    wx: WxMock;
+    Page: (config: PageConfig) => PageConfig;
+  };
+  globalContext.wx = options.wxMock || createDefaultWxMock();
+  globalContext.Page = (config: PageConfig): PageConfig => {
     pageConfig = config;
     return config;
   };
@@ -45,16 +89,18 @@ function loadPage(relativePath, { wxMock } = {}) {
     throw err;
   }
   if (!pageConfig) throw new Error(`Page load failed: ${relativePath}`);
-  const page = {
-    data: JSON.parse(JSON.stringify(pageConfig.data || {})),
-    setData(next) {
+  const page: PageInstance = {
+    data: JSON.parse(JSON.stringify(pageConfig.data || {})) as JsonObject,
+    setData(next: SetDataPatch): void {
       applySetData(this.data, next);
     }
   };
-  Object.keys(pageConfig).forEach((key) => {
-    if (typeof pageConfig[key] === "function") page[key] = pageConfig[key].bind(page);
+  Object.keys(pageConfig).forEach((key: string) => {
+    if (typeof pageConfig![key] === "function") {
+      page[key] = (pageConfig![key] as Function).bind(page);
+    }
   });
-  return { page, wxMock: global.wx };
+  return { page, wxMock: globalContext.wx };
 }
 
 describe("match grouping workflow", () => {
@@ -85,7 +131,7 @@ describe("match grouping workflow", () => {
       { playerId: "p4", overall: 66 }
     ];
     const grouped = helper.buildSnakeGrouping(players, ["p1", "p2", "p3", "p4"], 2);
-    const overlap = grouped.groups[0].filter((id) => grouped.groups[1].includes(id));
+    const overlap = grouped.groups[0].filter((id: string) => grouped.groups[1].includes(id));
     expect(overlap.length).toBe(0);
     expect(grouped.groups[0].length + grouped.groups[1].length).toBe(4);
   });
@@ -103,7 +149,7 @@ describe("match grouping workflow", () => {
     const g0 = grouped.groups[0];
     const g1 = grouped.groups[1];
     expect(g0.length + g1.length).toBe(4);
-    expect(g0.filter((id) => g1.includes(id)).length).toBe(0);
+    expect(g0.filter((id: string) => g1.includes(id)).length).toBe(0);
     expect(Math.abs(g0.length - g1.length)).toBe(0);
     const pg0 = g0.length;
     const pg1 = g1.length;
@@ -123,11 +169,11 @@ describe("match grouping workflow", () => {
     const g0 = new Set(grouped.groups[0]);
     const g1 = new Set(grouped.groups[1]);
     expect(g0.size + g1.size).toBe(4);
-    const pgOn0 = ["p1", "p2"].filter((id) => g0.has(id)).length;
-    const pgOn1 = ["p1", "p2"].filter((id) => g1.has(id)).length;
+    const pgOn0 = ["p1", "p2"].filter((id: string) => g0.has(id)).length;
+    const pgOn1 = ["p1", "p2"].filter((id: string) => g1.has(id)).length;
     expect(Math.abs(pgOn0 - pgOn1)).toBe(0);
-    const sgOn0 = ["s1", "s2"].filter((id) => g0.has(id)).length;
-    const sgOn1 = ["s1", "s2"].filter((id) => g1.has(id)).length;
+    const sgOn0 = ["s1", "s2"].filter((id: string) => g0.has(id)).length;
+    const sgOn1 = ["s1", "s2"].filter((id: string) => g1.has(id)).length;
     expect(Math.abs(sgOn0 - sgOn1)).toBe(0);
   });
 
@@ -154,10 +200,10 @@ describe("match grouping workflow", () => {
   test("create page blocks grouping when selected players < 4", async () => {
     const { page, wxMock } = loadPage("miniprogram/pages/match/create/create.ts");
     page.setData({
-      form: { ...page.data.form, teamNames: ["A队", "B队"], matchDate: "2026-01-01" },
+      form: { ...(page.data.form as JsonObject), teamNames: ["A队", "B队"], matchDate: "2026-01-01" },
       selectedPlayerIds: ["p1", "p2", "p3"]
     });
-    await page.onGoGrouping();
+    await (page.onGoGrouping as () => Promise<void>)();
     expect(wxMock.showToast).toHaveBeenCalled();
     expect(wxMock.navigateTo).not.toHaveBeenCalled();
   });
@@ -183,7 +229,7 @@ describe("match grouping workflow", () => {
       }
     });
 
-    expect(page.buildGroupingPayload()).toEqual({
+    expect((page.buildGroupingPayload as () => unknown)()).toEqual({
       selectedPlayerIds: ["p2", "p3"],
       playerStats: [
         { playerId: "p1", nickname: "A", position: "PG", played: false, points: 6 },
@@ -201,13 +247,19 @@ describe("match grouping workflow", () => {
 
   test("list page routes unlocked item to grouping page", () => {
     const { page, wxMock } = loadPage("miniprogram/pages/match/list/list.ts");
-    page.goDetail({ currentTarget: { dataset: { id: "m1", locked: false } } });
+    (page.goDetail as (event: { currentTarget: { dataset: { id: string; locked: boolean } } }) => void)({
+      currentTarget: { dataset: { id: "m1", locked: false } }
+    });
     expect(wxMock.navigateTo).toHaveBeenCalledWith({ url: "/pages/match/grouping/grouping?id=m1" });
   });
 
   test("list page routes locked item to detail page", () => {
     const { page, wxMock } = loadPage("miniprogram/pages/match/list/list.ts");
-    page.goDetail({ currentTarget: { dataset: { id: "m2", locked: true } } });
+    (page.goDetail as (event: { currentTarget: { dataset: { id: string; locked: boolean } } }) => void)({
+      currentTarget: { dataset: { id: "m2", locked: true } }
+    });
     expect(wxMock.navigateTo).toHaveBeenCalledWith({ url: "/pages/match/detail/detail?id=m2" });
   });
 });
+
+export {};

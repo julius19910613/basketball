@@ -1,26 +1,52 @@
 const path = require("path");
 
-function applySetData(target, patch) {
-  Object.keys(patch).forEach((key) => {
+type JsonObject = Record<string, unknown>;
+type SetDataPatch = Record<string, unknown>;
+
+interface WxMock {
+  cloud: {
+    database: jest.Mock;
+  };
+  showToast: jest.Mock;
+  showLoading: jest.Mock;
+  hideLoading: jest.Mock;
+  redirectTo: jest.Mock;
+}
+
+interface PageConfig extends JsonObject {
+  data?: JsonObject;
+}
+
+interface PageInstance extends JsonObject {
+  data: JsonObject;
+  setData: (next: SetDataPatch) => void;
+}
+
+function applySetData(target: JsonObject, patch: SetDataPatch): void {
+  Object.keys(patch).forEach((key: string) => {
     if (!key.includes(".")) {
       target[key] = patch[key];
       return;
     }
     const segments = key.split(".");
-    let cursor = target;
+    let cursor = target as Record<string, unknown>;
     for (let i = 0; i < segments.length - 1; i += 1) {
       const seg = segments[i];
-      cursor[seg] = cursor[seg] || {};
-      cursor = cursor[seg];
+      cursor[seg] = (cursor[seg] as Record<string, unknown> | undefined) || {};
+      cursor = cursor[seg] as Record<string, unknown>;
     }
     cursor[segments[segments.length - 1]] = patch[key];
   });
 }
 
-function loadPage(relativePath) {
+function loadPage(relativePath: string): { page: PageInstance; wxMock: WxMock } {
   jest.resetModules();
-  let pageConfig = null;
-  global.wx = {
+  let pageConfig: PageConfig | null = null;
+  const globalContext = global as typeof globalThis & {
+    wx: WxMock;
+    Page: (config: PageConfig) => PageConfig;
+  };
+  globalContext.wx = {
     cloud: {
       database: jest.fn(() => ({
         collection: jest.fn(() => ({
@@ -35,21 +61,24 @@ function loadPage(relativePath) {
     hideLoading: jest.fn(),
     redirectTo: jest.fn()
   };
-  global.Page = (config) => {
+  globalContext.Page = (config: PageConfig): PageConfig => {
     pageConfig = config;
     return config;
   };
   require(path.resolve(__dirname, "..", relativePath));
-  const page = {
-    data: JSON.parse(JSON.stringify(pageConfig.data || {})),
-    setData(next) {
+  if (!pageConfig) throw new Error(`Page load failed: ${relativePath}`);
+  const page: PageInstance = {
+    data: JSON.parse(JSON.stringify(pageConfig.data || {})) as JsonObject,
+    setData(next: SetDataPatch): void {
       applySetData(this.data, next);
     }
   };
-  Object.keys(pageConfig).forEach((key) => {
-    if (typeof pageConfig[key] === "function") page[key] = pageConfig[key].bind(page);
+  Object.keys(pageConfig).forEach((key: string) => {
+    if (typeof pageConfig![key] === "function") {
+      page[key] = (pageConfig![key] as Function).bind(page);
+    }
   });
-  return { page, wxMock: global.wx };
+  return { page, wxMock: globalContext.wx };
 }
 
 describe("match stats edit page", () => {
@@ -77,7 +106,7 @@ describe("match stats edit page", () => {
       }
     });
 
-    expect(page.buildSubmitPayload()).toEqual({
+    expect((page.buildSubmitPayload as () => unknown)()).toEqual({
       _id: "m1",
       matchType: "ncaa",
       teamNames: ["白队", "黑队"],
@@ -97,3 +126,5 @@ describe("match stats edit page", () => {
     });
   });
 });
+
+export {};
