@@ -246,7 +246,7 @@ members: [{
 ## 📝 代码示例
 
 详细算法实现请参考:
-- `/docs/random-group-algorithm-example.js` - 完整算法示例
+- `/docs/archive/random-group-algorithm-example.ts` - 完整算法示例
 - `/docs/random-team-feature-plan.md` - 完整开发计划
 
 ---
