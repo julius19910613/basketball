@@ -275,12 +275,12 @@ function validateGrouping(
   if (!selected.length) return { ok: false, message: "请先选择球员" };
   if (teams.length < 2) return { ok: false, message: "至少需要2支队伍" };
   const emptyTeam = teams.some(function (item) {
-    return !uniqIds(item && item.playerIds).length;
+    return !uniqIds((item && item.playerIds) || []).length;
   });
   if (emptyTeam) return { ok: false, message: "每支队伍至少1名球员" };
   let assigned: string[] = [];
   teams.forEach(function (item) {
-    assigned = assigned.concat(uniqIds(item && item.playerIds));
+    assigned = assigned.concat(uniqIds((item && item.playerIds) || []));
   });
   const uniqAssigned = uniqIds(assigned);
   if (uniqAssigned.length !== assigned.length) return { ok: false, message: "同一球员不能同时在多支队伍" };

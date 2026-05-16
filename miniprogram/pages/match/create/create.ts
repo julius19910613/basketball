@@ -131,7 +131,9 @@ Page({
 
   onShowPlayerPicker(): void {
     const tempSelectedPlayerIds = [...this.data.selectedPlayerIds];
-    const allIds = this.data.players.map((player: PlayerItem) => player.playerId);
+    const allIds = this.data.players
+      .map((player: PlayerItem) => player.playerId)
+      .filter((id): id is string => !!id);
     this.setData({
       showPlayerPicker: true,
       tempSelectedPlayerIds,
@@ -145,7 +147,9 @@ Page({
 
   onPlayerSelectionChange(e: CheckboxEvent): void {
     const tempSelectedPlayerIds = e.detail.value || [];
-    const allIds = this.data.players.map((player: PlayerItem) => player.playerId);
+    const allIds = this.data.players
+      .map((player: PlayerItem) => player.playerId)
+      .filter((id): id is string => !!id);
     this.setData({
       tempSelectedPlayerIds,
       isAllPlayersSelected: allIds.length > 0 && allIds.every((id: string) => tempSelectedPlayerIds.includes(id))
@@ -172,7 +176,9 @@ Page({
     } else {
       newSelected.push(id);
     }
-    const allIds = this.data.players.map((player: PlayerItem) => player.playerId);
+    const allIds = this.data.players
+      .map((player: PlayerItem) => player.playerId)
+      .filter((id): id is string => !!id);
     this.setData({
       tempSelectedPlayerIds: newSelected,
       isAllPlayersSelected: allIds.length > 0 && allIds.every((itemId: string) => newSelected.includes(itemId))
@@ -180,7 +186,9 @@ Page({
   },
 
   onToggleSelectAllPlayers(): void {
-    const allIds = this.data.players.map((player: PlayerItem) => player.playerId);
+    const allIds = this.data.players
+      .map((player: PlayerItem) => player.playerId)
+      .filter((id): id is string => !!id);
     if (!allIds.length) {
       this.setData({
         tempSelectedPlayerIds: [],

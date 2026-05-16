@@ -121,9 +121,10 @@ Page({
         page,
         this.data.pageSize
       )) as MatchListItem[];
-      const merged = reset ? list : this.data.matches.concat(list);
+      const formattedList = list.map(this.formatMatchCard);
+      const merged = reset ? formattedList : this.data.matches.concat(formattedList);
       this.setData({
-        matches: merged.map(this.formatMatchCard),
+        matches: merged,
         page: page + 1,
         hasMore: list.length === this.data.pageSize,
         loading: false,

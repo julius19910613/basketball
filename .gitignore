@@ -38,3 +38,7 @@ coverage/
 
 # Disabled Test Files
 **/*.test.js.disabled
+
+# Mini Program compiled JS from TS sources
+miniprogram/pages/**/*.js
+!miniprogram/miniprogram_npm/**

@@ -62,7 +62,6 @@ interface DetailPageData {
       teamBPlayerIds?: string[];
     };
     playerStats?: Array<Record<string, unknown> & { played?: boolean; playerId?: string }>;
-    teamNames?: string[];
     [key: string]: unknown;
   } | null;
   playedPlayers: Array<Record<string, unknown>>;
@@ -175,7 +174,7 @@ Page({
   buildTeamStatPanels(groups: GroupedTeam[], match: Record<string, unknown>): TeamStatPanel[] {
     const teamScores = [Number(match.scoreUs || 0), Number(match.scoreOpponent || 0)];
     return (groups || []).map((group, index) => {
-      const players = (group.players || [])
+      const players: PlayerRow[] = (group.players || [])
         .slice()
         .sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
           const pointDiff = Number(b.points || 0) - Number(a.points || 0);
@@ -184,9 +183,16 @@ Page({
         })
         .map((player: Record<string, unknown>, playerIndex: number) => {
           return Object.assign({}, player, {
+            playerId: String(player.playerId || ""),
+            nickname: String(player.nickname || "未命名球员"),
+            position: String(player.position || "-"),
             rankNum: playerIndex + 1,
             fgDisplay: `${player.shotsMade || 0}/${player.shotsAttempted || 0}`,
-            fgPctDisplay: this.formatPct(player.fgPct)
+            fgPctDisplay: this.formatPct(player.fgPct as string | number | null | undefined),
+            points: Number(player.points || 0),
+            rebounds: Number(player.rebounds || 0),
+            assists: Number(player.assists || 0),
+            steals: Number(player.steals || 0)
           });
         });
 
