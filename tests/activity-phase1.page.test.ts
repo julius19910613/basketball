@@ -1,4 +1,4 @@
-import path = require("path");
+import * as path from "path";
 
 type DataRecord = Record<string, any>;
 type MockFunction = jest.Mock<any, any[]>;
@@ -165,7 +165,8 @@ describe("activity phase 1 pages", (): void => {
   test("activity create page saves draft and redirects to detail", async (): Promise<void> => {
     const createActivity: MockFunction = jest.fn(async () => "activity-1");
     jest.doMock("../miniprogram/utils/db", () => ({
-      createActivity
+      __esModule: true,
+      default: { createActivity }
     }));
 
     const { page, wxMock } = loadPage("miniprogram/pages/activity/create/create.ts");
@@ -191,9 +192,12 @@ describe("activity phase 1 pages", (): void => {
 
   test("activity register page requires linked player before registration", async (): Promise<void> => {
     jest.doMock("../miniprogram/utils/db", () => ({
-      getActivityDetail: jest.fn(async () => ({ _id: "a1", title: "活动", status: "registration_open" })),
-      getActivityRegistrations: jest.fn(async () => []),
-      registerForActivity: jest.fn()
+      __esModule: true,
+      default: {
+        getActivityDetail: jest.fn(async () => ({ _id: "a1", title: "活动", status: "registration_open" })),
+        getActivityRegistrations: jest.fn(async () => []),
+        registerForActivity: jest.fn()
+      }
     }));
     const { page, wxMock } = loadPage("miniprogram/pages/activity/register/register.ts");
     page.setData({ id: "a1", linkedPlayer: null });
@@ -204,9 +208,12 @@ describe("activity phase 1 pages", (): void => {
 
   test("activity detail share path points to register page", (): void => {
     jest.doMock("../miniprogram/utils/db", () => ({
-      getActivityDetail: jest.fn(),
-      getActivityRegistrations: jest.fn(),
-      closeActivityRegistration: jest.fn()
+      __esModule: true,
+      default: {
+        getActivityDetail: jest.fn(),
+        getActivityRegistrations: jest.fn(),
+        closeActivityRegistration: jest.fn()
+      }
     }));
     const { page } = loadPage("miniprogram/pages/activity/detail/detail.ts");
     page.setData({
@@ -222,9 +229,12 @@ describe("activity phase 1 pages", (): void => {
 
   test("activity detail routes to grouping page", (): void => {
     jest.doMock("../miniprogram/utils/db", () => ({
-      getActivityDetail: jest.fn(),
-      getActivityRegistrations: jest.fn(),
-      closeActivityRegistration: jest.fn()
+      __esModule: true,
+      default: {
+        getActivityDetail: jest.fn(),
+        getActivityRegistrations: jest.fn(),
+        closeActivityRegistration: jest.fn()
+      }
     }));
     const { page, wxMock } = loadPage("miniprogram/pages/activity/detail/detail.ts");
     page.setData({ id: "a1" });
@@ -234,11 +244,14 @@ describe("activity phase 1 pages", (): void => {
 
   test("activity detail routes to match stats edit page", (): void => {
     jest.doMock("../miniprogram/utils/db", () => ({
-      getActivityDetail: jest.fn(),
-      getActivityRegistrations: jest.fn(),
-      getMatchesByActivity: jest.fn(),
-      closeActivityRegistration: jest.fn(),
-      generateActivityMatches: jest.fn()
+      __esModule: true,
+      default: {
+        getActivityDetail: jest.fn(),
+        getActivityRegistrations: jest.fn(),
+        getMatchesByActivity: jest.fn(),
+        closeActivityRegistration: jest.fn(),
+        generateActivityMatches: jest.fn()
+      }
     }));
     const { page, wxMock } = loadPage("miniprogram/pages/activity/detail/detail.ts");
     page.onGoMatchStats({ currentTarget: { dataset: { id: "m1" } } } as MatchStatsEvent);

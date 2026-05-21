@@ -262,13 +262,13 @@ function buildPlayerStatsForSelection(
     .filter(Boolean) as Array<Partial<PlayerStat> & { playerId: string; played: boolean }>;
 }
 
-function isGroupingLocked(match: { isGroupingLocked?: boolean } | null | undefined): boolean {
+function isGroupingLocked(match: { isGroupingLocked?: boolean; [key: string]: unknown } | null | undefined): boolean {
   return !!(match && match.isGroupingLocked);
 }
 
 function validateGrouping(
   selectedPlayerIds: Array<string | null | undefined>,
-  grouping: { teams?: Array<{ playerIds?: Array<string | null | undefined> } | null> } | null | undefined
+  grouping: { teams?: Array<{ teamName?: string; playerIds?: Array<string | null | undefined>; [key: string]: unknown } | null> } | null | undefined
 ): GroupingValidationResult {
   const selected = uniqIds(selectedPlayerIds);
   const teams = (grouping && grouping.teams) || [];
@@ -592,7 +592,7 @@ function extractPlayerMatchStats(match: Partial<Match>): Array<Partial<PlayerSta
     });
 }
 
-export = {
+export default {
   calcFgPct: calcFgPct,
   calcTeamPoints: calcTeamPoints,
   calcQuarterTotals: calcQuarterTotals,

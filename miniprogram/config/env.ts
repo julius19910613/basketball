@@ -100,7 +100,7 @@ function getEnvConfig(): EnvConfig {
   }
 }
 
-export = {
+export default {
   getCollection,
   getEnvVersion,
   getEnvConfig,

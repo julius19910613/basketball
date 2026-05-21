@@ -8,4 +8,4 @@ const config: Config.InitialOptions = {
   }
 };
 
-export = config;
+export default config;

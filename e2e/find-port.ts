@@ -1,4 +1,4 @@
-import automator = require('miniprogram-automator')
+import automator from 'miniprogram-automator'
 
 interface ConnectOptions {
   wsEndpoint: string

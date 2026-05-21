@@ -183,7 +183,7 @@ function calculateOverallSkill(skills?: PartialBasketballSkills | null, position
   return Math.max(1, Math.min(99, Math.round(finalScore)));
 }
 
-export = {
+export default {
   BasketballPosition,
   POSITION_DETAILS,
   createDefaultBasketballSkills,

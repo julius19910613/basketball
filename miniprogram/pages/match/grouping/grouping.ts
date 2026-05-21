@@ -1,5 +1,8 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
+import db from "../../../utils/db";
+import helper from "../../../utils/match-helper";
+
 type Id = string | number;
 
 interface MatchPlayer {
@@ -85,22 +88,14 @@ interface DatasetEvent extends WechatMiniprogram.BaseEvent {
   };
 }
 
-let dbModule: any;
-let helperModule: any;
 let cloudDb: any;
 
 function getDb(): any {
-  if (!dbModule) {
-    dbModule = require("../../../utils/db");
-  }
-  return dbModule;
+  return db;
 }
 
 function getHelper(): any {
-  if (!helperModule) {
-    helperModule = require("../../../utils/match-helper");
-  }
-  return helperModule;
+  return helper;
 }
 
 function getCloudDb(): any {

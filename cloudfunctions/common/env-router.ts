@@ -59,7 +59,7 @@ function getCollections(envVersion?: string): CollectionMap {
   return COLLECTION_MAP[version] || COLLECTION_MAP.release
 }
 
-export = {
+export default {
   getCollection,
   getCollections
 }

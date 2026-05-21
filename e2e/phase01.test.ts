@@ -7,7 +7,7 @@
  * 4. player-card 组件增强
  */
 
-import automator = require("miniprogram-automator");
+import automator from "miniprogram-automator";
 
 type MiniProgramInstance = Awaited<ReturnType<typeof automator.connect>>;
 type PageInstance = NonNullable<Awaited<ReturnType<MiniProgramInstance["reLaunch"]>>>;

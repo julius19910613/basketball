@@ -1,4 +1,5 @@
 /// <reference path="../typings/index.d.ts" />
+import env from "./config/env";
 
 // app.js
 
@@ -144,8 +145,7 @@ const appConfig: WechatMiniprogram.App.Options<AppCustomProperties> = {
   ): Promise<void> {
     if (!openid) return;
 
-    const envModule: EnvModule = require("./config/env");
-    const { getCollection } = envModule;
+    const { getCollection } = env;
     const db = wx.cloud.database();
 
     try {

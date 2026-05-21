@@ -324,7 +324,7 @@ function getGroupPresets(playerCount: number): GroupPreset[] {
   return presets;
 }
 
-export = {
+export default {
   shuffle,
   groupByLevel,
   balancedGroup,

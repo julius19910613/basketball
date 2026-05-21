@@ -1,5 +1,5 @@
-import cloud = require("wx-server-sdk");
-import envRouter = require("../common/env-router");
+import * as cloud from "wx-server-sdk";
+import envRouter from "../common/env-router";
 
 const { getCollection } = envRouter;
 
@@ -211,4 +211,4 @@ async function main(event: BatchImportPlayersEvent): Promise<BatchImportPlayersR
   };
 }
 
-export = { main };
+export { main };

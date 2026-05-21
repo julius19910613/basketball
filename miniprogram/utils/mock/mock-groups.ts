@@ -175,7 +175,7 @@ function formatGroupForDisplay(group: GroupRecord, players: PlayerLike[]): Displ
   return result
 }
 
-export = {
+export default {
   mockGroupHistory,
   getGroupHistory,
   getGroupById,

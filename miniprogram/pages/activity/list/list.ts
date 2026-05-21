@@ -1,7 +1,6 @@
 /// <reference path="../../../../typings/index.d.ts" />
-
-const db: typeof import("../../../utils/db") = require("../../../utils/db");
-const helper: typeof import("../../../utils/activity-helper") = require("../../../utils/activity-helper");
+import db from "../../../utils/db";
+import helper from "../../../utils/activity-helper";
 
 interface ActivityListItem {
   _id?: string;

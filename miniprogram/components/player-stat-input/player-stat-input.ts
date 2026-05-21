@@ -1,6 +1,6 @@
 /// <reference path="../../../typings/index.d.ts" />
 
-import helper = require("../../utils/match-helper");
+import helper from "../../utils/match-helper";
 
 const FIELDS = [
   "points",

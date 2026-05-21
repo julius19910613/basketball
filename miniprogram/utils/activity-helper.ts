@@ -317,7 +317,7 @@ function buildMatchGroupingFromActivity(groupingSnapshot: GroupingSnapshotInput 
   };
 }
 
-export = {
+export default {
   createEmptyActivity,
   formatActivityStatus,
   formatDate,

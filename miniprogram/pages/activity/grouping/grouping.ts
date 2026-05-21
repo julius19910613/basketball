@@ -1,9 +1,14 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
-type AppDb = typeof import("../../../utils/db");
-type ActivityHelper = typeof import("../../../utils/activity-helper");
-type MatchHelper = typeof import("../../../utils/match-helper");
-type EnvModule = typeof import("../../../config/env");
+import db from "../../../utils/db";
+import helper from "../../../utils/activity-helper";
+import matchHelper from "../../../utils/match-helper";
+import env from "../../../config/env";
+
+type AppDb = typeof db;
+type ActivityHelper = typeof helper;
+type MatchHelper = typeof matchHelper;
+type EnvModule = typeof env;
 type CloudDb = ReturnType<typeof wx.cloud.database>;
 
 interface LoadOptions {
@@ -59,37 +64,21 @@ interface GroupingPageData {
   unassignedPlayers: PlayerRecord[];
 }
 
-let db: AppDb | null = null;
-let helper: ActivityHelper | null = null;
-let matchHelper: MatchHelper | null = null;
-let env: EnvModule | null = null;
 let cloudDb: CloudDb | null = null;
 
 function getDb(): AppDb {
-  if (!db) {
-    db = require("../../../utils/db") as AppDb;
-  }
   return db;
 }
 
 function getHelper(): ActivityHelper {
-  if (!helper) {
-    helper = require("../../../utils/activity-helper") as ActivityHelper;
-  }
   return helper;
 }
 
 function getMatchHelper(): MatchHelper {
-  if (!matchHelper) {
-    matchHelper = require("../../../utils/match-helper") as MatchHelper;
-  }
   return matchHelper;
 }
 
 function getEnv(): EnvModule {
-  if (!env) {
-    env = require("../../../config/env") as EnvModule;
-  }
   return env;
 }
 

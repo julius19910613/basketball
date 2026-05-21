@@ -1,5 +1,7 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
+import db from "../../../utils/db";
+
 type CloudDb = ReturnType<typeof wx.cloud.database>;
 type AppDb = {
   getPlayerSeasonStats(playerId: string, season: string): Promise<any>;
@@ -120,7 +122,7 @@ function getCloudDb(): CloudDb {
 
 function getAppDb(): AppDb {
   if (!appDb) {
-    appDb = require("../../../utils/db") as AppDb;
+    appDb = db as unknown as AppDb;
   }
   return appDb;
 }

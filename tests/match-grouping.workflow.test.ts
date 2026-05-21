@@ -1,5 +1,5 @@
-const path = require("path");
-
+import * as path from "path";
+import helper from "../miniprogram/utils/match-helper";
 type JsonObject = Record<string, unknown>;
 type SetDataPatch = Record<string, unknown>;
 
@@ -105,7 +105,7 @@ function loadPage(relativePath: string, options: { wxMock?: WxMock } = {}): { pa
 
 describe("match grouping workflow", () => {
   test("validateGrouping requires all selected players assigned without overlap", () => {
-    const helper = require("../miniprogram/utils/match-helper");
+
     const pass = helper.validateGrouping(["p1", "p2", "p3", "p4"], {
       teams: [
         { teamName: "A队", playerIds: ["p1", "p2"] },
@@ -123,7 +123,7 @@ describe("match grouping workflow", () => {
   });
 
   test("buildSnakeGrouping returns non-overlapping two teams", () => {
-    const helper = require("../miniprogram/utils/match-helper");
+
     const players = [
       { playerId: "p1", overall: 99 },
       { playerId: "p2", overall: 88 },
@@ -137,7 +137,7 @@ describe("match grouping workflow", () => {
   });
 
   test("buildBalancedTwoTeamGrouping balances PG counts and splits by height/score", () => {
-    const helper = require("../miniprogram/utils/match-helper");
+
     const players = [
       { playerId: "a1", position: "PG", height: 170, weight: 70, overall: 60 },
       { playerId: "a2", position: "PG", height: 190, weight: 90, overall: 80 },
@@ -158,7 +158,7 @@ describe("match grouping workflow", () => {
   });
 
   test("buildBalancedTwoTeamGrouping handles multiple positions independently", () => {
-    const helper = require("../miniprogram/utils/match-helper");
+
     const players = [
       { playerId: "p1", position: "PG", height: 180, weight: 75, overall: 70 },
       { playerId: "p2", position: "PG", height: 182, weight: 76, overall: 72 },
@@ -178,7 +178,7 @@ describe("match grouping workflow", () => {
   });
 
   test("buildPlayerStatsForSelection keeps a single source of truth for played flags", () => {
-    const helper = require("../miniprogram/utils/match-helper");
+
     const players = [
       { playerId: "p1", nickname: "A", position: "PG" },
       { playerId: "p2", nickname: "B", position: "SG" },

@@ -300,7 +300,7 @@ function getPositionName(position: string): string {
   return positionMap[position] || position
 }
 
-export = {
+export default {
   mockPlayers,
   getLevelDesc,
   getLevelColor,

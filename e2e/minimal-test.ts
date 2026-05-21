@@ -1,7 +1,6 @@
-const automator = require('miniprogram-automator') as typeof import('miniprogram-automator')
-const fs = require('fs') as typeof import('fs')
-
-const path = require('path') as typeof import('path')
+import automator from 'miniprogram-automator';
+import fs from 'fs';
+import path from 'path';
 
 export {}
 

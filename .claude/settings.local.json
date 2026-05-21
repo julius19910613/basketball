@@ -12,7 +12,10 @@
       "mcp__cloudbase__readSecurityRule",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npx tsc *)",
+      "Bash(git stash *)",
+      "Bash(npx jest *)"
     ]
   },
   "enableAllProjectMcpServers": true,

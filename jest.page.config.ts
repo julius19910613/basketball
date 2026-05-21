@@ -1,5 +1,5 @@
 import type { Config } from "@jest/types";
-import shared = require("./jest.shared");
+import shared from "./jest.shared";
 
 const config: Config.InitialOptions = {
   ...shared,
@@ -16,4 +16,4 @@ const config: Config.InitialOptions = {
   ]
 };
 
-export = config;
+export default config;

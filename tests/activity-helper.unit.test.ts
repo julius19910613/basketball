@@ -1,4 +1,4 @@
-import helper = require("../miniprogram/utils/activity-helper");
+import helper from "../miniprogram/utils/activity-helper";
 
 type ValidateActivityFormInput = Parameters<typeof helper.validateActivityForm>[0];
 type PrepareActivityForSaveInput = Parameters<typeof helper.prepareActivityForSave>[0];

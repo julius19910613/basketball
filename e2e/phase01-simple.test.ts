@@ -3,8 +3,8 @@
  * 只测试基础功能
  */
 
-const path = require('path') as typeof import('path')
-const automator = require('miniprogram-automator') as typeof import('miniprogram-automator')
+import path from 'path';
+import automator from 'miniprogram-automator';
 
 export {}
 

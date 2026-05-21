@@ -1,7 +1,6 @@
 /// <reference path="../../../../typings/index.d.ts" />
-
-const db = require("../../../utils/db");
-const helper = require("../../../utils/match-helper");
+import db from "../../../utils/db";
+import helper from "../../../utils/match-helper";
 
 interface MatchFilter {
   status?: "draft" | "finalized";

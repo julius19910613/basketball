@@ -1,7 +1,6 @@
 /// <reference path="../../../../typings/index.d.ts" />
-
-const db = require("../../../utils/db");
-const helper = require("../../../utils/match-helper");
+import db from "../../../utils/db";
+import helper from "../../../utils/match-helper";
 
 const matchTypeOptions = ["friendly", "league", "cup", "fiba", "ncaa"] as const;
 const matchTypeDisplay = ["友谊赛", "联赛", "杯赛", "全场球赛 (FIBA)", "全场球赛 (NCAA)"] as const;

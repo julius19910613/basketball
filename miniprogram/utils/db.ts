@@ -7,9 +7,9 @@
 
 const db = wx.cloud.database()
 const _ = db.command
-import matchHelper = require("./match-helper")
-import activityHelper = require("./activity-helper")
-import env = require("../config/env")
+import matchHelper from "./match-helper"
+import activityHelper from "./activity-helper"
+import env from "../config/env"
 
 /**
  * 路由集合辅助函数
@@ -984,7 +984,7 @@ async function getTeamMembersDetail(teamId: string): Promise<any[]> {
   }
 }
 
-export = {
+export default {
   // activities 相关
   createActivity,
   updateActivity,

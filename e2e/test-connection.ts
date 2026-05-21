@@ -1,4 +1,4 @@
-import automator = require('miniprogram-automator')
+import automator from 'miniprogram-automator'
 
 type Automator = typeof import('miniprogram-automator')
 type MiniProgram = Awaited<ReturnType<Automator['launch']>>

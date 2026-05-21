@@ -1,7 +1,7 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
 const db = wx.cloud.database();
-const env = require("../../../config/env");
+import env from "../../../config/env";
 const { getCollection } = env;
 
 const COLLECTION_MISSING_CODE = -502005;

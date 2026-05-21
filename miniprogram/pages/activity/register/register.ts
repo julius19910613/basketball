@@ -1,9 +1,13 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
+import db from "../../../utils/db";
+import helper from "../../../utils/activity-helper";
+import env from "../../../config/env";
+
 type AppInstance = ReturnType<typeof getApp>;
-type AppDb = typeof import("../../../utils/db");
-type ActivityHelper = typeof import("../../../utils/activity-helper");
-type EnvModule = typeof import("../../../config/env");
+type AppDb = typeof db;
+type ActivityHelper = typeof helper;
+type EnvModule = typeof env;
 type CloudDb = ReturnType<typeof wx.cloud.database>;
 
 interface LoadOptions {
@@ -47,9 +51,6 @@ interface RegisterPageData {
 }
 
 let appInstance: AppInstance | null = null;
-let db: AppDb | null = null;
-let helper: ActivityHelper | null = null;
-let env: EnvModule | null = null;
 let cloudDb: CloudDb | null = null;
 
 function getAppInstance(): AppInstance {
@@ -60,23 +61,14 @@ function getAppInstance(): AppInstance {
 }
 
 function getDb(): AppDb {
-  if (!db) {
-    db = require("../../../utils/db") as AppDb;
-  }
   return db;
 }
 
 function getHelper(): ActivityHelper {
-  if (!helper) {
-    helper = require("../../../utils/activity-helper") as ActivityHelper;
-  }
   return helper;
 }
 
 function getEnv(): EnvModule {
-  if (!env) {
-    env = require("../../../config/env") as EnvModule;
-  }
   return env;
 }
 

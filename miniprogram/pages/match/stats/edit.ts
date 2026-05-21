@@ -1,5 +1,9 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
+import db from "../../../utils/db";
+import helper from "../../../utils/match-helper";
+import env from "../../../config/env";
+
 type Id = string | number;
 
 interface QuarterScore {
@@ -79,30 +83,18 @@ interface InputEvent extends WechatMiniprogram.BaseEvent {
   };
 }
 
-let dbModule: any;
-let helperModule: any;
-let envModule: any;
 let cloudDb: any;
 
 function getDb(): any {
-  if (!dbModule) {
-    dbModule = require("../../../utils/db");
-  }
-  return dbModule;
+  return db;
 }
 
 function getHelper(): any {
-  if (!helperModule) {
-    helperModule = require("../../../utils/match-helper");
-  }
-  return helperModule;
+  return helper;
 }
 
 function getEnv(): any {
-  if (!envModule) {
-    envModule = require("../../../config/env");
-  }
-  return envModule;
+  return env;
 }
 
 function getCloudDb(): any {

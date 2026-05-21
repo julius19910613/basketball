@@ -1,4 +1,4 @@
-import helper = require("../miniprogram/utils/match-helper");
+import helper from "../miniprogram/utils/match-helper";
 
 type PrepareMatchForSaveInput = Parameters<typeof helper.prepareMatchForSave>[0];
 

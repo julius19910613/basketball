@@ -1,7 +1,7 @@
 /// <reference path="../../../typings/index.d.ts" />
+import env from "../../config/env";
 
 const app = getApp();
-const env = require("../../config/env");
 const { getCollection } = env;
 
 interface IndexData {

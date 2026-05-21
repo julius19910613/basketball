@@ -2,7 +2,7 @@
 
 const app = getApp();
 const db = wx.cloud.database();
-const env = require("../../config/env");
+import env from "../../config/env";
 const { getCollection } = env;
 
 function formatDate(value: any): string {

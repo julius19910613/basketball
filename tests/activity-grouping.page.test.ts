@@ -1,4 +1,4 @@
-import path = require("path");
+import * as path from "path";
 
 type DataRecord = Record<string, any>;
 type MockFunction = jest.Mock<any, any[]>;

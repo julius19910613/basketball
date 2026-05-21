@@ -1,8 +1,11 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
+import db from "../../../utils/db";
+import helper from "../../../utils/activity-helper";
+
 type AppInstance = ReturnType<typeof getApp>;
-type AppDb = typeof import("../../../utils/db");
-type ActivityHelper = typeof import("../../../utils/activity-helper");
+type AppDb = typeof db;
+type ActivityHelper = typeof helper;
 
 interface ActivityFormData {
   title: string;
@@ -38,8 +41,6 @@ interface SavePayloadExtra {
 }
 
 let appInstance: AppInstance | null = null;
-let db: AppDb | null = null;
-let helper: ActivityHelper | null = null;
 
 function getAppInstance(): AppInstance {
   if (!appInstance) {
@@ -49,16 +50,10 @@ function getAppInstance(): AppInstance {
 }
 
 function getDb(): AppDb {
-  if (!db) {
-    db = require("../../../utils/db") as AppDb;
-  }
   return db;
 }
 
 function getHelper(): ActivityHelper {
-  if (!helper) {
-    helper = require("../../../utils/activity-helper") as ActivityHelper;
-  }
   return helper;
 }
 
