@@ -89,6 +89,8 @@
 | `selectedPlayerIds` | Array\<String\> | 参赛球员 ID 列表 |
 | `highlights` | String | 比赛备注 |
 | `isGroupingLocked` | Boolean | 分组是否已锁定 |
+| `ratingSession` | Object | 评分开关（可选，不存在表示兼容开放） |
+| `ratingSession.status` | String | 评分状态（`open` 表示开放，其它值关闭） |
 | `createdAt` | Date | 创建时间 |
 | `updatedAt` | Date | 更新时间 |
 
@@ -99,6 +101,8 @@
   "write": true
 }
 ```
+
+> 评分开关当前内嵌在 `matches.ratingSession`，没有独立 `match_rating_sessions` 集合；若未来需要按场次扩展更多评分配置，可再迁移为独立集合。
 
 ---
 
@@ -132,7 +136,106 @@
 
 ---
 
-## 5. match_records 比赛记录集合
+## 5. player_ratings 球员评分源记录集合
+
+**用途**: 存储用户对单场出场球员的原始评分。所有写入必须通过云函数 `submitPlayerRating`，前端只允许读取当前用户自己的记录。
+
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| `_id` | String | 文档ID (自动生成) |
+| `_openid` | String | 评分用户 OpenID（云函数根据 `cloud.getWXContext().OPENID` 显式写入） |
+| `matchId` | String | 比赛 ID |
+| `playerId` | String | 球员 ID |
+| `score` | Number | 评分整数，范围 1-10 |
+| `starValue` | Number | 星级展示值，范围 0.5-5，等于 `score / 2` |
+| `tags` | Array\<String\> | 标签白名单，最多 3 个 |
+| `comment` | String | 短评，trim 后最多 80 字 |
+| `compatMode` | Boolean | 是否因老比赛缺少 `playerStats` 而兼容 `selectedPlayerIds` |
+| `createdAt` | Date | 创建时间 |
+| `updatedAt` | Date | 更新时间 / 节流依据 |
+
+**索引**:
+- 唯一索引：`matchId + playerId + _openid`
+- 普通索引：`matchId + _openid + updatedAt`
+- 普通索引：`matchId + playerId`
+- 普通索引：`playerId`
+
+**安全规则**:
+```json
+{
+  "read": "doc._openid == auth.openid",
+  "create": false,
+  "update": false,
+  "delete": false
+}
+```
+
+> 前端查询必须带 `_openid: currentOpenid`。若无法获取 OpenID，不读取本集合也不允许提交评分。
+
+---
+
+## 6. match_player_rating_summaries 单场球员评分摘要集合
+
+**用途**: 存储每场比赛中每个球员的公开评分摘要，由 `submitPlayerRating` 从 `player_ratings` 重算。
+
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| `_id` | String | 文档ID (自动生成) |
+| `matchId` | String | 比赛 ID |
+| `playerId` | String | 球员 ID |
+| `ratingCount` | Number | 评分人数 |
+| `averageScore` | Number | 1-10 平均分，保留 1 位小数 |
+| `averageStar` | Number | 0.5-5 星级均值 |
+| `tagSummary` | Array | Top 5 标签统计 |
+| `tagSummary[].tag` | String | 标签 |
+| `tagSummary[].count` | Number | 次数 |
+| `compatMode` | Boolean | 最近一次聚合是否包含老数据兼容标记 |
+| `updatedAt` | Date | 更新时间 |
+
+**索引**:
+- 唯一索引：`matchId + playerId`
+- 普通索引：`matchId`
+
+**安全规则**:
+```json
+{
+  "read": true,
+  "write": false
+}
+```
+
+---
+
+## 7. player_rating_summaries 球员长期评分摘要集合
+
+**用途**: 存储球员跨比赛长期评分摘要，由 `submitPlayerRating` 从 `player_ratings` 重算，球员详情页公开展示。
+
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| `_id` | String | 文档ID (自动生成) |
+| `playerId` | String | 球员 ID |
+| `ratingCount` | Number | 累计评分次数 |
+| `averageScore` | Number | 1-10 平均分 |
+| `averageStar` | Number | 0.5-5 星级均值 |
+| `tagSummary` | Array | Top 5 标签统计 |
+| `updatedAt` | Date | 更新时间 |
+
+**索引**:
+- 唯一索引：`playerId`
+
+**安全规则**:
+```json
+{
+  "read": true,
+  "write": false
+}
+```
+
+> 摘要集合缺失时，比赛详情与球员详情会降级为空摘要，不影响基础页面加载；提交评分仍需要先创建三个评分集合并部署云函数。
+
+---
+
+## 8. match_records 比赛记录集合
 
 **用途**: 存储球员单场比赛数据
 
@@ -167,7 +270,7 @@
 
 ---
 
-## 6. activities 活动集合
+## 9. activities 活动集合
 
 **用途**: 存储一场篮球活动的主记录（报名、分组、赛程入口）
 
@@ -192,7 +295,7 @@
 
 ---
 
-## 7. activity_registrations 活动报名集合
+## 10. activity_registrations 活动报名集合
 
 **用途**: 存储球员对活动的报名记录
 
@@ -222,6 +325,9 @@
    - `matches`
    - `players`
    - `player_match_stats`
+   - `player_ratings`
+   - `match_player_rating_summaries`
+   - `player_rating_summaries`
    - `activities`
    - `activity_registrations`
 5. 为每个集合配置相应的安全规则

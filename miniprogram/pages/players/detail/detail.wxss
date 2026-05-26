@@ -272,6 +272,36 @@
   padding: 24rpx;
 }
 
+.rating-card {
+  margin-top: 20rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  border: 1rpx solid #d9e4fb;
+  box-shadow: 0 6rpx 16rpx rgba(22, 82, 240, 0.08);
+  padding: 24rpx;
+}
+
+.rating-score {
+  color: #1652f0;
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.rating-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin-top: 14rpx;
+}
+
+.rating-tag {
+  padding: 6rpx 12rpx;
+  border-radius: 8rpx;
+  background: #eef4ff;
+  color: #1652f0;
+  font-size: 22rpx;
+}
+
 .match-head {
   display: flex;
   justify-content: space-between;

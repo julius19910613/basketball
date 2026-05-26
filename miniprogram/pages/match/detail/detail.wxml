@@ -34,6 +34,7 @@
       <view class="tab {{tab===0?'active':''}}" data-tab="0" bindtap="onTabChange">每节比分</view>
       <view class="tab {{tab===1?'active':''}}" data-tab="1" bindtap="onTabChange">统计</view>
       <view class="tab {{tab===2?'active':''}}" data-tab="2" bindtap="onTabChange">分组备注</view>
+      <view class="tab {{tab===3?'active':''}}" data-tab="3" bindtap="onTabChange">评分</view>
     </view>
 
     <!-- 每节比分 -->
@@ -165,6 +166,78 @@
       <view class="note-box">
         <text class="note-title">比赛备注</text>
         <text class="note-text">{{match.highlights || '暂无备注'}}</text>
+      </view>
+    </view>
+
+    <!-- 评分 -->
+    <view wx:if="{{tab===3}}" class="panel rating-panel">
+      <view class="rating-status" wx:if="{{!ratingEnabled || !currentOpenid || ratingError}}">
+        <text wx:if="{{!ratingEnabled}}">{{ratingDisabledReason}}</text>
+        <text wx:elif="{{!currentOpenid}}">无法获取用户身份，仅展示公开评分</text>
+        <text wx:elif="{{ratingError}}">{{ratingError}}</text>
+      </view>
+      <view wx:if="{{ratingLoading}}" class="placeholder-quarter">
+        <text class="placeholder-text">评分加载中...</text>
+      </view>
+      <view wx:elif="{{!ratingRows.length}}" class="placeholder-quarter">
+        <text class="placeholder-text">暂无可评分球员</text>
+      </view>
+      <view wx:else class="rating-list">
+        <view wx:for="{{ratingRows}}" wx:key="playerId" wx:for-item="player" wx:for-index="idx" class="rating-card">
+          <view class="rating-head">
+            <view class="rating-player">
+              <text class="rating-name">{{player.nickname}}</text>
+              <text class="rating-meta">{{player.position}} · {{player.points}}分 / {{player.rebounds}}板 / {{player.assists}}助</text>
+            </view>
+            <view class="rating-summary">
+              <text class="rating-score">{{player.summary.averageScore || '-'}}</text>
+              <text class="rating-count">{{player.summary.ratingCount}}人评</text>
+            </view>
+          </view>
+          <view class="rating-summary-tags" wx:if="{{player.summary.tagSummary.length}}">
+            <text wx:for="{{player.summary.tagSummary}}" wx:key="tag" class="rating-summary-tag">{{item.tag}} {{item.count}}</text>
+          </view>
+          <view class="my-rating-row">
+            <text class="my-rating-label">我的评分</text>
+            <van-rate
+              value="{{player.myRating.starValue}}"
+              allow-half
+              color="#1652F0"
+              void-color="#C7D7FE"
+              size="26"
+              data-index="{{idx}}"
+              disabled="{{!ratingEnabled || !currentOpenid || player.submitting}}"
+              bind:change="onRatingChange"
+            />
+            <text class="my-rating-score">{{player.myRating.score ? player.myRating.score + '分' : '未评'}}</text>
+          </view>
+          <view class="rating-tags">
+            <text
+              wx:for="{{ratingTagOptions}}"
+              wx:key="*this"
+              class="rating-tag {{player.ratingTags.indexOf(item) !== -1 ? 'selected' : ''}}"
+              data-index="{{idx}}"
+              data-tag="{{item}}"
+              bindtap="onRatingTagToggle"
+            >{{item}}</text>
+          </view>
+          <input
+            class="rating-comment"
+            value="{{player.ratingComment}}"
+            placeholder="补充一句评价（80字内）"
+            maxlength="80"
+            data-index="{{idx}}"
+            disabled="{{!ratingEnabled || !currentOpenid || player.submitting}}"
+            bindinput="onRatingCommentInput"
+          />
+          <button
+            class="rating-submit"
+            loading="{{player.submitting}}"
+            disabled="{{!ratingEnabled || !currentOpenid || player.submitting}}"
+            data-index="{{idx}}"
+            bindtap="onSubmitRating"
+          >提交评分</button>
+        </view>
       </view>
     </view>
 

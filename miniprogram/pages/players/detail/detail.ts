@@ -5,6 +5,7 @@ import db from "../../../utils/db";
 type CloudDb = ReturnType<typeof wx.cloud.database>;
 type AppDb = {
   getPlayerSeasonStats(playerId: string, season: string): Promise<any>;
+  getPlayerRatingSummary(playerId: string): Promise<any | null>;
 };
 let cloudDb: CloudDb | null = null;
 let appDb: AppDb | null = null;
@@ -60,6 +61,7 @@ interface DetailData {
   editForm: EditForm;
   positionDisplayNames: string[];
   matchStats: any;
+  ratingSummary: any;
   avatarPickerVisible: boolean;
   selectedAvatarId: string;
 }
@@ -147,6 +149,7 @@ Page({
     },
     positionDisplayNames,
     matchStats: null,
+    ratingSummary: null,
     avatarPickerVisible: false,
     selectedAvatarId: ""
   } as DetailData,
@@ -195,6 +198,7 @@ Page({
         }
       });
       that.loadPlayerMatchStats(id);
+      that.loadPlayerRatingSummary(id);
     }).catch(function (error: any) {
       const message = isCollectionMissing(error)
         ? "当前环境缺少 players 集合，请先在 CloudBase 控制台创建"
@@ -366,6 +370,16 @@ Page({
       this.setData({ matchStats: stats });
     } catch (error) {
       console.error("load player match stats failed:", error);
+    }
+  },
+
+  async loadPlayerRatingSummary(playerId: string): Promise<void> {
+    try {
+      const summary = await getAppDb().getPlayerRatingSummary(playerId);
+      this.setData({ ratingSummary: summary });
+    } catch (error) {
+      this.setData({ ratingSummary: null });
+      console.error("load player rating summary failed:", error);
     }
   },
 

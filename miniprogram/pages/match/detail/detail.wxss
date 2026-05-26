@@ -495,6 +495,167 @@
   line-height: 1.6;
 }
 
+/* ===== Rating Tab ===== */
+.rating-panel {
+  background: #f4f8ff;
+  padding: 20rpx 24rpx 32rpx;
+}
+
+.rating-status {
+  margin-bottom: 18rpx;
+  padding: 18rpx 20rpx;
+  border-radius: 8rpx;
+  background: #eef4ff;
+  color: #1652f0;
+  font-size: 24rpx;
+  border: 1rpx solid #cfe0ff;
+}
+
+.rating-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+}
+
+.rating-card {
+  background: #fff;
+  border: 1rpx solid #d9e4fb;
+  border-radius: 8rpx;
+  padding: 22rpx;
+}
+
+.rating-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18rpx;
+  align-items: flex-start;
+}
+
+.rating-player {
+  min-width: 0;
+  flex: 1;
+}
+
+.rating-name {
+  display: block;
+  color: #0f172a;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.rating-meta {
+  display: block;
+  margin-top: 6rpx;
+  color: #64748b;
+  font-size: 22rpx;
+}
+
+.rating-summary {
+  width: 110rpx;
+  text-align: right;
+}
+
+.rating-score {
+  display: block;
+  color: #1652f0;
+  font-size: 38rpx;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.rating-count {
+  display: block;
+  margin-top: 6rpx;
+  color: #64748b;
+  font-size: 20rpx;
+}
+
+.rating-summary-tags,
+.rating-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin-top: 16rpx;
+}
+
+.rating-summary-tag {
+  padding: 6rpx 12rpx;
+  border-radius: 8rpx;
+  background: #f8fbff;
+  color: #64748b;
+  font-size: 20rpx;
+}
+
+.my-rating-row {
+  margin-top: 18rpx;
+  padding-top: 18rpx;
+  border-top: 1rpx solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+
+.my-rating-label {
+  color: #0f172a;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.my-rating-score {
+  color: #1652f0;
+  font-size: 22rpx;
+  min-width: 64rpx;
+}
+
+.rating-tag {
+  padding: 8rpx 16rpx;
+  border-radius: 8rpx;
+  border: 1rpx solid #d9e4fb;
+  color: #64748b;
+  background: #fff;
+  font-size: 22rpx;
+}
+
+.rating-tag.selected {
+  color: #1652f0;
+  background: #eef4ff;
+  border-color: #1652f0;
+  font-weight: 600;
+}
+
+.rating-comment {
+  margin-top: 16rpx;
+  width: 100%;
+  min-height: 70rpx;
+  box-sizing: border-box;
+  padding: 0 18rpx;
+  border-radius: 8rpx;
+  border: 1rpx solid #d9e4fb;
+  background: #f8fbff;
+  color: #0f172a;
+  font-size: 24rpx;
+}
+
+.rating-submit {
+  margin-top: 16rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  border-radius: 8rpx;
+  background: #1652f0;
+  color: #fff;
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.rating-submit[disabled] {
+  background: #cbd5e1;
+  color: #fff;
+}
+
+.rating-submit::after {
+  border: none;
+}
+
 /* ===== Placeholder ===== */
 .placeholder-quarter {
   padding: 80rpx 24rpx;

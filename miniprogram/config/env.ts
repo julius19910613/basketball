@@ -24,6 +24,9 @@ const COLLECTION_MAP: Record<EnvVersion, CollectionMap> = {
     matches: 'dev_matches',
     users: 'dev_users',
     player_match_stats: 'dev_player_match_stats',
+    player_ratings: 'dev_player_ratings',
+    match_player_rating_summaries: 'dev_match_player_rating_summaries',
+    player_rating_summaries: 'dev_player_rating_summaries',
     random_groups: 'dev_random_groups'
   },
   trial: {
@@ -34,6 +37,9 @@ const COLLECTION_MAP: Record<EnvVersion, CollectionMap> = {
     matches: 'dev_matches',
     users: 'dev_users',
     player_match_stats: 'dev_player_match_stats',
+    player_ratings: 'dev_player_ratings',
+    match_player_rating_summaries: 'dev_match_player_rating_summaries',
+    player_rating_summaries: 'dev_player_rating_summaries',
     random_groups: 'dev_random_groups'
   },
   release: {
@@ -44,6 +50,9 @@ const COLLECTION_MAP: Record<EnvVersion, CollectionMap> = {
     matches: 'matches',
     users: 'users',
     player_match_stats: 'player_match_stats',
+    player_ratings: 'player_ratings',
+    match_player_rating_summaries: 'match_player_rating_summaries',
+    player_rating_summaries: 'player_rating_summaries',
     random_groups: 'random_groups'
   }
 }

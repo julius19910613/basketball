@@ -16,6 +16,7 @@
 - 创建比赛（友谊赛 / 联赛 / 杯赛 / FIBA / NCAA）
 - 逐节比分记录（4 节制）
 - 球员数据统计（得分、篮板、助攻、抢断、盖帽、失误、犯规、投篮命中率）
+- 已完成比赛支持球员评分：5 星半星交互映射为 1-10 分，标签最多 3 个，短评最多 80 字
 - 比赛结果自动判定（胜 / 负 / 平）
 - 比赛列表按时间倒序 + 分页加载
 
@@ -46,7 +47,7 @@
 | UI 组件 | [Vant Weapp](https://vant-ui.github.io/vant-weapp/) |
 | 后端 | 腾讯云 CloudBase（`wx.cloud`） |
 | 数据库 | CloudBase NoSQL 文档数据库 |
-| 云函数 | Node.js（`getOpenId`、`batchImportPlayers`，入口均为 `index.ts`） |
+| 云函数 | Node.js（`getOpenId`、`batchImportPlayers`、`submitPlayerRating`，入口均为 `index.ts`） |
 | 测试 | Jest（unit / page / component / E2E） |
 
 ## 项目结构
@@ -78,7 +79,8 @@ basketball/
 │   └── styles/                 # 样式文件
 ├── cloudfunctions/             # 云函数
 │   ├── getOpenId/              # OpenID 获取
-│   └── batchImportPlayers/     # 批量导入球员（入口：index.ts）
+│   ├── batchImportPlayers/     # 批量导入球员（入口：index.ts）
+│   └── submitPlayerRating/     # 球员评分写入、节流与摘要聚合
 ├── scripts/                    # 脚本工具
 │   └── import-players.ts       # 球员数据导入脚本
 ├── tests/                      # Jest 分层测试（unit / page / component）
@@ -143,12 +145,22 @@ wx.cloud.init({
 | `activity_registrations` | 活动报名记录 |
 | `matches` | 比赛记录 |
 | `player_match_stats` | 球员单场比赛统计索引 |
+| `player_ratings` | 用户对单场出场球员的评分源记录 |
+| `match_player_rating_summaries` | 单场球员评分公开摘要 |
+| `player_rating_summaries` | 球员长期评分公开摘要 |
 
 详细字段说明见 [DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md)。
 
 比赛记录状态约定：
 - `draft`：待分组，可继续调整参赛名单与队伍分配
 - `finalized`：分组已锁定，列表进入详情页
+
+球员评分约定：
+- 只有 `matchStatus === "finished"` 的比赛可评分；`ratingSession` 不存在或 `ratingSession.status === "open"` 时开放，其它状态拒绝。
+- 当前实现采用 `matches.ratingSession` 作为内嵌评分开关，没有独立 `match_rating_sessions` 集合。
+- 前端只读取公开摘要与当前用户自己的 `player_ratings`，个人评分查询必须带 `_openid: currentOpenid`。
+- `submitPlayerRating` 云函数使用 `cloud.getWXContext().OPENID` 写入，校验出场名单、3 秒/10 秒频率限制，并从 `player_ratings` 源数据重算聚合摘要。
+- 老数据若缺少 `playerStats`，会兼容 `selectedPlayerIds` 判断可评分球员并在评分记录标记 `compatMode`；建议后续补齐技术统计以降低名单误判风险。
 
 篮球活动状态约定：
 - `draft`：草稿，尚未发布报名
@@ -160,7 +172,7 @@ wx.cloud.init({
 
 ### 5. 部署云函数
 
-在微信开发者工具中右键 `cloudfunctions/getOpenId` 或 `cloudfunctions/batchImportPlayers`（入口均为 `index.ts`）→ **上传并部署：云端安装依赖**。
+在微信开发者工具中右键 `cloudfunctions/getOpenId`、`cloudfunctions/batchImportPlayers` 或 `cloudfunctions/submitPlayerRating`（入口均为 `index.ts`）→ **上传并部署：云端安装依赖**。
 
 组件交互测试示例：`tests/player-stat-input.component.test.ts`。
 
@@ -195,6 +207,8 @@ npm run test:ci        # 本地模拟 CI（非 E2E + E2E）
 | 报错 `-502005` | 检查 `players`、`matches` 等集合是否已在 CloudBase 创建 |
 | 报名页提示未绑定球员 | 先到「个人中心」绑定当前微信对应的球员档案 |
 | 无法获取 `openid` | 确认云环境 ID 与 `getOpenId` 云函数在同一环境 |
+| 评分按钮不可用 | 比赛需为 `matchStatus=finished`，且当前用户需能获取 OpenID |
+| 评分集合缺失 | 创建 `player_ratings`、`match_player_rating_summaries`、`player_rating_summaries` 并部署 `submitPlayerRating` |
 | 已锁定比赛无法改分组 | 预期行为：`isGroupingLocked=true` 后仅允许查看详情 |
 | Vant 组件未生效 | 在微信开发者工具中执行「工具 → 构建 npm」 |
 

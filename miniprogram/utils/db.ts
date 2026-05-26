@@ -26,6 +26,9 @@ const COLLECTIONS = {
   ACTIVITY_REGISTRATIONS: 'activity_registrations',
   MATCHES: 'matches',
   PLAYER_MATCH_STATS: 'player_match_stats',
+  PLAYER_RATINGS: 'player_ratings',
+  MATCH_PLAYER_RATING_SUMMARIES: 'match_player_rating_summaries',
+  PLAYER_RATING_SUMMARIES: 'player_rating_summaries',
   TEAMS: 'teams',
   USERS: 'users',
   RANDOM_GROUPS: 'random_groups'
@@ -789,6 +792,78 @@ async function getPlayerSeasonStats(playerId: string, season: string | null | un
 }
 
 /**
+ * ================== Player Ratings 相关操作 ==================
+ */
+
+function isCollectionMissing(err: any): boolean {
+  var message = String((err && (err.message || err.errMsg)) || '')
+  return Number(err && err.errCode) === -502005 || message.indexOf('DATABASE_COLLECTION_NOT_EXIST') !== -1
+}
+
+async function getMatchPlayerRatingSummaries(matchId: string): Promise<any[]> {
+  try {
+    var res = await col('match_player_rating_summaries')
+      .where({ matchId: matchId })
+      .get()
+    return res.data || []
+  } catch (err) {
+    if (isCollectionMissing(err)) return []
+    console.error("获取比赛评分摘要失败:", err)
+    throw err
+  }
+}
+
+async function getMyMatchRatings(matchId: string, openid: string): Promise<any[]> {
+  if (!openid) return []
+  try {
+    var res = await col('player_ratings')
+      .where({ matchId: matchId, _openid: openid })
+      .get()
+    return res.data || []
+  } catch (err) {
+    if (isCollectionMissing(err)) return []
+    console.error("获取我的评分失败:", err)
+    throw err
+  }
+}
+
+async function getPlayerRatingSummary(playerId: string): Promise<any | null> {
+  try {
+    var res = await col('player_rating_summaries')
+      .where({ playerId: playerId })
+      .limit(1)
+      .get()
+    return (res.data || [])[0] || null
+  } catch (err) {
+    if (isCollectionMissing(err)) return null
+    console.error("获取球员评分摘要失败:", err)
+    throw err
+  }
+}
+
+async function submitPlayerRating(payload: any): Promise<any> {
+  try {
+    var app = getApp()
+    var envVersion = env.getEnvVersion()
+    var res = await wx.cloud.callFunction({
+      name: 'submitPlayerRating',
+      data: Object.assign({}, payload, { _envVersion: envVersion })
+    })
+    var result: any = (res && res.result) || {}
+    if (!result.success) {
+      throw new Error(result.message || '提交评分失败')
+    }
+    if (app && app.globalData && !app.globalData.openid && result.openid) {
+      app.globalData.openid = result.openid
+    }
+    return result
+  } catch (err) {
+    console.error("提交球员评分失败:", err)
+    throw err
+  }
+}
+
+/**
  * ================== 辅助函数 ==================
  */
 
@@ -1009,6 +1084,10 @@ export default {
   deleteMatch,
   getPlayerMatchHistory,
   getPlayerSeasonStats,
+  getMatchPlayerRatingSummaries,
+  getMyMatchRatings,
+  getPlayerRatingSummary,
+  submitPlayerRating,
 
   // skillLevel 相关
   getTeamMembersWithSkillLevel,

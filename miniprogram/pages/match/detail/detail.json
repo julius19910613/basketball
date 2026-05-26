@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "比赛详情"
+  "navigationBarTitleText": "比赛详情",
+  "usingComponents": {
+    "van-rate": "@vant/weapp/rate/index"
+  }
 }

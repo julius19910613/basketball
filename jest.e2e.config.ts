@@ -11,7 +11,12 @@ const config: Config.InitialOptions = {
   setupFilesAfterEnv: ["<rootDir>/e2e/setup.ts"],
   verbose: true,
   collectCoverage: false,
-  coveragePathIgnorePatterns: ["/node_modules/", "/e2e/"]
+  coveragePathIgnorePatterns: ["/node_modules/", "/e2e/"],
+  globals: {
+    "ts-jest": {
+      tsconfig: "tsconfig.tests.json"
+    }
+  }
 };
 
 export default config;

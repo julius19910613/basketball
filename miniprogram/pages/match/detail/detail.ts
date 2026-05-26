@@ -16,6 +16,28 @@ interface PlayerRow {
   [key: string]: unknown;
 }
 
+interface RatingSummary {
+  playerId: string;
+  ratingCount: number;
+  averageScore: number;
+  averageStar: number;
+  tagSummary?: Array<{ tag: string; count: number }>;
+  compatMode?: boolean;
+}
+
+interface RatingRow extends PlayerRow {
+  summary: RatingSummary;
+  myRating: {
+    score: number;
+    starValue: number;
+    tags: string[];
+    comment: string;
+  };
+  ratingComment: string;
+  ratingTags: string[];
+  submitting: boolean;
+}
+
 interface TeamStatSummary {
   totalPoints: number;
   totalRebounds: number;
@@ -68,6 +90,14 @@ interface DetailPageData {
   groupedPlayers: GroupedTeam[];
   teamStatPanels: TeamStatPanel[];
   canEditGrouping: boolean;
+  currentOpenid: string;
+  ratingRows: RatingRow[];
+  ratingLoading: boolean;
+  ratingError: string;
+  ratingReady: boolean;
+  ratingTagOptions: string[];
+  ratingEnabled: boolean;
+  ratingDisabledReason: string;
 }
 
 interface TabChangeEvent extends WechatMiniprogram.BaseEvent {
@@ -90,7 +120,15 @@ Page({
     benchedPlayers: [],
     groupedPlayers: [],
     teamStatPanels: [],
-    canEditGrouping: false
+    canEditGrouping: false,
+    currentOpenid: "",
+    ratingRows: [],
+    ratingLoading: false,
+    ratingError: "",
+    ratingReady: false,
+    ratingTagOptions: ["得分稳定", "篮板积极", "组织清晰", "防守在线", "关键先生", "团队配合", "拼抢积极", "投篮手感", "节奏掌控", "进步明显"],
+    ratingEnabled: false,
+    ratingDisabledReason: ""
   } as DetailPageData,
 
   onLoad(options: { id?: string }): void {
@@ -144,13 +182,110 @@ Page({
         benchedPlayers: benched,
         groupedPlayers: groups,
         teamStatPanels,
-        canEditGrouping: !helper.isGroupingLocked(match)
+        canEditGrouping: !helper.isGroupingLocked(match),
+        ratingEnabled: this.isRatingOpen(match),
+        ratingDisabledReason: this.getRatingDisabledReason(match)
       });
+      this.initRatingData();
     } catch (err) {
       console.error("load match detail failed", err);
       this.setData({ loading: false });
       wx.showToast({ title: "加载失败", icon: "none" });
     }
+  },
+
+  isRatingOpen(match: Record<string, unknown>): boolean {
+    const session = match.ratingSession as { status?: string } | undefined;
+    return match.matchStatus === "finished" && (!session || !session.status || session.status === "open");
+  },
+
+  getRatingDisabledReason(match: Record<string, unknown>): string {
+    const session = match.ratingSession as { status?: string } | undefined;
+    if (match.matchStatus !== "finished") return "比赛结束后开放评分";
+    if (session && session.status && session.status !== "open") return "本场评分已关闭";
+    return "";
+  },
+
+  async initRatingData(): Promise<void> {
+    const currentOpenid = await this.resolveOpenid();
+    this.setData({ currentOpenid });
+    await this.loadRatingData();
+  },
+
+  async resolveOpenid(): Promise<string> {
+    try {
+      const app = getApp() as unknown as { globalData?: { openid?: string | null }; getOpenId?: () => Promise<string> };
+      if (app.globalData && app.globalData.openid) return app.globalData.openid;
+      if (app.getOpenId) {
+        const openid = await app.getOpenId();
+        return openid || "";
+      }
+    } catch (err) {
+      console.warn("resolve openid failed", err);
+    }
+    return "";
+  },
+
+  async loadRatingData(): Promise<void> {
+    if (!this.data.match) return;
+    this.setData({ ratingLoading: true, ratingError: "" });
+    try {
+      const summaries = await db.getMatchPlayerRatingSummaries(this.data.id);
+      const myRatings = this.data.currentOpenid
+        ? await db.getMyMatchRatings(this.data.id, this.data.currentOpenid)
+        : [];
+      this.setData({
+        ratingRows: this.buildRatingRows(summaries || [], myRatings || []),
+        ratingLoading: false,
+        ratingReady: true
+      });
+    } catch (err) {
+      console.error("load rating data failed", err);
+      this.setData({
+        ratingRows: this.buildRatingRows([], []),
+        ratingLoading: false,
+        ratingReady: true,
+        ratingError: "评分数据暂不可用"
+      });
+    }
+  },
+
+  buildRatingRows(summaries: RatingSummary[], myRatings: Array<Record<string, unknown>>): RatingRow[] {
+    const summaryMap: Record<string, RatingSummary> = {};
+    (summaries || []).forEach((item) => {
+      if (item && item.playerId) summaryMap[item.playerId] = item;
+    });
+
+    const ratingMap: Record<string, Record<string, unknown>> = {};
+    (myRatings || []).forEach((item) => {
+      const playerId = String(item.playerId || "");
+      if (playerId) ratingMap[playerId] = item;
+    });
+
+    return (this.data.playedPlayers as PlayerRow[]).map((player) => {
+      const playerId = String(player.playerId || "");
+      const own = ratingMap[playerId] || {};
+      const score = Number(own.score || 0);
+      const tags = Array.isArray(own.tags) ? (own.tags as string[]) : [];
+      return Object.assign({}, player, {
+        summary: Object.assign({
+          playerId,
+          ratingCount: 0,
+          averageScore: 0,
+          averageStar: 0,
+          tagSummary: []
+        }, summaryMap[playerId] || {}),
+        myRating: {
+          score,
+          starValue: score ? score / 2 : 0,
+          tags,
+          comment: String(own.comment || "")
+        },
+        ratingComment: String(own.comment || ""),
+        ratingTags: tags,
+        submitting: false
+      });
+    });
   },
 
   formatPct(value: number | string | null | undefined): string {
@@ -235,6 +370,77 @@ Page({
 
   onQuarterTabChange(e: TabChangeEvent): void {
     this.setData({ quarterTab: Number(e.currentTarget.dataset.idx) || 0 });
+  },
+
+  onRatingChange(e: WechatMiniprogram.CustomEvent): void {
+    const index = Number(e.currentTarget.dataset.index);
+    const starValue = Number(e.detail || 0);
+    if (!Number.isFinite(index) || index < 0) return;
+    this.setData({
+      [`ratingRows.${index}.myRating.starValue`]: starValue,
+      [`ratingRows.${index}.myRating.score`]: Math.round(starValue * 2)
+    });
+  },
+
+  onRatingCommentInput(e: WechatMiniprogram.CustomEvent): void {
+    const index = Number(e.currentTarget.dataset.index);
+    if (!Number.isFinite(index) || index < 0) return;
+    const value = String((e.detail && e.detail.value) || "").slice(0, 80);
+    this.setData({
+      [`ratingRows.${index}.ratingComment`]: value,
+      [`ratingRows.${index}.myRating.comment`]: value
+    });
+  },
+
+  onRatingTagToggle(e: WechatMiniprogram.BaseEvent): void {
+    const index = Number(e.currentTarget.dataset.index);
+    const tag = String(e.currentTarget.dataset.tag || "");
+    if (!Number.isFinite(index) || index < 0 || !tag) return;
+    const row = this.data.ratingRows[index];
+    const current = row.ratingTags || [];
+    const exists = current.indexOf(tag) !== -1;
+    const next = exists ? current.filter((item) => item !== tag) : current.concat(tag).slice(0, 3);
+    this.setData({
+      [`ratingRows.${index}.ratingTags`]: next,
+      [`ratingRows.${index}.myRating.tags`]: next
+    });
+  },
+
+  async onSubmitRating(e: WechatMiniprogram.BaseEvent): Promise<void> {
+    const index = Number(e.currentTarget.dataset.index);
+    const row = this.data.ratingRows[index];
+    if (!row) return;
+    if (!this.data.ratingEnabled) {
+      wx.showToast({ title: this.data.ratingDisabledReason || "当前不可评分", icon: "none" });
+      return;
+    }
+    if (!this.data.currentOpenid) {
+      wx.showToast({ title: "无法获取用户身份", icon: "none" });
+      return;
+    }
+    const score = Number(row.myRating.score || 0);
+    const starValue = Number(row.myRating.starValue || score / 2);
+    if (!score) {
+      wx.showToast({ title: "请选择评分", icon: "none" });
+      return;
+    }
+
+    this.setData({ [`ratingRows.${index}.submitting`]: true });
+    try {
+      await db.submitPlayerRating({
+        matchId: this.data.id,
+        playerId: row.playerId,
+        score,
+        starValue,
+        tags: row.ratingTags || [],
+        comment: row.ratingComment || ""
+      });
+      wx.showToast({ title: "评分已提交", icon: "success" });
+      await this.loadRatingData();
+    } catch (err) {
+      wx.showToast({ title: err instanceof Error ? err.message : "提交失败", icon: "none" });
+      this.setData({ [`ratingRows.${index}.submitting`]: false });
+    }
   },
 
   onEdit(): void {

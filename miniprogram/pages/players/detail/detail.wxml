@@ -114,6 +114,20 @@
     <text wx:else class="match-empty">暂无比赛数据，点击查看比赛列表</text>
   </view>
 
+  <view wx:if="{{player}}" class="rating-card">
+    <view class="match-head">
+      <text class="match-title">球员评分</text>
+      <text class="rating-score">{{ratingSummary && ratingSummary.ratingCount ? ratingSummary.averageScore + '分' : '暂无'}}</text>
+    </view>
+    <view wx:if="{{ratingSummary && ratingSummary.ratingCount > 0}}">
+      <text class="match-text">累计 {{ratingSummary.ratingCount}} 次评分 · 平均 {{ratingSummary.averageStar}} 星</text>
+      <view class="rating-tags" wx:if="{{ratingSummary.tagSummary && ratingSummary.tagSummary.length}}">
+        <text wx:for="{{ratingSummary.tagSummary}}" wx:key="tag" class="rating-tag">{{item.tag}} {{item.count}}</text>
+      </view>
+    </view>
+    <text wx:else class="match-empty">暂无评分数据</text>
+  </view>
+
   <!-- 底部操作栏 -->
   <view wx:if="{{player}}" class="action-bar">
     <block wx:if="{{!editing}}">

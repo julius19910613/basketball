@@ -5,3 +5,6 @@
 command = "npx"
 args = ["npm-global-exec@latest", "@cloudbase/cloudbase-mcp@latest"]
 env = { INTEGRATION_IDE = "CodeX" }
+
+[mcp_servers.cloudbase.tools.writeNoSqlDatabaseStructure]
+approval_mode = "approve"
