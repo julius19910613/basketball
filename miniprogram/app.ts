@@ -167,13 +167,21 @@ const appConfig: WechatMiniprogram.App.Options<AppCustomProperties> = {
         }
       } else {
         // 自动创建空记录
+        const emptyUser: UserProfile = {
+          _openid: openid,
+          nickName: "",
+          avatarUrl: ""
+        };
         await db.collection(getCollection("users")).add({
           data: {
-            _openid: openid,
+            ...emptyUser,
             createdAt: db.serverDate(),
             updatedAt: db.serverDate()
           }
         });
+        this.globalData.userInfo = emptyUser;
+        this.globalData.isLoggedIn = true;
+        wx.setStorageSync("userInfo", emptyUser);
         console.log("新用户已自动创建");
       }
     } catch (err: unknown) {

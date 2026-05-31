@@ -18,6 +18,12 @@ The following rules are mandatory for all feature development and bug fixes:
    - If mismatch exists, update `README.md` in the same change set before commit.
    - README writing style and structure MUST reference best practices discovered from Context7 + Brave Search.
 
+3. **Workflow records only in llm-wiki (required)**
+   - Design notes, implementation progress logs, debugging diaries, test diaries, retrospectives, and temporary process records MUST be recorded only in `llm-wiki`.
+   - Agents MUST NOT create or update process-log files under `docs/`, `docs/archive/`, `README.md`, or other repository paths for routine design/development/testing tracking unless the user explicitly asks for a durable product document.
+   - Stable product documentation is still allowed in repository files when it describes shipped behavior, setup, architecture, or user-facing operations. Process history belongs in `llm-wiki` only.
+   - If `llm-wiki` is unavailable in the current environment, agents should say so and avoid creating substitute process logs in the repository without explicit user approval.
+
 ### Pre-Commit Mandatory Checklist
 
 Before running `git commit`, agents MUST complete and satisfy all items below:
@@ -28,6 +34,7 @@ Before running `git commit`, agents MUST complete and satisfy all items below:
 - [ ] Current implemented behavior compared against `README.md`
 - [ ] `README.md` updated in the same change set if any mismatch was found
 - [ ] README organization/content follows best practices learned from Context7 + Brave Search
+- [ ] Design/development/testing process notes recorded only in `llm-wiki` (or explicitly reported unavailable)
 - [ ] Commit message summarizes user-facing behavior changes and docs alignment
 
 ## Project Overview

@@ -5,14 +5,14 @@ const app = getApp();
 const { getCollection } = env;
 
 interface IndexData {
-  teamCount: number;
+  playerCount: number;
   matchCount: number;
   userInfo: any;
 }
 
 Page({
   data: {
-    teamCount: 0,
+    playerCount: 0,
     matchCount: 0,
     userInfo: null
   } as IndexData,
@@ -38,14 +38,12 @@ Page({
   fetchSummary: async function () {
     const db = wx.cloud.database();
     try {
-      const teamRes = await db.collection(getCollection('teams')).where({
-        _openid: app.globalData.openid
-      }).count();
+      const playerRes = await db.collection(getCollection('players')).count();
 
       const matchRes = await db.collection(getCollection('matches')).count();
 
       this.setData({
-        teamCount: teamRes.total,
+        playerCount: playerRes.total,
         matchCount: matchRes.total
       });
     } catch (err) {

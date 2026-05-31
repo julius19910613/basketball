@@ -30,6 +30,17 @@ interface PlayerSelectionChangeEvent {
   };
 }
 
+interface PickerEvent {
+  currentTarget?: {
+    dataset?: {
+      field?: string;
+    };
+  };
+  detail: {
+    value: string;
+  };
+}
+
 function applySetData(target: DataRecord, patch: DataRecord): void {
   Object.keys(patch).forEach((key: string) => {
     if (!key.includes(".")) {
@@ -143,5 +154,18 @@ describe("match create page player select all", (): void => {
     page.onPlayerSelectionChange({ detail: { value: ["p1", "p2", "p3"] } } as PlayerSelectionChangeEvent);
     expect(page.data.tempSelectedPlayerIds).toEqual(["p1", "p2", "p3"]);
     expect(page.data.isAllPlayersSelected).toBe(true);
+  });
+
+  test("blocks invalid time range from picker values", (): void => {
+    const page = loadPage("miniprogram/pages/match/create/create.ts");
+
+    page.onMatchDateChange({ detail: { value: "2026-06-01" } } as PickerEvent);
+    page.onStartTimeChange({ detail: { value: "20:00" } } as PickerEvent);
+    page.onEndTimeChange({ detail: { value: "19:30" } } as PickerEvent);
+
+    expect(page.data.form.matchDate).toBe("2026-06-01");
+    expect(page.data.form.startTime).toBe("20:00");
+    expect(page.data.form.endTime).toBe("19:30");
+    expect(page.validateForm()).toBe("结束时间需晚于开始时间");
   });
 });

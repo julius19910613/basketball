@@ -1,0 +1,7 @@
+{
+  "name": "basketball-miniprogram-runtime",
+  "private": true,
+  "dependencies": {
+    "@vant/weapp": "^1.11.7"
+  }
+}

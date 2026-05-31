@@ -39,7 +39,7 @@
     "packNpmManually": true,
     "packNpmRelationList": [
       {
-        "packageJsonPath": "./package.json",
+        "packageJsonPath": "./miniprogram/package.json",
         "miniprogramNpmDistDir": "./miniprogram/"
       }
     ],
@@ -50,7 +50,9 @@
     "minifyWXML": true,
     "localPlugins": false,
     "disableUseStrict": false,
-    "useCompilerPlugins": ["typescript"],
+    "useCompilerPlugins": [
+      "typescript"
+    ],
     "swc": false,
     "disableSWC": true
   },
