@@ -7,10 +7,12 @@
 ## 功能特性
 
 ### 球员管理
-- 创建 / 编辑 / 删除球员，支持 `PG / SG / SF / PF / C` 五个位置
-- 录入昵称、身高、体重、生日、综合评分
+- 创建 / 编辑球员，支持 `PG / SG / SF / PF / C` 五个位置
+- 录入昵称、真实姓名、身高、体重、生日、头像与 MVP 标记
+- 球员列表 / 详情页头像支持点击查看大图预览
 - 批量导入球员（云函数 `batchImportPlayers`）
-- 下拉刷新 + 骨架屏加载
+- 球员列表、比赛选人和活动分组使用分页聚合，避免超过 20 人时漏数据
+- 下拉刷新与加载、空数据、异常状态反馈
 
 ### 比赛记录
 - 创建比赛（友谊赛 / 联赛 / 杯赛 / FIBA / NCAA）
@@ -28,8 +30,8 @@
 - 每场比赛可进入单独的技术统计录入页
 
 ### 智能分组
-- **按位置均衡分组**（2 队）：按篮球位置分桶，桶内暴力搜索最优解（≤14人），均衡身高 / 体重 / 综合评分
-- **蛇形分组**（2~N 队）：按综合评分降序蛇形轮流分配
+- **按位置均衡分组**（2 队）：按篮球位置分桶，桶内搜索最优解（≤14人），均衡身高 / 体重 / 可用评分
+- **蛇形分组**（2~N 队）：有评分时按评分排序，无评分时使用稳定回退值
 - 一键自动分组 + 手动拖拽调整
 - 草稿保存，支持继续编辑
 - 锁定后分组不可变更，参赛名单与球员比赛数据保持同步
@@ -38,6 +40,15 @@
 - 微信静默登录 + OpenID 识别
 - 球员关联绑定
 - 球衣号码 / 位置 / 身份信息展示
+
+## 当前边界与后续规划
+
+README 中上述条目均为当前源码已有入口。以下能力尚未实现，作为后续规划保留：
+
+- 球员档案删除与恢复
+- 球员技能维度的可视化录入，以及由技能自动计算综合评分
+- 视频上传、目标跟踪、事件识别和自动生成技术统计
+- 超过 500 名球员时的搜索式选择器；当前分页聚合设置 500 条安全上限
 
 ## 技术栈
 
@@ -58,6 +69,7 @@ basketball/
 │   ├── app.ts                  # CloudBase 初始化
 │   ├── app.json                # 页面路由 & TabBar 配置
 │   ├── app.wxss                # 全局样式（Coinbase Blue 主题）
+│   ├── config/                 # 环境集合映射、头像预设
 │   ├── pages/
 │   │   ├── index/              # 首页
 │   │   ├── players/            # 球员（列表 / 新增 / 详情）
@@ -65,15 +77,14 @@ basketball/
 │   │   ├── match/              # 比赛（列表 / 创建 / 分组 / 详情 / 技术统计录入）
 │   │   └── profile/            # 个人中心
 │   ├── components/             # 自定义组件
-│   │   ├── player-card/        # 球员卡片
+│   │   ├── avatar-picker/      # 头像选择器
 │   │   ├── player-stat-input/  # 数据录入组件
-│   │   ├── group-animation/    # 分组动画
-│   │   ├── skeleton/           # 骨架屏
-│   │   └── toast/              # Toast 提示
 │   ├── utils/                  # 工具函数
 │   │   ├── activity-helper.ts  # 活动工具（报名、赛程、分组快照）
 │   │   ├── match-helper.ts     # 比赛工具（分组算法、数据计算）
 │   │   ├── group-algorithm.ts  # 分组算法
+│   │   ├── cloud-pagination.ts # 云数据库分页聚合
+│   │   ├── avatar-preview.ts   # 云文件头像预览
 │   │   ├── db.ts               # 数据库封装
 │   │   └── basketball.ts       # 篮球常量 & 工具
 │   └── styles/                 # 样式文件
@@ -122,7 +133,7 @@ npm install
 
 ### 3. 配置云环境
 
-在 `miniprogram/app.ts` 中设置你的云环境 ID：
+在 `miniprogram/app.ts` 中设置你的 CloudBase 环境 ID：
 
 ```javascript
 wx.cloud.init({
@@ -130,6 +141,8 @@ wx.cloud.init({
   traceUser: true,
 });
 ```
+
+同一 CloudBase 环境通过 `miniprogram/config/env.ts` 隔离数据：开发版和体验版访问 `dev_*` 集合，正式版访问无前缀集合。页面和数据库封装必须通过 `getCollection()` 路由，禁止直接写死集合名。
 
 ### 4. 创建数据库集合
 
@@ -185,10 +198,11 @@ npm run test:page      # 页面逻辑测试
 npm run test:component # 组件渲染/交互测试
 npm run test:self      # 球员模块自测
 npm run test:e2e       # miniprogram-automator E2E
+npm run test:e2e:dev   # 只读校验线上 dev_* 数据并执行核心页面冒烟
 npm run test:ci        # 本地模拟 CI（非 E2E + E2E）
 ```
 
-说明：`npm test` 默认聚合 `unit`、`page`、`component` 三层，并输出覆盖率到 `coverage/`；E2E 需要显式执行 `npm run test:e2e`。
+说明：`npm test` 默认聚合 `unit`、`page`、`component` 三层，并输出覆盖率到 `coverage/`；E2E 需要显式执行。`test:e2e:dev` 只查询 `dev_*` 集合，不创建、更新或删除业务数据，运行前需登录微信开发者工具并开启服务端口。完整说明见 [自动化测试指南](./docs/automated-testing-guide.md)。
 
 ## UI 主题
 

@@ -456,18 +456,15 @@ async function generateActivityMatches(activity: any): Promise<any[]> {
     if (!schedule.length) throw new Error('无法生成赛程')
 
     var existing = await getMatchesByActivity(activity._id)
-    if (existing.length) {
-      return existing
-    }
+    var existingGameIndexes = new Set(existing.map(function (match: any) {
+      return Number(match.gameIndex)
+    }))
 
-    var selectedPlayerIds = ((activity.groupingSnapshot && activity.groupingSnapshot.teams) || [])
-      .reduce(function (acc: any, team: any) {
-        return acc.concat(team.playerIds || [])
-      }, [])
-
-    var created = []
+    var matches = existing.slice()
     for (var i = 0; i < schedule.length; i += 1) {
       var game = schedule[i]
+      if (existingGameIndexes.has(game.gameIndex)) continue
+      var grouping = activityHelper.buildMatchGroupingFromActivity(activity.groupingSnapshot, game.homeTeamName, game.awayTeamName)
       var matchPayload = {
         activityId: activity._id,
         gameIndex: game.gameIndex,
@@ -484,8 +481,8 @@ async function generateActivityMatches(activity: any): Promise<any[]> {
         status: 'finalized',
         matchStatus: 'scheduled',
         isGroupingLocked: true,
-        selectedPlayerIds: selectedPlayerIds,
-        grouping: activityHelper.buildMatchGroupingFromActivity(activity.groupingSnapshot, game.homeTeamName, game.awayTeamName),
+        selectedPlayerIds: activityHelper.getGroupingPlayerIds(grouping),
+        grouping: grouping,
         playerStats: [],
         quarters: [
           { quarter: 1, scoreUs: 0, scoreOpponent: 0 },
@@ -498,16 +495,20 @@ async function generateActivityMatches(activity: any): Promise<any[]> {
         highlights: ''
       }
       var matchId = await createMatch(matchPayload)
-      created.push(Object.assign({ _id: matchId }, matchPayload))
+      matches.push(Object.assign({ _id: matchId }, matchPayload))
     }
 
-    await col('activities').doc(activity._id).update({
-      data: {
-        status: 'in_progress',
-        updatedAt: db.serverDate()
-      }
+    if (matches.length >= schedule.length && activity.status !== 'in_progress' && activity.status !== 'finished') {
+      await col('activities').doc(activity._id).update({
+        data: {
+          status: 'in_progress',
+          updatedAt: db.serverDate()
+        }
+      })
+    }
+    return matches.sort(function (a: any, b: any) {
+      return Number(a.gameIndex || 0) - Number(b.gameIndex || 0)
     })
-    return created
   } catch (err) {
     console.error('生成活动赛程失败:', err)
     throw err

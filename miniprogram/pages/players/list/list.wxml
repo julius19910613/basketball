@@ -27,7 +27,11 @@
         <text class="mvp-ribbon-text">MVP</text>
       </view>
       <view class="card-main">
-        <view class="avatar-wrap {{item.isMvp ? 'mvp' : ''}}">
+        <view
+          class="avatar-wrap {{item.isMvp ? 'mvp' : ''}}"
+          catchtap="onPreviewAvatar"
+          data-avatar="{{item.avatar}}"
+        >
           <view wx:if="{{item.isMvp}}" class="avatar-halo"></view>
           <image class="player-avatar" src="{{item.avatar || '/images/default_avatar.svg'}}" mode="aspectFill" />
           <view wx:if="{{item.isMvp}}" class="crown-badge">

@@ -1,6 +1,8 @@
 /// <reference path="../../../../typings/index.d.ts" />
 
 import db from "../../../utils/db";
+import env from "../../../config/env";
+import { previewAvatar } from "../../../utils/avatar-preview";
 
 type CloudDb = ReturnType<typeof wx.cloud.database>;
 type AppDb = {
@@ -171,7 +173,7 @@ Page({
     const that = this;
     const db = getCloudDb();
     that.setData({ loading: true, errorMessage: "" });
-    db.collection("players").doc(id).get().then(function (res: { data?: Partial<PlayerDoc> | null }) {
+    db.collection(env.getCollection("players")).doc(id).get().then(function (res: { data?: Partial<PlayerDoc> | null }) {
       const player = res.data;
       if (!player) {
         that.setData({
@@ -254,6 +256,20 @@ Page({
 
   onAvatarPickerClose() {
     this.setData({ avatarPickerVisible: false });
+  },
+
+  async onPreviewAvatar() {
+    const avatar = this.data.player && this.data.player.avatar ? this.data.player.avatar : "";
+    if (!avatar) {
+      wx.showToast({ title: "该球员暂无头像", icon: "none" });
+      return;
+    }
+    try {
+      await previewAvatar(avatar);
+    } catch (error) {
+      console.error("preview player avatar failed:", error);
+      wx.showToast({ title: "头像预览失败", icon: "none" });
+    }
   },
 
   onEditInput(e: WechatMiniprogram.BaseEvent) {
@@ -347,7 +363,7 @@ Page({
     that.setData({ saving: true });
     wx.showLoading({ title: "保存中...", mask: true });
 
-    getCloudDb().collection("players").doc(that.data.playerId).update({
+    getCloudDb().collection(env.getCollection("players")).doc(that.data.playerId).update({
       data: updateData
     }).then(function () {
       wx.hideLoading();

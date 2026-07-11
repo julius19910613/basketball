@@ -3,6 +3,7 @@
 const app = getApp();
 const db = wx.cloud.database();
 import env from "../../config/env";
+import { fetchAllRecords } from "../../utils/cloud-pagination";
 const { getCollection } = env;
 
 function formatDate(value: any): string {
@@ -91,8 +92,8 @@ Page({
 
   loadUnlinkedPlayers: function () {
     const that = this;
-    db.collection(getCollection("players")).orderBy("createdAt", "desc").get().then(function (res: any) {
-      const unlinked = (res.data || []).filter(function (p: any) {
+    fetchAllRecords<any>(() => db.collection(getCollection("players")).orderBy("createdAt", "desc")).then(function (records: any[]) {
+      const unlinked = records.filter(function (p: any) {
         return !p.linkedOpenid;
       });
       that.setData({ unlinkedPlayers: unlinked });

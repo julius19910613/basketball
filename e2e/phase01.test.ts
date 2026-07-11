@@ -1,194 +1,170 @@
-/**
- * Phase 0+1 自动化测试
- * 测试内容：
- * 1. basketball.js 工具模块（19项技能 + Overall V2 算法）
- * 2. skill-input 组件（技能录入）
- * 3. add-player 页面（技能录入 + Overall 实时显示）
- * 4. player-card 组件增强
- */
-
+import path from "path";
 import automator from "miniprogram-automator";
 
-type MiniProgramInstance = Awaited<ReturnType<typeof automator.connect>>;
+type MiniProgramInstance = Awaited<ReturnType<typeof automator.launch>>;
 type PageInstance = NonNullable<Awaited<ReturnType<MiniProgramInstance["reLaunch"]>>>;
-type ElementInstance = Awaited<ReturnType<PageInstance["$"]>>;
-type DataElementInstance = ElementInstance & {
-  data(path?: string): Promise<any>;
-};
 
-interface PlayerSkills {
-  twoPointShot: number;
-  threePointShot: number;
-  freeThrow: number;
-  passing: number;
-  ballControl: number;
-  courtVision: number;
-  perimeterDefense: number;
-  interiorDefense: number;
-  steals: number;
-  blocks: number;
-  offensiveRebound: number;
-  defensiveRebound: number;
-  speed: number;
-  strength: number;
-  stamina: number;
-  vertical: number;
-  basketballIQ: number;
-  teamwork: number;
-  clutch: number;
+interface DevDataSnapshot {
+  collections: Record<string, Array<Record<string, any>>>;
 }
 
-interface PlayerCardData {
-  id: string;
-  name: string;
-  position: string;
-  skills: PlayerSkills;
+const DEV_COLLECTIONS = [
+  "dev_players",
+  "dev_matches",
+  "dev_activities",
+  "dev_activity_registrations",
+  "dev_player_match_stats",
+  "dev_player_ratings",
+  "dev_match_player_rating_summaries",
+  "dev_player_rating_summaries",
+  "dev_teams",
+  "dev_users"
+];
+
+const runLiveDevSuite = process.env.LIVE_DEV_E2E === "1";
+const describeLiveDev = runLiveDevSuite ? describe : describe.skip;
+
+async function waitUntilLoaded(page: PageInstance, field: string): Promise<any> {
+  for (let attempt = 0; attempt < 30; attempt += 1) {
+    if (!(await page.data(field))) return page.data();
+    await page.waitFor(250);
+  }
+  throw new Error(`页面加载超时: ${field}`);
 }
 
-// 需先用 CLI 打开项目并开启自动化（默认 ws://localhost:9420），否则跳过本文件
-const runConnectSuite: boolean = process.env.E2E_WS_CONNECT === "1";
-const describeConnect: jest.Describe = runConnectSuite ? describe : describe.skip;
+function idsOf(records: Array<Record<string, any>>): Set<string> {
+  return new Set(records.map((item) => String(item._id || "")).filter(Boolean));
+}
 
-describeConnect("Phase 0+1 测试（connect，需 E2E_WS_CONNECT=1）", (): void => {
+describeLiveDev("线上 dev 数据与核心页面（只读）", () => {
   let miniProgram: MiniProgramInstance;
-  let page: PageInstance;
+  let snapshot: DevDataSnapshot;
 
-  beforeAll(async (): Promise<void> => {
-    // 强制尝试连接，不自动 launch
-    console.log("🔗 尝试连接到开发者工具 (请确保 CLI 已启动)...");
-    miniProgram = await automator.connect({
-      wsEndpoint: "ws://localhost:9420" // WebSocket 端口（默认）
-    });
-    console.log("✅ 成功连接！");
-  }, 90000);
+  beforeAll(async () => {
+    miniProgram = process.env.E2E_WS_ENDPOINT
+      ? await automator.connect({ wsEndpoint: process.env.E2E_WS_ENDPOINT })
+      : await automator.launch({
+        cliPath: process.env.WECHAT_DEVTOOLS_CLI || "/Applications/wechatwebdevtools.app/Contents/MacOS/cli",
+        projectPath: process.env.MINIPROGRAM_PROJECT_PATH || path.join(__dirname, ".."),
+        port: Number(process.env.E2E_AUTOMATION_PORT || 9421),
+        trustProject: true
+      });
 
-  afterAll(async (): Promise<void> => {
-    if (miniProgram) {
-      await miniProgram.close();
-    }
-  });
-
-  /**
-   * 测试1：首页加载
-   */
-  test("首页应该正常加载", async (): Promise<void> => {
-    page = (await miniProgram.reLaunch("/pages/index/index"))!;
-    await page.waitFor(1000);
-
-    const pageTitle = await page.data("pageTitle");
-    expect(pageTitle).toBeDefined();
-  });
-
-  /**
-   * 测试2：basketball.js 工具模块 - Overall 计算
-   */
-  test("Overall V2 算法应该正确计算", async (): Promise<void> => {
-    // 模拟技能数据
-    const skills: PlayerSkills = {
-      twoPointShot: 70, threePointShot: 65, freeThrow: 75,
-      passing: 80, ballControl: 85, courtVision: 78,
-      perimeterDefense: 72, interiorDefense: 68, steals: 70, blocks: 65,
-      offensiveRebound: 60, defensiveRebound: 65,
-      speed: 75, strength: 70, stamina: 80, vertical: 72,
-      basketballIQ: 82, teamwork: 85, clutch: 78
-    };
-
-    // 调用 Overall V2 计算
-    const overall = await miniProgram.callWxMethod("calculateOverallV2", skills, "PG");
-    expect(overall).toBeGreaterThanOrEqual(60);
-    expect(overall).toBeLessThanOrEqual(90);
-  });
-
-  /**
-   * 测试3：球员添加页面 - 技能录入
-   */
-  test("球员添加页面应该支持技能录入", async (): Promise<void> => {
-    page = (await miniProgram.reLaunch("/pages/add-player/add-player"))!;
-    await page.waitFor(1000);
-
-    // 检查页面是否加载
-    const pageData = await page.data();
-    expect(pageData).toBeDefined();
-
-    // 检查是否有技能输入组件
-    const skillInput = await page.$("skill-input");
-    expect(skillInput).toBeDefined();
-  });
-
-  /**
-   * 测试4：球员卡片 - Overall 显示
-   */
-  test("球员卡片应该显示 Overall 和技能概要", async (): Promise<void> => {
-    // 模拟球员数据
-    const playerData: PlayerCardData = {
-      id: "test-player-1",
-      name: "测试球员",
-      position: "PG",
-      skills: {
-        twoPointShot: 70, threePointShot: 65, freeThrow: 75,
-        passing: 80, ballControl: 85, courtVision: 78,
-        perimeterDefense: 72, interiorDefense: 68, steals: 70, blocks: 65,
-        offensiveRebound: 60, defensiveRebound: 65,
-        speed: 75, strength: 70, stamina: 80, vertical: 72,
-        basketballIQ: 82, teamwork: 85, clutch: 78
+    snapshot = await miniProgram.evaluate(function (collectionNames: string[]) {
+      const cloudDb = wx.cloud.database();
+      function readAll(name: string, offset: number, records: any[]): Promise<{ name: string; data: any[] }> {
+        return cloudDb.collection(name).skip(offset).limit(20).get().then(function (result: any) {
+          const page = result.data || [];
+          const next = records.concat(page);
+          return page.length < 20 ? { name: name, data: next } : readAll(name, next.length, next);
+        });
       }
-    };
+      return Promise.all(collectionNames.map(function (name: string) {
+        return readAll(name, 0, []);
+      })).then(function (results: Array<{ name: string; data: any[] }>) {
+        const collections: Record<string, any[]> = {};
+        results.forEach(function (result) {
+          collections[result.name] = result.data;
+        });
+        return { collections: collections };
+      });
+    }, DEV_COLLECTIONS) as DevDataSnapshot;
+  }, 120000);
 
-    void playerData;
-
-    // 检查 player-card 组件
-    const playerCard: DataElementInstance = await page.$("player-card") as DataElementInstance;
-    if (playerCard) {
-      const cardData = await playerCard.data();
-      expect(cardData.overall).toBeDefined();
-    }
+  afterAll(async () => {
+    if (miniProgram) await miniProgram.close();
   });
 
-  /**
-   * 测试5：技能录入 - 滑动条交互
-   */
-  test("技能录入滑动条应该正常工作", async (): Promise<void> => {
-    page = (await miniProgram.reLaunch("/pages/add-player/add-player"))!;
-    await page.waitFor(1000);
-
-    // 查找滑动条元素
-    const sliders = await page.$$("slider");
-    expect(sliders.length).toBeGreaterThan(0);
-
-    // 模拟滑动
-    if (sliders.length > 0) {
-      const firstSlider = sliders[0];
-      await firstSlider.trigger("change", { value: 80 });
-      await page.waitFor(500);
-
-      // 检查值是否更新
-      const pageData = await page.data();
-      expect(pageData.skills).toBeDefined();
-    }
+  test("只访问 dev 集合且核心数据已装载", () => {
+    expect(Object.keys(snapshot.collections).sort()).toEqual(DEV_COLLECTIONS.slice().sort());
+    expect(Object.keys(snapshot.collections).every((name) => name.startsWith("dev_"))).toBe(true);
+    expect(snapshot.collections.dev_players.length).toBeGreaterThan(0);
+    expect(snapshot.collections.dev_matches.length).toBeGreaterThan(0);
+    expect(snapshot.collections.dev_activities.length).toBeGreaterThan(0);
+    expect(snapshot.collections.dev_activity_registrations.length).toBeGreaterThan(0);
   });
 
-  /**
-   * 测试6：Overall 实时更新
-   */
-  test("修改技能时 Overall 应该实时更新", async (): Promise<void> => {
-    page = (await miniProgram.reLaunch("/pages/add-player/add-player"))!;
-    await page.waitFor(1000);
+  test("活动、比赛、报名和评分引用保持完整", () => {
+    const collections = snapshot.collections;
+    const playerIds = idsOf(collections.dev_players);
+    const matchIds = idsOf(collections.dev_matches);
+    const activityIds = idsOf(collections.dev_activities);
 
-    // 获取初始 Overall
-    const initialData = await page.data();
-    const initialOverall = initialData.overall || 0;
+    const orphanActivityMatches = collections.dev_matches
+      .filter((match) => match.activityId && !activityIds.has(String(match.activityId)))
+      .map((match) => ({ _id: match._id, activityId: match.activityId }));
+    expect(orphanActivityMatches).toEqual([]);
 
-    // 修改技能
-    const sliders = await page.$$("slider");
-    if (sliders.length > 0) {
-      await sliders[0].trigger("change", { value: 90 });
-      await page.waitFor(500);
+    const missingSelectedPlayers = collections.dev_matches.reduce((missing: any[], match) => {
+      (match.selectedPlayerIds || []).forEach((id: string) => {
+        if (!playerIds.has(String(id))) missing.push({ matchId: match._id, playerId: id });
+      });
+      return missing;
+    }, []);
+    expect(missingSelectedPlayers).toEqual([]);
 
-      // 检查 Overall 是否更新
-      const updatedData = await page.data();
-      const updatedOverall = updatedData.overall || 0;
+    collections.dev_matches.forEach((match) => {
+      (match.playerStats || []).forEach((stat: any) => expect(playerIds.has(String(stat.playerId))).toBe(true));
 
-      expect(updatedOverall).not.toBe(initialOverall);
-    }
+      const groupedIds = ((match.grouping && match.grouping.teams) || [])
+        .reduce((ids: string[], team: any) => ids.concat(team.playerIds || []), []);
+      if (match.activityId && groupedIds.length) {
+        expect(Array.from(new Set(match.selectedPlayerIds || [])).sort())
+          .toEqual(Array.from(new Set(groupedIds)).sort());
+      }
+    });
+
+    collections.dev_activity_registrations.forEach((registration) => {
+      expect(activityIds.has(String(registration.activityId))).toBe(true);
+      expect(playerIds.has(String(registration.playerId))).toBe(true);
+    });
+    collections.dev_player_match_stats.forEach((stat) => {
+      expect(matchIds.has(String(stat.matchId))).toBe(true);
+      expect(playerIds.has(String(stat.playerId))).toBe(true);
+    });
+    collections.dev_player_ratings.forEach((rating) => {
+      expect(matchIds.has(String(rating.matchId))).toBe(true);
+      expect(playerIds.has(String(rating.playerId))).toBe(true);
+    });
+    collections.dev_match_player_rating_summaries.forEach((summary) => {
+      expect(matchIds.has(String(summary.matchId))).toBe(true);
+      expect(playerIds.has(String(summary.playerId))).toBe(true);
+    });
+    collections.dev_player_rating_summaries.forEach((summary) => {
+      expect(playerIds.has(String(summary.playerId))).toBe(true);
+    });
+  });
+
+  test("已生成赛程的活动进入进行中或已结束状态", () => {
+    const activityIdsWithMatches = new Set(
+      snapshot.collections.dev_matches.map((match) => match.activityId).filter(Boolean)
+    );
+    snapshot.collections.dev_activities.forEach((activity) => {
+      if (activityIdsWithMatches.has(activity._id)) {
+        expect(["in_progress", "finished"]).toContain(activity.status);
+      }
+    });
+  });
+
+  test("球员、比赛和活动列表读取线上 dev 数据", async () => {
+    const playerPage = await miniProgram.switchTab("/pages/players/list/list") as PageInstance;
+    const playerData = await waitUntilLoaded(playerPage, "loading");
+    expect(playerData.players).toHaveLength(snapshot.collections.dev_players.length);
+
+    const matchPage = await miniProgram.switchTab("/pages/match/list/list") as PageInstance;
+    const matchData = await waitUntilLoaded(matchPage, "loading");
+    expect(matchData.matches).toHaveLength(Math.min(snapshot.collections.dev_matches.length, 20));
+
+    const activityPage = await miniProgram.reLaunch("/pages/activity/list/list") as PageInstance;
+    const activityData = await waitUntilLoaded(activityPage, "loading");
+    expect(activityData.activities).toHaveLength(Math.min(snapshot.collections.dev_activities.length, 20));
+  });
+
+  test("球员详情按 dev 环境路由读取", async () => {
+    const firstPlayer = snapshot.collections.dev_players[0];
+    const page = await miniProgram.reLaunch(`/pages/players/detail/detail?id=${firstPlayer._id}`) as PageInstance;
+    const pageData = await waitUntilLoaded(page, "loading");
+    expect(pageData.errorMessage).toBe("");
+    expect(pageData.player._id).toBe(firstPlayer._id);
   });
 });

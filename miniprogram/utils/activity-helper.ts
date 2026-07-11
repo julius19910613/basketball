@@ -317,6 +317,13 @@ function buildMatchGroupingFromActivity(groupingSnapshot: GroupingSnapshotInput 
   };
 }
 
+function getGroupingPlayerIds(grouping?: { teams?: GroupingTeam[] } | null): string[] {
+  const ids = ((grouping && grouping.teams) || []).reduce(function (acc: string[], team: GroupingTeam) {
+    return acc.concat(team.playerIds || []);
+  }, []);
+  return Array.from(new Set(ids.filter(Boolean)));
+}
+
 export default {
   createEmptyActivity,
   formatActivityStatus,
@@ -331,5 +338,6 @@ export default {
   buildActivityGroupingPayload,
   validateActivityGrouping,
   createDoubleRoundRobinSchedule,
-  buildMatchGroupingFromActivity
+  buildMatchGroupingFromActivity,
+  getGroupingPlayerIds
 };

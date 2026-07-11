@@ -2,6 +2,7 @@
 
 import db from "../../../utils/db";
 import helper from "../../../utils/activity-helper";
+import { fetchAllRecords } from "../../../utils/cloud-pagination";
 import matchHelper from "../../../utils/match-helper";
 import env from "../../../config/env";
 
@@ -120,10 +121,12 @@ Page({
       const [activity, registrations, playersRes] = await Promise.all([
         getDb().getActivityDetail(this.data.activityId),
         getDb().getActivityRegistrations(this.data.activityId),
-        pageDb.collection(getEnv().getCollection("players")).orderBy("createdAt", "desc").get()
+        fetchAllRecords<PlayerRecord>(
+          () => pageDb.collection(getEnv().getCollection("players")).orderBy("createdAt", "desc")
+        )
       ]);
 
-      const players = ((playersRes.data || []) as PlayerRecord[])
+      const players = playersRes
         .map((item: PlayerRecord) => ({
           ...item,
           playerId: item._id || item.id || item.playerId || "",

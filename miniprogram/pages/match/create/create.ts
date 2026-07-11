@@ -1,6 +1,8 @@
 /// <reference path="../../../../typings/index.d.ts" />
 import db from "../../../utils/db";
 import helper from "../../../utils/match-helper";
+import env from "../../../config/env";
+import { fetchAllRecords } from "../../../utils/cloud-pagination";
 
 const matchTypeOptions = ["friendly", "league", "cup", "fiba", "ncaa"] as const;
 const matchTypeDisplay = ["友谊赛", "联赛", "杯赛", "全场球赛 (FIBA)", "全场球赛 (NCAA)"] as const;
@@ -95,8 +97,10 @@ Page({
   async loadPlayers(): Promise<void> {
     try {
       const cloudDb = wx.cloud.database();
-      const res = await cloudDb.collection("players").orderBy("createdAt", "desc").get();
-      const players = (res.data || [])
+      const records = await fetchAllRecords<Record<string, unknown>>(
+        () => cloudDb.collection(env.getCollection("players")).orderBy("createdAt", "desc")
+      );
+      const players = records
         .map((item: Record<string, unknown>) => ({
           ...item,
           playerId: (item._id as string) || (item.id as string) || (item.playerId as string) || "",

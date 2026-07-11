@@ -2,6 +2,8 @@
 
 const db = wx.cloud.database();
 import env from "../../../config/env";
+import { previewAvatar } from "../../../utils/avatar-preview";
+import { fetchAllRecords } from "../../../utils/cloud-pagination";
 const { getCollection } = env;
 
 const COLLECTION_MISSING_CODE = -502005;
@@ -39,8 +41,8 @@ Page({
   async loadPlayers(fromPullDown = false) {
     this.setData({ loading: true });
     try {
-      const res = await db.collection(getCollection("players")).orderBy("createdAt", "desc").get();
-      const players = (res.data || []).map((item: any) => ({
+      const records = await fetchAllRecords<any>(() => db.collection(getCollection("players")).orderBy("createdAt", "desc"));
+      const players = records.map((item: any) => ({
         ...item,
         displayNickname: item.nickname || item.name || "未命名球员",
         displayRealName: item.realName || "-",
@@ -83,6 +85,20 @@ Page({
     wx.navigateTo({
       url: `/pages/players/detail/detail?id=${id}`
     });
+  },
+
+  async onPreviewAvatar(e: WechatMiniprogram.BaseEvent) {
+    const avatar = String(e.currentTarget.dataset.avatar || "");
+    if (!avatar) {
+      wx.showToast({ title: "该球员暂无头像", icon: "none" });
+      return;
+    }
+    try {
+      await previewAvatar(avatar);
+    } catch (error) {
+      console.error("preview player avatar failed:", error);
+      wx.showToast({ title: "头像预览失败", icon: "none" });
+    }
   },
 
   loadUserAvatar() {

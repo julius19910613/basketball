@@ -9,7 +9,7 @@
     <!-- 查看模式 -->
     <block wx:if="{{!editing}}">
       <view class="head">
-        <view class="detail-avatar-wrap {{player.isMvp ? 'mvp' : ''}}">
+        <view class="detail-avatar-wrap {{player.isMvp ? 'mvp' : ''}}" bindtap="onPreviewAvatar">
           <image class="player-avatar" src="{{player.avatar || '/images/default_avatar.svg'}}" mode="aspectFill" />
         </view>
         <view class="head-info">

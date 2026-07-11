@@ -2,6 +2,8 @@
 
 import db from "../../../utils/db";
 import helper from "../../../utils/match-helper";
+import env from "../../../config/env";
+import { fetchAllRecords } from "../../../utils/cloud-pagination";
 
 type Id = string | number;
 
@@ -140,10 +142,12 @@ Page({
       const helper = getHelper();
       const [match, playersRes] = await Promise.all([
         db.getMatchDetail(this.data.matchId),
-        getCloudDb().collection("players").orderBy("createdAt", "desc").get()
+        fetchAllRecords<MatchPlayer>(
+          () => getCloudDb().collection(env.getCollection("players")).orderBy("createdAt", "desc")
+        )
       ]);
 
-      const players = ((playersRes.data || []) as MatchPlayer[])
+      const players = playersRes
         .map((item: MatchPlayer) => ({
           ...item,
           playerId: item._id || item.id || item.playerId || "",

@@ -102,4 +102,23 @@ describe("activity helper", () => {
       { roundIndex: 2, gameIndex: 6, homeTeamName: "黑队", awayTeamName: "红队" }
     ]);
   });
+
+  test("selects only players from the two teams in each scheduled match", () => {
+    const snapshot = {
+      teams: [
+        { teamName: "白队", playerIds: ["white-1", "white-2"] },
+        { teamName: "黑队", playerIds: ["black-1", "black-2"] },
+        { teamName: "红队", playerIds: ["red-1", "red-2"] }
+      ]
+    };
+    const grouping = helper.buildMatchGroupingFromActivity(snapshot, "白队", "黑队");
+
+    expect(helper.getGroupingPlayerIds(grouping)).toEqual([
+      "white-1",
+      "white-2",
+      "black-1",
+      "black-2"
+    ]);
+    expect(helper.getGroupingPlayerIds(grouping)).not.toContain("red-1");
+  });
 });
